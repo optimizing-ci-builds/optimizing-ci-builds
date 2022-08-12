@@ -1,0 +1,26 @@
+Maven,Gradle,Travis CI,Github Actions,Travis or GA
+492,448,200,224,373
+Maven
+Maven Jacoco, Maven Cobertura,Maven Javadoc,Jacoco&Cobertura,Cobertura&Javadoc,Jacoco&Javadoc,Jacoco&Cobertura&Javadoc,Jacoco or Cobertura or Javadoc
+60,17,118,3,14,45,3,74
+Gradle
+Gradle Jacoco,Gradle Cobertura,Gradle Javadoc,Jacoco&Cobertura,Cobertura&Javadoc,Jacoco&Javadoc,Jacoco&Cobertura&Javadoc,Jacoco or Cobertura or Javadoc
+30,2,91,1,2,20,1,31
+Travis CI
+Travis Codecov,Travis Jacoco,Travis Cobertura,Travis Javadoc,codecov&jacoco keyword,codecov&cobertura keyword,codecov&javadoc keyword,jacoco or cobertura or javadoc
+16,7,7,10,5,5,4,22
+Github Actions
+GA Codecov,GA Jacoco, GA Cobertura,GA Javadoc,codecov&jacoco keyword,codecov&cobertura keyword,codecov&javadoc keyword,jacoco or cobertura or javadoc
+5,13,1,18,2,1,2,27
+Maven Projects - Travis CI
+Travis Codecov,Travis Jacoco,Travis Cobertura,Travis Javadoc,codecov&jacoco keyword,codecov&cobertura keyword,codecov&javadoc keyword,jacoco or cobertura or javadoc
+14,6,7,9,4,5,4,20
+Gradle Projects - Travis CI
+Travis Codecov,Travis Jacoco,Travis Cobertura,Travis Javadoc,codecov&jacoco keyword,codecov&cobertura keyword,codecov&javadoc keyword,jacoco or cobertura or javadoc
+3,1,2,1,1,1,0,4
+Maven Projects - Github Actions
+GA Codecov,GA Jacoco, GA Cobertura,GA Javadoc,codecov&jacoco keyword,codecov&cobertura keyword,codecov&javadoc keyword,jacoco or cobertura or javadoc
+3,9,1,15,1,1,2,21
+Gradle Projects - Github Actions
+GA Codecov,GA Jacoco, GA Cobertura,GA Javadoc,codecov&jacoco keyword,codecov&cobertura keyword,codecov&javadoc keyword,jacoco or cobertura or javadoc
+2,5,0,3,1,0,0,7
