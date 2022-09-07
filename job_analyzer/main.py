@@ -5,6 +5,7 @@ import subprocess
 
 def main():
     # GET THE PROJECTS
+    os.chdir("..")
     repositories = utils.get_filtered_repos()
     os.chdir("job_analyzer")
     
