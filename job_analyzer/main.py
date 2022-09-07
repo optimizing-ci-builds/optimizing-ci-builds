@@ -1,12 +1,13 @@
 import utils
 import os
+import subprocess
 
 
 def main():
     # GET THE PROJECTS
     repositories = utils.get_filtered_repos()
     os.chdir("job_analyzer")
-
+    
     for repository in repositories:
         # PHASE-1: COLLECTION
         """FORKING THE PROJECT (VIA GITHUB API)"""
@@ -63,7 +64,11 @@ def main():
         # # PHASE-4: ANALYSIS
         # """ANALYZING THE CSV PRODUCED BY INOTIFYWAIT"""
         # """PRINTING THE JOB (LINE NUMBER) FROM THE YAML FILE CAUSING UNNECESSARY USAGE"""
-
+        print("Killing the processes.")
+        proc1.kill()
+        proc2.kill()
+        print("Processes killed.")
+        os.chdir("..")
 
 
 if __name__ == "__main__":

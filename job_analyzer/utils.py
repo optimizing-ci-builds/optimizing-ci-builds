@@ -5,11 +5,12 @@ from urllib.parse import uses_relative
 import requests
 import csv
 import time
+import subprocess
 
 base_api_url: str = "https://api.github.com"
 user_token: str = os.environ["G_AUTH_OP"]
 headers: dict = {"Accept": "application/vnd.github+json",
-                 "Authorization": f"token {user_token}"}
+                 "Authorization": f"token {user_token}}"}
 
 
 def fork_project(owner: str, repo: str):
@@ -171,8 +172,9 @@ def open_pull_request(owner: str, repo: str, default_branch:str ):
     response = requests.post(url=url, data=json.dumps(body), headers=headers)
 
 def execute(owner: str, repo: str, sha:str, default_branch:str, file_paths, new_files, yaml_shas):
-    proc1 = os.popen(f"inotifywait -mr _work/ --format %T,%w%f,%e --timefmt %T -o ../{repo}_logs/{owner}-{repo}.csv")
-    proc2 = os.popen("./run.sh")
+    proc1 = subprocess.Popen(f"inotifywait -mr _work/ --format %T,%w%f,%e --timefmt %T -o ../{repo}_logs/{owner}-{repo}.csv", shell=True)
+    proc2 = subprocess.Popen("./run.sh")
+    print("Processes created.")
     commit_sha = commit_file(owner, repo, sha, default_branch,file_paths, new_files, yaml_shas)
     return proc1, proc2, commit_sha
 
