@@ -10,6 +10,7 @@ headers = {
     'Authorization': 'token ' + github_auth_token
 }
 
+os.chdir("..")
 # Read the data from the csv file.
 repositories = []
 with open("data/file_paths.csv", "r", newline="", encoding="utf8") as csv_file:
@@ -18,8 +19,8 @@ with open("data/file_paths.csv", "r", newline="", encoding="utf8") as csv_file:
     for row in csv_reader:
         repositories.append(
             {"name": row[0], "link": row[1], "default_branch": row[2], "sha": row[3],
-             "stargazers_count": row[4], "forks_count": row[5],
-             "Maven": row[6], "Gradle": row[7], "Travis CI": row[8], "Github Actions": row[9]})
+             "stargazers_count": row[4], "forks_count": row[5], "date": row[6],
+             "Maven": row[7], "Gradle": row[8], "Travis CI": row[9], "Github Actions": row[10]})
 print("Data have been read.")
 
 
@@ -85,7 +86,7 @@ for repository in repositories:
                     repository["MJacoco"] = repository["MJacoco"] + "Skipped;"
                     repository["MCobertura"] = repository["MCobertura"] + "Skipped;"
                     repository["MJavadoc"] = repository["MJavadoc"] + "Skipped;"
-                    time.sleep(3)
+                    time.sleep(60)
             else:
                 j = j + 1
 
@@ -120,7 +121,7 @@ for repository in repositories:
                     repository["GJacoco"] = repository["GJacoco"] + "Skipped;"
                     repository["GCobertura"] = repository["GCobertura"] + "Skipped;"
                     repository["GJavadoc"] = repository["GJavadoc"] + "Skipped;"
-                    time.sleep(3)
+                    time.sleep(60)
             else:
                 j = j = j + 1
 
@@ -164,7 +165,7 @@ for repository in repositories:
                     repository["Tyml_jacoco"] = repository["Tyml_jacoco"] + "Skipped;"
                     repository["Tyml_cobertura"] = repository["Tyml_cobertura"] + "Skipped;"
                     repository["Tyml_javadoc"] = repository["Tyml_javadoc"] + "Skipped;"
-                    time.sleep(3)
+                    time.sleep(60)
             else:
                 j = j + 1
 
@@ -209,7 +210,7 @@ for repository in repositories:
                     repository["Gyml_jacoco"] = repository["Gyml_jacoco"] + "Skipped;"
                     repository["Gyml_cobertura"] = repository["Gyml_cobertura"] + "Skipped;"
                     repository["Gyml_javadoc"] = repository["Gyml_javadoc"] + "Skipped;"
-                    time.sleep(3)
+                    time.sleep(60)
             else:
                 j = j + 1
     i = i + 1
@@ -231,7 +232,7 @@ with open("data/file_contents.csv", "w", newline="", encoding="utf-8") as csv_fi
 
     for repository in repositories:
         csv_writer.writerow([repository["name"], repository["link"], repository["default_branch"], repository["sha"],
-                             repository["stargazers_count"], repository["forks_count"],
+                             repository["stargazers_count"], repository["forks_count"], repository["date"],
                              repository["Maven"], repository["Gradle"],
                              repository["Travis CI"], repository["Github Actions"],
                              repository["MJacoco"], repository["MCobertura"], repository["MJavadoc"],
