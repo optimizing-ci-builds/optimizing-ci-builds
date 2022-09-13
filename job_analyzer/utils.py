@@ -11,7 +11,7 @@ import pandas as pd
 import numpy as np
 
 base_api_url: str = "https://api.github.com"
-user_token: str = "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"
+user_token: str = os.environ["G_AUTH_OP"]
 headers: dict = {"Accept": "application/vnd.github+json",
                  "Authorization": f"token {user_token}"}
 
