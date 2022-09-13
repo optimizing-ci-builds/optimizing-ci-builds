@@ -7,11 +7,11 @@ import csv
 import time
 import subprocess
 import sys
-# import pandas as pd
-# import numpy as np
+import pandas as pd
+import numpy as np
 
 base_api_url: str = "https://api.github.com"
-user_token: str = os.environ["G_AUTH_OP"]
+user_token: str = "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"
 headers: dict = {"Accept": "application/vnd.github+json",
                  "Authorization": f"token {user_token}"}
 
@@ -63,8 +63,8 @@ def configure_yaml_file(yaml_file: str):
         
         if "- uses" in line or "- name" in line or "- run" in line:
             step_name = line.split(":")[1].replace(" ", "")
-            name = f"{job_name}_{step_name}_{line_number}"
-            change = ' ' * indent + f"- run: touch ${name}\n"
+            name = f"{job_name}_{step_name}_{line_number}".replace("/", "")
+            change = ' ' * indent + f"- run: touch starting_{name}\n"
             new_yaml_file += change
             new_yaml_file += line + "\n"
         else:
@@ -158,7 +158,7 @@ def create_tree(owner, repo, sha, file_paths, blob_shas):
     body["base_tree"] = sha
     tree = []
     for i in range(0,len(file_paths)):
-        tree.append({"path": file_paths[0], "mode": "100644", "type": "blob", "sha": blob_shas[i] })
+        tree.append({"path": file_paths[i], "mode": "100644", "type": "blob", "sha": blob_shas[i] })
     body["tree"] = tree
     response = requests.post(url=url, data=json.dumps(body), headers=headers)
     tree_sha = response.json()['sha']
@@ -239,100 +239,36 @@ def check_runs(owner: str, repo: str, commit_sha:str):
             break
     
 
-# def analyze(owner: str, repo: str):
-#     PATH = f"../{repo}_logs/{owner}-{repo}"
-#     df = pd.read_csv(f"{PATH}.csv", sep = ';', names=["time", "watched_filename", "event_filename", "event_name"])
-#     print(f"Shape of the {PATH}.csv: {df.shape}")
-#     print(f"{df['event_name'].value_counts()}")
+def analyze(owner: str, repo: str):
+    csv_path = f"../{repo}_logs/{owner}-{repo}"
+    df = pd.read_csv(f"{csv_path}.csv", sep = ';', names=["time", "watched_filename", "event_filename", "event_name"])
+    df['event_filename'] = df['event_filename'].replace(np.nan, '')
+    # print(f"{df['event_name'].value_counts()}")
+    steps = {}
+    starting_indexes = df[(df["event_filename"].str.contains("starting_")) & (df["event_name"] == "CREATE")].index.to_list() + [df.shape[0]]
+    ending_indexes = [0] + df[(df["event_filename"].str.contains("starting_")) & (df["event_name"] == "CLOSE_WRITE,CLOSE")].index.to_list()
+    touch_file_names = ["setup"] + touch_file_names
+    touch_file_names = touch_file_names[0:len(starting_indexes)]
+    for starting_index, ending_index, touch_file_name in zip(starting_indexes, ending_indexes, touch_file_names):
+        steps[touch_file_name] = (ending_index, starting_index)
+    print(steps)
 
-#     df['event_filename'] = df['event_filename'].replace(np.nan, '')
+    df["watched_filename"] = df["watched_filename"] + df["event_filename"]
+    df.drop("event_filename", axis=1, inplace=True)
+    df.rename(columns={'watched_filename':'file_name'}, inplace=True)
 
-#     print(f"Count (jacoco.exec, MODIFY)  : {df[(df['event_name'] == 'MODIFY') & (df['event_filename'] == 'jacoco.exec')].shape[0]}")
-#     print(f"Count (cobertura.ser, MODIFY): {df[(df['event_name'] == 'MODIFY') & (df['event_filename'] == 'cobertura.ser')].shape[0]}\n")
+    modify_df = df[df["event_name"] == "MODIFY"]
+    file_names = modify_df["file_name"].value_counts().index.to_list()
 
-#     """Since we don't need duplicate values, we may as well get rid of them"""
-#     df.drop_duplicates(inplace=True)
-#     print(f"Shape after dropping duplicates {df.shape}")
+    nralw_file_names = []
+    for file_name in file_names:
+        if df[(df["file_name"] == file_name) & (df["event_name"] == "MODIFY")].shape[0] == 0: continue
+        last_modify_index = df[(df["file_name"] == file_name) & (df["event_name"] == "MODIFY")].index.to_list()[-1]
+        last_access_index = 0
+        if df[(df["file_name"] == file_name) & (df["event_name"] == "ACCESS")].shape[0] > 0:
+            last_access_index = df[(df["file_name"] == file_name) & (df["event_name"] == "ACCESS")].index.to_list()[-1]
+        if last_access_index < last_modify_index:
+            nralw_file_names.append(file_name)
 
-#     index_by_line_number: dict = {}
-#     for row in df.iterrows():
-#         if "starting_" in row["event_filename"] and row["event_name"] == "CREATE":
-#             line_number = int(row["event_filename"].replace("starting_", ""))
-#             index_by_line_number[line_number] = row[0]
-
-#     """Let's merge watched_filename and event_filename"""
-#     df["watched_filename"] = df["watched_filename"] + df["event_filename"]
-#     df.drop("event_filename", axis=1, inplace=True)
-#     df.rename(columns={'watched_filename':'filename'}, inplace=True)
-
-#     print(f"{df['event_name'].value_counts()}\n")
-
-#     df.drop(df[df["event_name"] == "OPEN"].index, inplace=True)
-#     df.drop(df[df["event_name"] == "CREATE,ISDIR"].index, inplace=True)
-#     df.drop(df[df["event_name"] == "OPEN,ISDIR"].index, inplace=True)
-#     df.drop(df[df["event_name"] == "CLOSE_NOWRITE,CLOSE,ISDIR"].index, inplace=True)
-#     df.drop(df[df["event_name"] == "ACCESS,ISDIR"].index, inplace=True)
-#     df.drop(df[df["event_name"] == "CLOSE_NOWRITE,CLOSE"].index, inplace=True)
-#     df.drop(df[df["event_name"] == "CLOSE_WRITE,CLOSE"].index, inplace=True)
-#     df.drop(df[df["event_name"] == "DELETE"].index, inplace=True)
-#     df.drop(df[df["event_name"] == "DELETE_SELF"].index, inplace=True)
-#     df.drop(df[df["event_name"] == "DELETE,ISDIR"].index, inplace=True)
-#     df.drop(df[df["event_name"] == "MOVED_FROM"].index, inplace=True)
-#     df.drop(df[df["event_name"] == "MOVED_TO"].index, inplace=True)
-#     df.drop(df[df["event_name"] == "ATTRIB"].index, inplace=True)
-
-#     print(f"{df['event_name'].value_counts()}\n")
-
-#     """ THERE ARE 4 CASES:
-#     1. CREATED, MODIFIED, ACCESSED         - FINE
-#     2. CREATED, MODIFIED, NOT ACCESSED     - UNNECESSARY
-#     3. CREATED, NOT MODIFIED, ACCESSED     - POSSIBLE?
-#     4. CREATED, NOT MODIFIED, NOT ACCESSED - UNNECESSARY
-#     """
-
-#     """created accessed then written but the last write might be unnecessary"""
-#     """mapping actions to yml file from inotifywait logs"""
-#     """ast parser yml file?"""
-#     """an automatic tool that prints on this file for this action (like line number)"""
-
-#     df_create = df[df["event_name"] == "CREATE"]
-#     df_modify = df[df["event_name"] == "MODIFY"]
-#     df_access = df[df["event_name"] == "ACCESS"]
-
-
-#     case1_filenames = []
-#     case2_filenames = []
-#     case3_filenames = []
-#     case4_filenames = []
-
-#     for idx, row in df_create.iterrows():
-#         # print(f"{idx} - {row['filename']} - {row['event_name']}")
-#         is_modified = row["filename"] in df_modify["filename"].values
-#         is_accessed = row["filename"] in df_access["filename"].values
-#         # print(f"is_modified: {is_modified}")
-#         # print(f"is_accessed: {is_accessed}\n")
-#         if is_modified and is_accessed:
-#             case1_filenames.append(row["filename"])
-#         elif is_modified and not is_accessed:
-#             case2_filenames.append(row["filename"])
-#         elif not is_modified and is_accessed:
-#             case3_filenames.append(row["filename"])
-#         elif not is_modified and not is_accessed:
-#             case4_filenames.append(row["filename"])
-
-#     print(f"COUNT CASE1: {len(case1_filenames)}")
-#     print(f"COUNT CASE2: {len(case2_filenames)}")
-#     print(f"COUNT CASE3: {len(case3_filenames)}")
-#     print(f"COUNT CASE4: {len(case4_filenames)}")
-
-#     for fl in case1_filenames:
-#         df_ = df[df["filename"] == fl]
-
-            
-#     for fl in case4_filenames:
-#         print(fl)
-
-# """ analyze on the fly, or analyze at the end? """
-# """ can we discuss the algorithm for analyzing the csv file one more time? """
-# """ - do we need to measure time taken for the build? """
-# """ - do we need to """
+    # for filename in nralw_file_names:
+    #     print(filename)
