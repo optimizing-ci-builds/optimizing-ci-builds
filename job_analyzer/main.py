@@ -60,7 +60,8 @@ def main():
             pass
         runner_version: str = "2.294.0"
         tar_filename: str = f"linux-x64-{runner_version}.tar.gz"
-        utils.setup_runner(tar_filename, runner_version, token, forked_owner, repo)
+        # utils.setup_runner(tar_filename, runner_version, token, forked_owner, repo)
+        utils.setup_runner(token, forked_owner, repo)
 
         # PHASE-3: EXECUTION
         """COMMITTING THE CHANGES IN THE YAML, TRIGGERING THE RUNNER AND INOTIFYWAIT"""

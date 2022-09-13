@@ -6,8 +6,9 @@ import requests
 import csv
 import time
 import subprocess
-import pandas as pd
-import numpy as np
+import sys
+# import pandas as pd
+# import numpy as np
 
 base_api_url: str = "https://api.github.com"
 user_token: str = os.environ["G_AUTH_OP"]
@@ -30,11 +31,11 @@ def fork_project(owner: str, repo: str):
 def get_yaml_file(forked_owner: str, repo: str, file_path: str):
     url_path: str = f"{base_api_url}/repos/{forked_owner}/{repo}/contents/{file_path}"
     # will change here
-    response = requests.get(url=url_path, headers=headers).json()
-    # if response.status_code != 200:
-    #     raise ValueError(
-    #         f"There have been a problem while retrieving the .github/workflows/{file_name} file from {forked_owner}/{repo}. Error: {response.text}")
-    return base64.b64decode(response["content"]).decode("utf-8"), response["sha"]
+    response = requests.get(url=url_path, headers=headers)
+    if response.status_code != 200:
+        raise ValueError(
+            f"There have been a problem while retrieving the .github/workflows/? file from {forked_owner}/{repo}. Error: {response.text}")
+    return base64.b64decode(response.json()["content"]).decode("utf-8"), response.json()["sha"]
 
 
 def configure_yaml_file(yaml_file: str):
@@ -58,12 +59,12 @@ def configure_yaml_file(yaml_file: str):
         if line.strip().split(":")[0] == "jobs":
             in_job = True
         if in_job and ((indent - 2) == job_indent):
-            job_name = line.strip()
+            job_name = line.strip()[:-1]
         
         if "- uses" in line or "- name" in line or "- run" in line:
-            step_name = line.strip().split(":")[0]
+            step_name = line.split(":")[1].replace(" ", "")
             name = f"{job_name}_{step_name}_{line_number}"
-            change = ' ' * indent + f"- run: touch {name}\n"
+            change = ' ' * indent + f"- run: touch ${name}\n"
             new_yaml_file += change
             new_yaml_file += line + "\n"
         else:
@@ -80,14 +81,25 @@ def get_runner_token(owner: str, repo: str):
     return response.json()["token"]
 
 
-def setup_runner(tar_filename, runner_version, token, owner, repo):
+def setup_runner(token, owner, repo):
     url_path: str = f"{base_api_url}/repos/{owner}/{repo}/actions/runners"
     response = requests.get(url_path, headers=headers)
 
     if response.json()["total_count"] == 0:
+        runner_applications = requests.get(f"{base_api_url}/repos/{owner}/{repo}/actions/runners/downloads", headers=headers).json()
+        url_found = False
+        for runner in runner_applications:
+            if runner["os"] == "linux" and runner["architecture"] == "x64":
+                runner_url = runner["download_url"]
+                tar_filename = runner["filename"]
+                url_found = True
+                break
+        if not url_found:
+            print("Runner url not found!")
+            sys.exit()
         os.system(f"mkdir "+repo+"_runner")
-        runner_url = f"https://github.com/actions/runner/releases/download/v{runner_version}/actions-runner-{tar_filename}"
-        target_path = f""+repo+"_runner/actions-runner-"+tar_filename
+        # runner_url = f"https://github.com/actions/runner/releases/download/v{runner_version}/actions-runner-{tar_filename}"
+        target_path = f"{repo}_runner/{tar_filename}"
         try:
             response = requests.get(runner_url, stream=True)
             if response.status_code == 200:
@@ -100,10 +112,10 @@ def setup_runner(tar_filename, runner_version, token, owner, repo):
             # continue
             pass
 
-        os.system(f"tar xzf ./"+repo+"_runner/actions-runner-"+tar_filename+" -C "+repo+"_runner")
+        os.system(f"tar xzf ./{repo}_runner/{tar_filename} -C {repo}_runner")
 
-        os.system("mkdir "+repo+"_runner/_work")
-        os.chdir(""+repo+"_runner")
+        os.system(f"mkdir {repo}_runner/_work")
+        os.chdir(f"{repo}_runner")
         os.system(
             f"echo | ./config.sh --url https://github.com/{owner}/{repo} --token {token}")
   
