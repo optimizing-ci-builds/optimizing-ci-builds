@@ -10,7 +10,7 @@ import subprocess
 base_api_url: str = "https://api.github.com"
 user_token: str = os.environ["G_AUTH_OP"]
 headers: dict = {"Accept": "application/vnd.github+json",
-                 "Authorization": f"token {user_token}}"}
+                 "Authorization": f"token {user_token}"}
 
 
 def fork_project(owner: str, repo: str):
@@ -90,6 +90,7 @@ def setup_runner(tar_filename, runner_version, token, owner, repo):
         os.chdir(""+repo+"_runner")
         os.system(
             f"echo | ./config.sh --url https://github.com/{owner}/{repo} --token {token}")
+    return token
   
 
 def commit_file(owner: str, repo: str, sha : str, default_branch:str ,file_paths, new_file_contents, yaml_shas):
@@ -130,7 +131,7 @@ def create_tree(owner, repo, sha, file_paths, blob_shas):
     body["base_tree"] = sha
     tree = []
     for i in range(0,len(file_paths)):
-        tree.append({"path": file_paths[0], "mode": "100644", "type": "blob", "sha": blob_shas[i] })
+        tree.append({"path": file_paths[i], "mode": "100644", "type": "blob", "sha": blob_shas[i] })
     body["tree"] = tree
     response = requests.post(url=url, data=json.dumps(body), headers=headers)
     tree_sha = response.json()['sha']
