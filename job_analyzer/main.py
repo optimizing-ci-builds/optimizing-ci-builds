@@ -29,7 +29,8 @@ def main():
             # continue
             pass
 
-        yml_files_path = repository["Gyml_jacoco"].split(";") + repository["Gyml_cobertura"].split(";")
+        # yml_files_path = repository["Gyml_jacoco"].split(";") + repository["Gyml_cobertura"].split(";")
+        yml_files_path = repository["Github Actions"].split(";")
         yml_files_path = [i for i in yml_files_path if i]
 
         configured_yaml_files = []
@@ -58,24 +59,25 @@ def main():
             print(error)
             # continue
             pass
-        runner_version: str = "2.294.0"
+        runner_version: str = "2.294.1"
         tar_filename: str = f"linux-x64-{runner_version}.tar.gz"
         # utils.setup_runner(tar_filename, runner_version, token, forked_owner, repo)
-        utils.setup_runner(token, forked_owner, repo)
+        runner_token = utils.setup_runner(tar_filename, runner_version, token, forked_owner, repo)
 
         # PHASE-3: EXECUTION
         """COMMITTING THE CHANGES IN THE YAML, TRIGGERING THE RUNNER AND INOTIFYWAIT"""
         proc1, proc2, commit_sha = utils.execute(forked_owner, repo, sha, default_branch, yml_files_path, configured_yaml_files, yaml_shas)
         utils.check_runs(forked_owner, repo, commit_sha)
 
-        # # PHASE-4: ANALYSIS
-        # """ANALYZING THE CSV PRODUCED BY INOTIFYWAIT"""
-        utils.analyze(forked_owner, repo, repositories["touch_file_names"])
-        # """PRINTING THE JOB (LINE NUMBER) FROM THE YAML FILE CAUSING UNNECESSARY USAGE"""
         print("Killing the processes.")
         proc1.kill()
         proc2.kill()
         print("Processes killed.")
+
+        # # PHASE-4: ANALYSIS
+        # """ANALYZING THE CSV PRODUCED BY INOTIFYWAIT"""
+        utils.analyze(forked_owner, repo, repositories["touch_file_names"])
+        # """PRINTING THE JOB (LINE NUMBER) FROM THE YAML FILE CAUSING UNNECESSARY USAGE"""
         os.chdir("..")
 
 
