@@ -118,6 +118,7 @@ def setup_runner(token, owner, repo):
         os.chdir(f"{repo}_runner")
         os.system(
             f"echo | ./config.sh --url https://github.com/{owner}/{repo} --token {token}")
+    return token
   
 
 def commit_file(owner: str, repo: str, sha : str, default_branch:str ,file_paths, new_file_contents, yaml_shas):
