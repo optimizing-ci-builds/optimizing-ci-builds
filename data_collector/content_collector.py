@@ -241,3 +241,4 @@ with open("data/file_contents.csv", "w", newline="", encoding="utf-8") as csv_fi
                              repository["Tyml_jacoco"], repository["Tyml_cobertura"], repository["Tyml_javadoc"],
                              repository["Gyml_codecov"], repository["Gyml_coveralls"], repository["Gyml_codacy"],
                              repository["Gyml_jacoco"], repository["Gyml_cobertura"], repository["Gyml_javadoc"]])
+
