@@ -14,5 +14,5 @@ jobs:
       - run: whoami
       - run: sudo apt update
       - run: sudo apt install inotify-tools
-      - run: inotifywait -mr ./ --format '%T;%w;%f;%e' --timefmt %T -o test.csv
+      - run: call "inotifywait -mr ./ --format '%T;%w;%f;%e' --timefmt %T -o test.csv"
       - run: echo test.csv
