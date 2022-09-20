@@ -9,3 +9,11 @@ jobs:
     steps:
       - run: gradle -v
       - run: mvn -version
+      - run: pwd
+      - run: ls -la
+      - run: whoami
+      - run: sudo apt update
+      - run: sudo apt install inotify-tools
+      - run: install inotify-tools
+      - run: which inotifywait
+      - run: where inotifywait
