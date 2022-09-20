@@ -14,19 +14,15 @@ def main():
         """FORKING THE PROJECT (VIA GITHUB API)"""
         """PARSING THE YAML FILE"""
         """CHANGING THE YAML FILE"""
-        owner: str = repository["name"].split("/")[0]
+        forked_owner: str = "optimizing-ci-builds"
         repo: str = repository["name"].split("/")[1]
-        print(f"Running tests on {owner}/{repo}")
-        sha: str = repository["sha"]
+        print(f"Running tests on {forked_owner}/{repo}")
         default_branch: str = repository["default_branch"]
         os.system("mkdir " + repo + "_logs")
         try:
-            response = utils.fork_project(owner=owner, repo=repo)
-            # response = {"owner": {"login": "optimizing-ci-builds"}}
-            forked_owner = response["owner"]["login"]
+            sha: str = utils.retrieve_sha(owner=forked_owner, repo=repo, default_branch=default_branch)
         except ValueError as error:
             print(error)
-            # continue
             pass
 
         # yml_files_path = repository["Gyml_jacoco"].split(";") + repository["Gyml_cobertura"].split(";")
@@ -62,7 +58,7 @@ def main():
         runner_version: str = "2.294.1"
         tar_filename: str = f"linux-x64-{runner_version}.tar.gz"
         # utils.setup_runner(tar_filename, runner_version, token, forked_owner, repo)
-        runner_token = utils.setup_runner(tar_filename, runner_version, token, forked_owner, repo)
+        runner_token = utils.setup_runner(token, forked_owner, repo)
 
         # PHASE-3: EXECUTION
         """COMMITTING THE CHANGES IN THE YAML, TRIGGERING THE RUNNER AND INOTIFYWAIT"""
