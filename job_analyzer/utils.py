@@ -77,7 +77,7 @@ def configure_yaml_file(yaml_file: str):
             new_yaml_file += line + "\n"
         else:
             new_yaml_file += line + "\n"
-    return new_yaml_file, name
+    return new_yaml_file
 
 
 def get_runner_token(owner: str, repo: str):
@@ -240,8 +240,8 @@ def analyze(owner: str, repo: str):
     steps = {}
     starting_indexes = df[(df["event_filename"].str.contains("starting_")) & (df["event_name"] == "CREATE")].index.to_list() + [df.shape[0]]
     ending_indexes = [0] + df[(df["event_filename"].str.contains("starting_")) & (df["event_name"] == "CLOSE_WRITE,CLOSE")].index.to_list()
-    touch_file_names = ["setup"] + touch_file_names
-    touch_file_names = touch_file_names[0:len(starting_indexes)]
+    starting_df = df[df["event_filename"].str.contains("starting_")]
+    touch_file_names = ["setup"] + [x.replace("starting_", "") for x in starting_df["event_filename"].value_counts().index.to_list()]
     for starting_index, ending_index, touch_file_name in zip(starting_indexes, ending_indexes, touch_file_names):
         steps[touch_file_name] = (ending_index, starting_index)
     print(steps)
@@ -263,5 +263,8 @@ def analyze(owner: str, repo: str):
         if last_access_index < last_modify_index:
             nralw_file_names.append(file_name)
 
-    # for filename in nralw_file_names:
-    #     print(filename)
+    for filename in nralw_file_names:
+        print(filename)
+
+    print(f"All files: {len(file_names)}")
+    print(f"NRALW files: {len(nralw_file_names)}")

@@ -31,7 +31,6 @@ def main():
 
         configured_yaml_files = []
         yaml_shas = []
-        touch_file_names = []
         for file_path in yml_files_path:
             try:
                 yaml_file, yaml_sha = utils.get_yaml_file("optimizing-ci-builds", repo, file_path)
@@ -39,11 +38,9 @@ def main():
                 print(error)
                 # continue
                 pass
-            configured_yaml, name = utils.configure_yaml_file(yaml_file)
+            configured_yaml = utils.configure_yaml_file(yaml_file)
             configured_yaml_files.append(configured_yaml)
-            touch_file_names.append(name)
             yaml_shas.append(yaml_sha)
-        repository["touch_file_names"] = touch_file_names
 
         # PHASE-2: SETUP
         """SETTING UP RUNNER"""
@@ -72,7 +69,7 @@ def main():
 
         # # PHASE-4: ANALYSIS
         # """ANALYZING THE CSV PRODUCED BY INOTIFYWAIT"""
-        utils.analyze(forked_owner, repo, repositories["touch_file_names"])
+        utils.analyze(forked_owner, repo)
         # """PRINTING THE JOB (LINE NUMBER) FROM THE YAML FILE CAUSING UNNECESSARY USAGE"""
         os.chdir("..")
 
