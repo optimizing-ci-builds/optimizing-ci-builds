@@ -50,33 +50,52 @@ def configure_yaml_file(yaml_file: str):
     new_yaml_file: str = ""
     indent = 0
     job_indent = 0
+    on_indent = 0
     in_job = False
+    in_on = False
     job_name = ""
     line_number = 0
     name = ""
     for line in yaml_file.split("\n"):
         line_number += 1
-        if line.strip().split(":")[0] == "runs-on":
-            new_yaml_file += " " * (len(line) - len(line.lstrip()))
-            new_yaml_file += "runs-on: self-hosted\n"
-            continue
         indent = len(line) - len(line.lstrip())
-
-        if in_job and (indent <= job_indent):
-            in_job = False
-        if line.strip().split(":")[0] == "jobs":
-            in_job = True
-        if in_job and ((indent - 2) == job_indent):
-            job_name = line.strip()[:-1]
-        
-        if "- uses" in line or "- name" in line or "- run" in line:
-            step_name = line.split(":")[1].replace(" ", "")
-            name = f"{job_name}_{step_name}_{line_number}".replace("/", "")
-            change = ' ' * indent + f"- run: touch starting_{name}\n"
-            new_yaml_file += change
+        if "#" in line:
             new_yaml_file += line + "\n"
         else:
-            new_yaml_file += line + "\n"
+            if line.strip().split(":")[0] == "runs-on":
+                new_yaml_file += " " * indent
+                new_yaml_file += "runs-on: self-hosted\n"
+                continue
+
+            elif line.strip().split(":")[0] == "on":
+                in_on = True
+                on_indent = indent
+                new_yaml_file += " " * indent
+                new_yaml_file += "on: push\n"
+                continue
+
+            elif line.strip().split(":")[0] == "jobs":
+                in_job = True
+                job_indent = indent
+
+            if in_job and (indent <= job_indent):
+                in_job = False
+            if in_job and ((indent - 2) == job_indent):
+                job_name = line.strip()[:-1]
+
+            if in_on and (indent <= on_indent):
+                in_on = False
+            
+            if "- uses" in line or "- name" in line or "- run" in line:
+                step_name = line.split(":")[1].replace(" ", "")
+                name = f"{job_name}_{step_name}_{line_number}".replace("/", "")
+                change = ' ' * indent + f"- run: touch starting_{name}\n"
+                new_yaml_file += change
+                new_yaml_file += line + "\n"
+            elif in_on:
+                pass
+            else:
+                new_yaml_file += line + "\n"
     return new_yaml_file
 
 
@@ -254,17 +273,40 @@ def analyze(owner: str, repo: str):
     file_names = modify_df["file_name"].value_counts().index.to_list()
 
     nralw_file_names = []
+    info = []
     for file_name in file_names:
+        last_access_step = ""
+        last_modify_step = ""
+        creation_step = ""
         if df[(df["file_name"] == file_name) & (df["event_name"] == "MODIFY")].shape[0] == 0: continue
         last_modify_index = df[(df["file_name"] == file_name) & (df["event_name"] == "MODIFY")].index.to_list()[-1]
         last_access_index = 0
         if df[(df["file_name"] == file_name) & (df["event_name"] == "ACCESS")].shape[0] > 0:
             last_access_index = df[(df["file_name"] == file_name) & (df["event_name"] == "ACCESS")].index.to_list()[-1]
+        else:
+            last_access_index = -1
+            last_access_step = "Not provided"
         if last_access_index < last_modify_index:
             nralw_file_names.append(file_name)
+            try:
+                creation_index = df[(df["file_name"] == file_name) & (df["event_name"] == "CREATE")].index.to_list()[0]
+            except:
+                creation_index = -1
+                creation_step = "Not provided"
+            for touch_file_name, (starting_index, ending_index) in steps.items():
+                if (last_access_index > starting_index) & (last_access_index < ending_index):
+                    last_access_step = touch_file_name if touch_file_name == "setup" else touch_file_name.split("_")[1]
+                if (last_modify_index > starting_index) & (last_modify_index < ending_index):
+                    last_modify_step = touch_file_name if touch_file_name == "setup" else touch_file_name.split("_")[1]
+                if (creation_index > starting_index) & (creation_index < ending_index):
+                    creation_step = touch_file_name if touch_file_name == "setup" else touch_file_name.split("_")[1]
 
-    for filename in nralw_file_names:
-        print(filename)
+            info.append({"file_name": file_name, "last_access_index": last_access_index, "last_modify_index": last_modify_index, 
+                "creation_index": creation_index, "last_access_step":last_access_step , "last_modify_step":last_modify_step,
+                "creation_step": creation_step})
+
+    info_df = pd.DataFrame(info)
+    info_df.to_csv("info.csv")
 
     print(f"All files: {len(file_names)}")
     print(f"NRALW files: {len(nralw_file_names)}")
