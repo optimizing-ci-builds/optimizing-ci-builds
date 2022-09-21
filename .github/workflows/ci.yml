@@ -7,6 +7,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      - uses: actions/setup-python@v2
       - run: sudo apt update
       - run: sudo apt install inotify-tools
       - run: inotifywait -mr /home/runner/work --format '%T;%w;%f;%e' --timefmt %T -o /home/runner/test.csv & echo "basak"
@@ -22,3 +23,55 @@ jobs:
       - run: ls -la /home/runner/work/optimizing-ci-builds/optimizing-ci-builds
       - run: whoami
       - run: cat /home/runner/test.csv
+      - uses: jannekem/run-python-script-action@v1
+        with:
+          script: |
+            import pandas as pd
+            df = pd.read_csv(f"home/runner/test.csv", sep = ';', names=["time", "watched_filename", "event_filename", "event_name"])
+            df['event_filename'] = df['event_filename'].replace(np.nan, '')
+            steps = {}
+            starting_indexes = df[(df["event_filename"].str.contains("starting_")) & (df["event_name"] == "CREATE")].index.to_list() + [df.shape[0]]
+            ending_indexes = [0] + df[(df["event_filename"].str.contains("starting_")) & (df["event_name"] == "CLOSE_WRITE,CLOSE")].index.to_list()
+            starting_df = df[df["event_filename"].str.contains("starting_")]
+            touch_file_names = ["setup"] + [x.replace("starting_", "") for x in starting_df["event_filename"].value_counts().index.to_list()]
+            for starting_index, ending_index, touch_file_name in zip(starting_indexes, ending_indexes, touch_file_names):
+                steps[touch_file_name] = (ending_index, starting_index)
+            df["watched_filename"] = df["watched_filename"] + df["event_filename"]
+            df.drop("event_filename", axis=1, inplace=True)
+            df.rename(columns={'watched_filename':'file_name'}, inplace=True)
+            modify_df = df[df["event_name"] == "MODIFY"]
+            file_names = modify_df["file_name"].value_counts().index.to_list()
+            info = []
+            for file_name in file_names:
+                last_access_step = ""
+                last_modify_step = ""
+                creation_step = ""
+                if df[(df["file_name"] == file_name) & (df["event_name"] == "MODIFY")].shape[0] == 0: continue
+                last_modify_index = df[(df["file_name"] == file_name) & (df["event_name"] == "MODIFY")].index.to_list()[-1]
+                last_access_index = 0
+                if df[(df["file_name"] == file_name) & (df["event_name"] == "ACCESS")].shape[0] > 0:
+                    last_access_index = df[(df["file_name"] == file_name) & (df["event_name"] == "ACCESS")].index.to_list()[-1]
+                else:
+                    last_access_index = -1
+                    last_access_step = "Not provided"
+                if last_access_index < last_modify_index:
+                    try:
+                        creation_index = df[(df["file_name"] == file_name) & (df["event_name"] == "CREATE")].index.to_list()[0]
+                    except:
+                        creation_index = -1
+                        creation_step = "Not provided"
+                    for touch_file_name, (starting_index, ending_index) in steps.items():
+                        if (last_access_index > starting_index) & (last_access_index < ending_index):
+                            last_access_step = touch_file_name if touch_file_name == "setup" else touch_file_name.split("_")[1]
+                        if (last_modify_index > starting_index) & (last_modify_index < ending_index):
+                            last_modify_step = touch_file_name if touch_file_name == "setup" else touch_file_name.split("_")[1]
+                        if (creation_index > starting_index) & (creation_index < ending_index):
+                            creation_step = touch_file_name if touch_file_name == "setup" else touch_file_name.split("_")[1]
+                    info.append({"file_name": file_name, "last_access_index": last_access_index, "last_modify_index": last_modify_index, 
+                        "creation_index": creation_index, "last_access_step":last_access_step , "last_modify_step":last_modify_step,
+                        "creation_step": creation_step})
+            info_df = pd.DataFrame(info)
+            info_df.to_csv("/home/runner/info.csv")
+            
+      - run: cat /home/runner/info.csv
+      
