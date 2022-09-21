@@ -51,8 +51,10 @@ def configure_yaml_file(yaml_file: str):
     indent = 0
     job_indent = 0
     on_indent = 0
+    steps_indent = 0
     in_job = False
     in_on = False
+    in_steps = False
     job_name = ""
     line_number = 0
     name = ""
@@ -62,29 +64,96 @@ def configure_yaml_file(yaml_file: str):
         if "#" in line:
             new_yaml_file += line + "\n"
         else:
-            if line.strip().split(":")[0] == "runs-on":
-                new_yaml_file += " " * indent
-                new_yaml_file += "runs-on: self-hosted\n"
-                continue
-
-            elif line.strip().split(":")[0] == "on":
-                in_on = True
-                on_indent = indent
-                new_yaml_file += " " * indent
-                new_yaml_file += "on: push\n"
-                continue
-
-            elif line.strip().split(":")[0] == "jobs":
-                in_job = True
-                job_indent = indent
-
-            if in_job and (indent <= job_indent):
+            if (in_job and (indent <= job_indent)) and (line.strip() != ""):
                 in_job = False
             if in_job and ((indent - 2) == job_indent):
                 job_name = line.strip()[:-1]
 
-            if in_on and (indent <= on_indent):
+            if in_on and (indent <= on_indent) and (line.strip() != ""):
                 in_on = False
+            
+            if (in_steps and (indent <= steps_indent) and (line.strip() != "")) or (in_steps and (line == yaml_file.split("\n")[-1])):
+                in_steps = False
+                new_yaml_file += " " * (steps_indent + 2) + "- uses: jannekem/run-python-script-action@v1\n"
+                new_yaml_file += " " * (steps_indent + 4) + "with:\n"
+                new_yaml_file += " " * (steps_indent + 6) + "script: |\n"
+                new_yaml_file += " " * (steps_indent + 8) + "import pandas as pd\n"
+                new_yaml_file += " " * (steps_indent + 8) + "import numpy as np\n"
+                new_yaml_file += " " * (steps_indent + 8) + "df = pd.read_csv('/home/runner/test.csv', sep = ';', names=['time', 'watched_filename', 'event_filename', 'event_name'])\n"
+                new_yaml_file += " " * (steps_indent + 8) + "df['event_filename'] = df['event_filename'].replace(np.nan, '')\n"
+                new_yaml_file += " " * (steps_indent + 8) + "steps = {}\n"
+                new_yaml_file += " " * (steps_indent + 8) + "starting_indexes = df[(df['event_filename'].str.contains('starting_')) & (df['event_name'] == 'CREATE')].index.to_list() + [df.shape[0]]\n"
+                new_yaml_file += " " * (steps_indent + 8) + "ending_indexes = [0] + df[(df['event_filename'].str.contains('starting_')) & (df['event_name'] == 'CLOSE_WRITE,CLOSE')].index.to_list()\n"
+                new_yaml_file += " " * (steps_indent + 8) + "starting_df = df[df['event_filename'].str.contains('starting_')]\n"
+                new_yaml_file += " " * (steps_indent + 8) + "touch_file_names = ['setup'] + [x.replace('starting_', '') for x in starting_df['event_filename'].value_counts().index.to_list()]\n"
+                new_yaml_file += " " * (steps_indent + 8) + "for starting_index, ending_index, touch_file_name in zip(starting_indexes, ending_indexes, touch_file_names):\n"
+                new_yaml_file += " " * (steps_indent + 12) + "steps[touch_file_name] = (ending_index, starting_index)\n"
+                new_yaml_file += " " * (steps_indent + 8) + "df['watched_filename'] = df['watched_filename'] + df['event_filename']\n"
+                new_yaml_file += " " * (steps_indent + 8) + "df.drop('event_filename', axis=1, inplace=True)\n"
+                new_yaml_file += " " * (steps_indent + 8) + "df.rename(columns={'watched_filename':'file_name'}, inplace=True)\n"
+                new_yaml_file += " " * (steps_indent + 8) + "modify_df = df[df['event_name'] == 'MODIFY']\n"
+                new_yaml_file += " " * (steps_indent + 8) + "file_names = modify_df['file_name'].value_counts().index.to_list()\n"
+                new_yaml_file += " " * (steps_indent + 8) + "info = []\n"
+                new_yaml_file += " " * (steps_indent + 8) + "for file_name in file_names:\n"
+                new_yaml_file += " " * (steps_indent + 12) + "last_access_step = ''\n"
+                new_yaml_file += " " * (steps_indent + 12) + "last_modify_step = ''\n"
+                new_yaml_file += " " * (steps_indent + 12) + "creation_step = ''\n"
+                new_yaml_file += " " * (steps_indent + 12) + "if df[(df['file_name'] == file_name) & (df['event_name'] == 'MODIFY')].shape[0] == 0: continue\n"
+                new_yaml_file += " " * (steps_indent + 12) + "last_modify_index = df[(df['file_name'] == file_name) & (df['event_name'] == 'MODIFY')].index.to_list()[-1]\n"
+                new_yaml_file += " " * (steps_indent + 12) + "last_access_index = 0\n"
+                new_yaml_file += " " * (steps_indent + 12) + "if df[(df['file_name'] == file_name) & (df['event_name'] == 'ACCESS')].shape[0] > 0:\n"
+                new_yaml_file += " " * (steps_indent + 16) + "last_access_index = df[(df['file_name'] == file_name) & (df['event_name'] == 'ACCESS')].index.to_list()[-1]\n"
+                new_yaml_file += " " * (steps_indent + 12) + "else:\n"
+                new_yaml_file += " " * (steps_indent + 16) + "last_access_index = -1\n"
+                new_yaml_file += " " * (steps_indent + 16) + "last_access_step = 'Not provided'\n"
+                new_yaml_file += " " * (steps_indent + 12) + "if last_access_index < last_modify_index:\n"
+                new_yaml_file += " " * (steps_indent + 16) + "try:\n"
+                new_yaml_file += " " * (steps_indent + 20) + "creation_index = df[(df['file_name'] == file_name) & (df['event_name'] == 'CREATE')].index.to_list()[0]\n"
+                new_yaml_file += " " * (steps_indent + 16) + "except:\n"
+                new_yaml_file += " " * (steps_indent + 20) + "creation_index = -1\n"
+                new_yaml_file += " " * (steps_indent + 20) + "creation_step = 'Not provided'\n"
+                new_yaml_file += " " * (steps_indent + 16) + "for touch_file_name, (starting_index, ending_index) in steps.items():\n"
+                new_yaml_file += " " * (steps_indent + 20) + "if (last_access_index > starting_index) & (last_access_index < ending_index):\n"
+                new_yaml_file += " " * (steps_indent + 24) + "last_access_step = touch_file_name if touch_file_name == 'setup' else touch_file_name.split('_')[1]\n"
+                new_yaml_file += " " * (steps_indent + 20) + "if (last_modify_index > starting_index) & (last_modify_index < ending_index):\n"
+                new_yaml_file += " " * (steps_indent + 24) + "last_modify_step = touch_file_name if touch_file_name == 'setup' else touch_file_name.split('_')[1]\n"
+                new_yaml_file += " " * (steps_indent + 20) + "if (creation_index > starting_index) & (creation_index < ending_index):\n"
+                new_yaml_file += " " * (steps_indent + 24) + "creation_step = touch_file_name if touch_file_name == 'setup' else touch_file_name.split('_')[1]\n"
+                new_yaml_file += " " * (steps_indent + 16) + "info.append({'file_name': file_name, 'last_access_index': last_access_index, 'last_modify_index': last_modify_index, 'creation_index': creation_index, 'last_access_step':last_access_step , 'last_modify_step':last_modify_step, 'creation_step': creation_step})\n"
+                new_yaml_file += " " * (steps_indent + 8) + "info_df = pd.DataFrame(info)\n"
+                new_yaml_file += " " * (steps_indent + 8) + "info_df.to_csv('/home/runner/info.csv')\n"
+                if in_steps and (indent <= steps_indent):
+                    new_yaml_file += line + "\n"
+                continue
+
+            if line.strip().split(":")[0] == "on":
+                in_on = True
+                on_indent = indent
+                new_yaml_file += " " * indent
+                new_yaml_file += "on: [push]\n"
+                continue
+            elif line.strip().split(":")[0] == "jobs":
+                in_job = True
+                job_indent = indent
+            elif line.strip().split(":")[0] == "steps":
+                in_steps = True
+                steps_indent = indent
+                new_yaml_file += line + "\n"
+                new_yaml_file += " " * (indent + 2) + "- uses: actions/setup-python@v2\n"
+                new_yaml_file += " " * (indent + 4) + "with:\n"
+                new_yaml_file += " " * (indent + 6) + "python-version: '3.10'\n"
+                new_yaml_file += " " * (indent + 2) + "- name: Install dependencies\n"
+                new_yaml_file += " " * (indent + 4) + "run: |\n"
+                new_yaml_file += " " * (indent + 6) + "python -m pip install --upgrade pip\n"
+                new_yaml_file += " " * (indent + 6) + "pip install pandas\n"
+                new_yaml_file += " " * (indent + 6) + "pip install numpy\n"
+                new_yaml_file += " " * (indent + 2) + "- run: sudo apt update\n"
+                new_yaml_file += " " * (indent + 2) + "- run: sudo apt install inotify-tools\n"
+                new_yaml_file += " " * (indent + 2) + "- run: inotifywait -mr /home/runner/work --format '%T;%w;%f;%e' --timefmt %T -o /home/runner/test.csv & echo 'basak'\n"
+                continue
+
+            if in_on:
+                continue
             
             if "- uses" in line or "- name" in line or "- run" in line:
                 step_name = line.split(":")[1].replace(" ", "")
@@ -92,8 +161,6 @@ def configure_yaml_file(yaml_file: str):
                 change = ' ' * indent + f"- run: touch starting_{name}\n"
                 new_yaml_file += change
                 new_yaml_file += line + "\n"
-            elif in_on:
-                pass
             else:
                 new_yaml_file += line + "\n"
     return new_yaml_file
@@ -149,11 +216,12 @@ def setup_runner(token, owner, repo):
 
 
 def execute(owner: str, repo: str, sha:str, default_branch:str, file_paths, new_files, yaml_shas):
-    proc1 = subprocess.Popen(f"inotifywait -mr _work/ --format '%T;%w;%f;%e' --timefmt %T -o ../{repo}_logs/{owner}-{repo}.csv", shell=True)
-    proc2 = subprocess.Popen("./run.sh")
-    print("Processes created.")
+    # proc1 = subprocess.Popen(f"inotifywait -mr _work/ --format '%T;%w;%f;%e' --timefmt %T -o ../{repo}_logs/{owner}-{repo}.csv", shell=True)
+    # proc2 = subprocess.Popen("./run.sh")
+    # print("Processes created.")
     commit_sha = commit_file(owner, repo, sha, default_branch,file_paths, new_files, yaml_shas)
-    return proc1, proc2, commit_sha
+    # return proc1, proc2, commit_sha
+    return commit_sha
 
 
 def commit_file(owner: str, repo: str, sha : str, default_branch:str, file_paths, new_file_contents, yaml_shas):
@@ -168,13 +236,15 @@ def commit_file(owner: str, repo: str, sha : str, default_branch:str, file_paths
 
 def create_branch(owner, repo, sha):
     response = requests.delete(f"{base_api_url}/repos/{owner}/{repo}/git/refs/heads/optimizing-ci-build")
-    print(response)
+    # print(response)
+    print("Create branch!")
     url = f"{base_api_url}/repos/{owner}/{repo}/git/refs"
     body = {
             "ref": "refs/heads/optimizing-ci-builds",
             "sha": sha
     }
-    requests.post(url=url, data=json.dumps(body), headers=headers)
+    response_post = requests.post(url=url, data=json.dumps(body), headers=headers)
+    print(response_post.json())
 
 
 def create_blobs(owner, repo, new_file_contents):
