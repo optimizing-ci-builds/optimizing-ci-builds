@@ -18,7 +18,7 @@ def main():
         repo: str = repository["name"].split("/")[1]
         print(f"Running tests on {forked_owner}/{repo}")
         default_branch: str = repository["default_branch"]
-        os.system("mkdir " + repo + "_logs")
+
         try:
             sha: str = utils.retrieve_sha(owner=forked_owner, repo=repo, default_branch=default_branch)
         except ValueError as error:
