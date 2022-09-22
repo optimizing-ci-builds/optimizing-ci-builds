@@ -11,7 +11,7 @@ import pandas as pd
 import numpy as np
 
 base_api_url: str = "https://api.github.com"
-# user_token: str = os.environ["G_AUTH_OP"]
+user_token: str = os.environ["G_AUTH_OP"]
 headers: dict = {"Accept": "application/vnd.github+json",
                  "Authorization": f"token {user_token}"}
 
@@ -61,6 +61,8 @@ def configure_yaml_file(yaml_file: str):
     for line in yaml_file.split("\n"):
         line_number += 1
         indent = len(line) - len(line.lstrip())
+        if line == "":
+            continue
         if "#" in line:
             new_yaml_file += line + "\n"
         else:
@@ -166,61 +168,8 @@ def configure_yaml_file(yaml_file: str):
     return new_yaml_file
 
 
-def get_runner_token(owner: str, repo: str):
-    url_path: str = f"{base_api_url}/repos/{owner}/{repo}/actions/runners/registration-token"
-    response = requests.post(url_path, headers=headers)
-    if response.status_code != 201:
-        raise ValueError(
-            f"There have been a problem while getting a token for the runner on {owner}/{repo}. Error: {response.text}")
-    return response.json()["token"]
-
-
-def setup_runner(token, owner, repo):
-    url_path: str = f"{base_api_url}/repos/{owner}/{repo}/actions/runners"
-    response = requests.get(url_path, headers=headers)
-
-    if response.json()["total_count"] == 0:
-        runner_applications = requests.get(f"{base_api_url}/repos/{owner}/{repo}/actions/runners/downloads", headers=headers).json()
-        url_found = False
-        for runner in runner_applications:
-            if runner["os"] == "linux" and runner["architecture"] == "x64":
-                runner_url = runner["download_url"]
-                tar_filename = runner["filename"]
-                url_found = True
-                break
-        if not url_found:
-            print("Runner url not found!")
-            sys.exit()
-        os.system(f"mkdir "+repo+"_runner")
-        # runner_url = f"https://github.com/actions/runner/releases/download/v{runner_version}/actions-runner-{tar_filename}"
-        target_path = f"{repo}_runner/{tar_filename}"
-        try:
-            response = requests.get(runner_url, stream=True)
-            if response.status_code == 200:
-                with open(target_path, 'wb') as f:
-                    f.write(response.raw.read())
-            else:
-                raise ValueError(f"There was a problem while downloading the runner on {owner}/{repo}. Error: {response.text}")
-        except:
-            print("There was a problem while downloading the runner.")
-            # continue
-            pass
-
-        os.system(f"tar xzf ./{repo}_runner/{tar_filename} -C {repo}_runner")
-
-        os.system(f"mkdir {repo}_runner/_work")
-        os.chdir(f"{repo}_runner")
-        os.system(
-            f"echo | ./config.sh --url https://github.com/{owner}/{repo} --token {token}")
-    return token
-
-
 def execute(owner: str, repo: str, sha:str, default_branch:str, file_paths, new_files, yaml_shas):
-    # proc1 = subprocess.Popen(f"inotifywait -mr _work/ --format '%T;%w;%f;%e' --timefmt %T -o ../{repo}_logs/{owner}-{repo}.csv", shell=True)
-    # proc2 = subprocess.Popen("./run.sh")
-    # print("Processes created.")
     commit_sha = commit_file(owner, repo, sha, default_branch,file_paths, new_files, yaml_shas)
-    # return proc1, proc2, commit_sha
     return commit_sha
 
 
@@ -235,16 +184,16 @@ def commit_file(owner: str, repo: str, sha : str, default_branch:str, file_paths
 
 
 def create_branch(owner, repo, sha):
-    response = requests.delete(f"{base_api_url}/repos/{owner}/{repo}/git/refs/heads/optimizing-ci-build")
-    # print(response)
-    print("Create branch!")
+    url = f"{base_api_url}/repos/{owner}/{repo}/git/refs/heads/optimizing-ci-builds"
+    requests.delete(url=url,  headers=headers)
     url = f"{base_api_url}/repos/{owner}/{repo}/git/refs"
     body = {
             "ref": "refs/heads/optimizing-ci-builds",
             "sha": sha
     }
-    response_post = requests.post(url=url, data=json.dumps(body), headers=headers)
-    print(response_post.json())
+    response = requests.post(url=url, data=json.dumps(body), headers=headers)
+    print(response.json())
+
 
 
 def create_blobs(owner, repo, new_file_contents):
@@ -262,13 +211,13 @@ def create_blobs(owner, repo, new_file_contents):
 
 def create_tree(owner, repo, sha, file_paths, blob_shas):
     url = f"{base_api_url}/repos/{owner}/{repo}/git/trees"
-    body = {}
-    body["base_tree"] = sha
+    body = {"base_tree": sha}
     tree = []
-    for i in range(0,len(file_paths)):
-        tree.append({"path": file_paths[i], "mode": "100644", "type": "blob", "sha": blob_shas[i] })
+    for i in range(0, len(file_paths)):
+        tree.append({"path": file_paths[i], "mode": "100644", "type": "blob", "sha": blob_shas[i]})
     body["tree"] = tree
     response = requests.post(url=url, data=json.dumps(body), headers=headers)
+    print(response.json())
     tree_sha = response.json()['sha']
     return tree_sha
 
@@ -285,6 +234,7 @@ def create_commit(owner, repo, sha, tree_sha):
         "tree": tree_sha
     }
     response = requests.post(url=url, data=json.dumps(body), headers=headers)
+    print(response.json())
     new_commit_sha = response.json()['sha']
     return new_commit_sha
 
@@ -296,6 +246,7 @@ def commit_to_branch(owner, repo, new_commit_sha):
         "sha": new_commit_sha
     }
     response = requests.post(url=url, data=json.dumps(body), headers=headers)
+    print(response.json())
 
 
 def open_pull_request(owner: str, repo: str, default_branch:str ):
@@ -306,6 +257,7 @@ def open_pull_request(owner: str, repo: str, default_branch:str ):
         "base": default_branch
     }
     response = requests.post(url=url, data=json.dumps(body), headers=headers)
+    print(response.json())
 
 
 def check_runs(owner: str, repo: str, commit_sha:str):
