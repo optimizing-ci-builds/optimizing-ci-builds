@@ -25,6 +25,8 @@ def main():
             print(error)
             pass
 
+        utils.add_secret(owner=forked_owner, repo=repo)
+
         yml_files_path = repository["Github Actions"].split(";")
         yml_files_path = [i for i in yml_files_path if i]
 

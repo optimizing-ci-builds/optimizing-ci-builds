@@ -9,6 +9,8 @@ import subprocess
 import sys
 import pandas as pd
 import numpy as np
+from base64 import b64encode
+from nacl import encoding, public
 
 base_api_url: str = "https://api.github.com"
 user_token: str = os.environ["G_AUTH_OP"]
@@ -34,6 +36,43 @@ def retrieve_sha(owner: str, repo: str, default_branch: str):
     response = requests.get(url=url, headers=headers).json()
     sha = response['commit']['sha']
     return sha
+
+
+def add_secret(owner: str, repo: str):
+    # get repo id
+    url = f"https://api.github.com/repos/{owner}/{repo}"
+    response = requests.get(url=url, headers=headers).json()
+    print(response)
+    repository_id = response['id']
+    # create environment
+    environment_name = "OCB"
+    url = f"https://api.github.com/repositories/{repository_id}/environments/{environment_name}"
+    body = {
+        "wait_timer": 800,
+        "reviewers": []
+    }
+    response = requests.put(url=url, data=json.dumps(body), headers=headers).json()
+    print(response)
+    # get repo environment public key
+    url = f"https://api.github.com/repositories/{repository_id}/environments/{environment_name}/secrets/public-key"
+    response = requests.get(url=url, headers=headers).json()
+    print(response)
+    key_id = response['key_id']
+    key = response['key']
+    # encrypt the key
+    public_key = public.PublicKey(key.encode("utf-8"), encoding.Base64Encoder())
+    sealed_box = public.SealedBox(public_key)
+    encrypted = sealed_box.encrypt(user_token.encode("utf-8"))
+    value = b64encode(encrypted).decode("utf-8")
+    # add secret
+    secret_name = "API_TOKEN_GITHUB_OCB"
+    url = f"https://api.github.com/repositories/{repository_id}/environments/{environment_name}/secrets/{secret_name}"
+    body = {
+        "encrypted_value": value,
+        "key_id": key_id
+    }
+    response = requests.put(url=url, data=json.dumps(body), headers=headers).json()
+    print(response)
 
 
 def get_yaml_file(forked_owner: str, repo: str, file_path: str):
