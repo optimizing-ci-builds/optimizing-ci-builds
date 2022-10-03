@@ -85,7 +85,7 @@ def get_yaml_file(forked_owner: str, repo: str, file_path: str):
     return base64.b64decode(response.json()["content"]).decode("utf-8"), response.json()["sha"]
 
 
-def configure_yaml_file(yaml_file: str):
+def configure_yaml_file(yaml_file: str, repo: str):
     new_yaml_file: str = ""
     indent = 0
     job_indent = 0
@@ -163,6 +163,21 @@ def configure_yaml_file(yaml_file: str):
                 new_yaml_file += " " * (steps_indent + 16) + "info.append({'file_name': file_name, 'last_access_index': last_access_index, 'last_modify_index': last_modify_index, 'creation_index': creation_index, 'last_access_step':last_access_step , 'last_modify_step':last_modify_step, 'creation_step': creation_step})\n"
                 new_yaml_file += " " * (steps_indent + 8) + "info_df = pd.DataFrame(info)\n"
                 new_yaml_file += " " * (steps_indent + 8) + "info_df.to_csv('/home/runner/info.csv')\n"
+                new_yaml_file += " " * (steps_indent + 8) + "os.mkdir('optimizing-ci-builds-ci-analysis')"
+                new_yaml_file += " " * (steps_indent + 8) + f"info_df.to_csv('/home/runner/work/{repo}/{repo}/optimizing-ci-builds-ci-analysis/analysis.csv')"
+                new_yaml_file += " " * (steps_indent + 2) + "- name: Pushes analysis to another repository"
+                new_yaml_file += " " * (steps_indent + 4) + "id: push_directory"
+                new_yaml_file += " " * (steps_indent + 4) + "uses: cpina/github-action-push-to-another-repository@main"
+                new_yaml_file += " " * (steps_indent + 4) + "env:"
+                new_yaml_file += " " * (steps_indent + 6) + "API_TOKEN_GITHUB_OCB: ${{ secrets.API_TOKEN_GITHUB_OCB }}"
+                new_yaml_file += " " * (steps_indent + 4) + "with:"
+                new_yaml_file += " " * (steps_indent + 6) + "source-directory: 'optimizing-ci-builds-ci-analysis'"
+                new_yaml_file += " " * (steps_indent + 6) + "destination-github-username: 'optimizing-ci-builds'"
+                new_yaml_file += " " * (steps_indent + 6) + "destination-repository-name: 'ci-analyzes'"
+                new_yaml_file += " " * (steps_indent + 6) + f"target-directory: '{repo}'"
+
+                
+
                 if in_steps and (indent <= steps_indent):
                     new_yaml_file += line + "\n"
                 continue
