@@ -12,7 +12,7 @@ def main():
     
     for index, repository in enumerate(repositories):
         try:
-            if index % 10 == 0:
+            if index % 10 == 9:
                 time.sleep(108000)
             # PHASE-1: COLLECTION
             """FORKING THE PROJECT (VIA GITHUB API)"""
@@ -20,7 +20,7 @@ def main():
             """CHANGING THE YAML FILE"""
             forked_owner: str = "optimizing-ci-builds"
             repo: str = repository["name"].split("/")[1]
-            print(f"Running tests on {forked_owner}/{repo}")
+            print(f"\nRunning tests on {forked_owner}/{repo}")
             default_branch: str = repository["default_branch"]
 
             try:
@@ -43,7 +43,9 @@ def main():
                     print(error)
                     # continue
                     pass
-                configured_yaml = utils.configure_yaml_file(yaml_file, repo)
+                configured_yaml = utils.configure_yaml_file(yaml_file, repo, file_path)
+                # with open("Output.yml", "w") as text_file:
+                #     print(f"{configured_yaml}", file=text_file)
                 configured_yaml_files.append(configured_yaml)
                 yaml_shas.append(yaml_sha)
 
@@ -51,7 +53,9 @@ def main():
             # utils.check_runs(forked_owner, repo, commit_sha)
 
             os.chdir("..")
-        except:
+            # break
+        except Exception as e:
+            print(e)
             print("There was an error don't ask me what it is.")
 
 if __name__ == "__main__":
