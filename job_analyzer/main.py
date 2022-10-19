@@ -57,6 +57,7 @@ def main():
         except Exception as e:
             print(e)
             print("There was an error don't ask me what it is.")
+        # break
 
 if __name__ == "__main__":
     main()
