@@ -13,7 +13,7 @@ def main():
     for index, repository in enumerate(repositories):
         try:
             if index % 10 == 9:
-                time.sleep(5*60) # 5 minutes
+                time.sleep(3*60) # 5 minutes
             # PHASE-1: COLLECTION
             """FORKING THE PROJECT (VIA GITHUB API)"""
             """PARSING THE YAML FILE"""

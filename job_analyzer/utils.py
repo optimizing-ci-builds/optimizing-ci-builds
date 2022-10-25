@@ -134,19 +134,23 @@ def configure_yaml_file(yaml_file: str, repo: str, file_path: str):
             if (in_job and (indent <= job_indent)) and (line.strip() != "") and (job_name != line.strip()[:-1]):
                 in_job = False
             
-
             if in_on and (indent <= on_indent) and (line.strip() != ""):
                 in_on = False
             
-            if line_index + 1 <= len(yaml_file.split("\n")):
-                if (in_steps and ((len(yaml_file.split("\n")[line_index+1]) - len(yaml_file.split("\n")[line_index+1].lstrip())) < steps_indent)):
-                    end_of_file = True
-                    for l in yaml_file.split("\n")[line_index+1:len(yaml_file.split("\n"))]:
-                        if l.strip() != "":
-                            end_of_file = False
-                            break
-                    if end_of_file:
-                        new_yaml_file += line + "\n"
+            condition = None
+            try:
+                next_line_indent = (len(yaml_file.split("\n")[line_index+1]) - len(yaml_file.split("\n")[line_index+1].lstrip()))
+                condition = next_line_indent < steps_indent
+            except:
+                condition = True
+            if (in_steps and condition):
+                end_of_step = True
+                for l in yaml_file.split("\n")[line_index+1:len(yaml_file.split("\n"))]:
+                    if l.strip() != "":
+                        end_of_step = False
+                        break
+                new_yaml_file += line + "\n"
+                if end_of_step:
                     in_steps = False
                     new_yaml_file += " " * (in_step_indent) + "- run: touch starting_finished_finished_8979874\n"
                     new_yaml_file += " " * (in_step_indent) + "- run: rm starting_finished_finished_8979874\n"
@@ -204,18 +208,23 @@ def configure_yaml_file(yaml_file: str, repo: str, file_path: str):
                     new_yaml_file += " " * (in_step_indent + 10) + "step_name = step if step == 'setup' else step.split('_')[1]\n"
                     new_yaml_file += " " * (in_step_indent + 10) + "if step_name == 'finished': continue\n"
                     new_yaml_file += " " * (in_step_indent + 10) + "c = info_df['creation_step'] == step_name\n"
-                    new_yaml_file += " " * (in_step_indent + 10) + "l = info_df['last_modify_step'] == step_name\n"
+                    new_yaml_file += " " * (in_step_indent + 10) + "m = info_df['last_modify_step'] == step_name\n"
                     new_yaml_file += " " * (in_step_indent + 10) + "a = info_df['last_access_index'] > -1\n"
-                    new_yaml_file += " " * (in_step_indent + 10) + "cla = created_file_count = info_df[c & l & a].shape[0]\n"
-                    new_yaml_file += " " * (in_step_indent + 10) + "cla_ = created_file_count = info_df[c & l & ~a].shape[0]\n"
-                    new_yaml_file += " " * (in_step_indent + 10) + "cl_a = created_file_count = info_df[c & ~l & a].shape[0]\n"
-                    new_yaml_file += " " * (in_step_indent + 10) + "cl_a_ = created_file_count = info_df[c & ~l & ~a].shape[0]\n"
-                    new_yaml_file += " " * (in_step_indent + 10) + "c_la = created_file_count = info_df[~c & l & a].shape[0]\n"
-                    new_yaml_file += " " * (in_step_indent + 10) + "c_la_ = created_file_count = info_df[~c & l & ~a].shape[0]\n"
-                    new_yaml_file += " " * (in_step_indent + 10) + "c_l_a = created_file_count = info_df[~c & ~l & a].shape[0]\n"
-                    new_yaml_file += " " * (in_step_indent + 10) + "c_l_a_ = created_file_count = info_df[~c & ~l & ~a].shape[0]\n"
+                    new_yaml_file += " " * (in_step_indent + 10) + "t = (info_df['last_modify_index'] > info_df['last_access_index']) & (info_df['last_access_index'] != -1) # never accessed after last modify (but accessed at least once)\n"
+                    new_yaml_file += " " * (in_step_indent + 10) + "cma = info_df[c & m & a].shape[0]\n"
+                    new_yaml_file += " " * (in_step_indent + 10) + "cma_ = info_df[c & m & ~a].shape[0]\n"
+                    new_yaml_file += " " * (in_step_indent + 10) + "cmt = info_df[c & m & t].shape[0]\n"
+                    new_yaml_file += " " * (in_step_indent + 10) + "cm_a = info_df[c & ~m & a].shape[0]\n"
+                    new_yaml_file += " " * (in_step_indent + 10) + "cm_a_ = info_df[c & ~m & ~a].shape[0]\n"
+                    new_yaml_file += " " * (in_step_indent + 10) + "cm_t = info_df[c & ~m & t].shape[0]\n"
+                    new_yaml_file += " " * (in_step_indent + 10) + "c_ma = info_df[~c & m & a].shape[0]\n"
+                    new_yaml_file += " " * (in_step_indent + 10) + "c_ma_ = info_df[~c & m & ~a].shape[0]\n"
+                    new_yaml_file += " " * (in_step_indent + 10) + "c_mt = info_df[~c & m & t].shape[0]\n"
+                    new_yaml_file += " " * (in_step_indent + 10) + "c_m_a = info_df[~c & ~m & a].shape[0]\n"
+                    new_yaml_file += " " * (in_step_indent + 10) + "c_m_a_ = info_df[~c & ~m & ~a].shape[0]\n"
+                    new_yaml_file += " " * (in_step_indent + 10) + "c_m_t = info_df[~c & ~m & t].shape[0]\n"
                     new_yaml_file += " " * (in_step_indent + 10) + "created_file_count = info_df[c].shape[0]\n"
-                    new_yaml_file += " " * (in_step_indent + 10) + "modified_file_count = info_df[l].shape[0]\n"
+                    new_yaml_file += " " * (in_step_indent + 10) + "modified_file_count = info_df[m].shape[0]\n"
                     new_yaml_file += " " * (in_step_indent + 10) + "starting_time = list(map(int, df.iloc[starting_index]['time'].split(':')))\n"
                     new_yaml_file += " " * (in_step_indent + 10) + "if ending_index == len(df): ending_time = list(map(int, df.iloc[ending_index-1]['time'].split(':')))\n"
                     new_yaml_file += " " * (in_step_indent + 10) + "else: ending_time = list(map(int, df.iloc[ending_index]['time'].split(':')))\n"
@@ -230,8 +239,8 @@ def configure_yaml_file(yaml_file: str, repo: str, file_path: str):
                     new_yaml_file += " " * (in_step_indent + 10) + "else: second = ending_time[2] - starting_time[2]\n"
                     new_yaml_file += " " * (in_step_indent + 10) + "total_seconds = second + (minute * 60) + (hour * 60 * 60)\n"
                     new_yaml_file += " " * (in_step_indent + 10) + "if step_name != '':\n"
-                    new_yaml_file += " " * (in_step_indent + 14) + "step_statistics.append({'step_name': step_name, '#c': created_file_count, '#l': modified_file_count, \n"
-                    new_yaml_file += " " * (in_step_indent + 14) + "'cla': cla, 'cl_a': cl_a, 'cla_': cla_, 'cl_a_': cl_a_, 'c_la': c_la, 'c_l_a': c_l_a, 'c_la_': c_la_, 'c_l_a_': c_l_a_, 'time': total_seconds})\n"
+                    new_yaml_file += " " * (in_step_indent + 14) + "step_statistics.append({'step_name': step_name, '#c': created_file_count, '#m': modified_file_count, \n"
+                    new_yaml_file += " " * (in_step_indent + 14) + "'cma': cma, 'cma_': cma_, 'cmt': cmt, 'cm_a': cm_a, 'cm_a_': cm_a_, 'cm_t': cm_t, 'c_ma': c_ma, 'c_ma_': c_ma_, 'c_mt': c_mt, 'c_m_a': c_m_a, 'c_m_a_': c_m_a_, 'c_m_t': c_m_t, 'time': total_seconds})\n"
                     new_yaml_file += " " * (in_step_indent + 6) + "os.mkdir('optimizing-ci-builds-ci-analysis')\n"
                     new_yaml_file += " " * (in_step_indent + 6) + "step_df = pd.DataFrame(step_statistics)\n"
                     new_yaml_file += " " * (in_step_indent + 6) + f"step_df.to_csv('/home/runner/work/{repo}/{repo}/optimizing-ci-builds-ci-analysis/steps.csv')\n"
@@ -248,13 +257,13 @@ def configure_yaml_file(yaml_file: str, repo: str, file_path: str):
                     new_yaml_file += " " * (in_step_indent + 4) + "destination-repository-name: 'ci-analyzes'\n"
                     new_yaml_file += " " * (in_step_indent + 4) + f"target-directory: '{repo}/{int(time.time())}/{file_path.replace('.yml', '')}/{job_name}'\n"
 
-                    if end_of_file:
+                    if end_of_step:
                         for l in yaml_file.split("\n")[line_index+1:len(yaml_file.split("\n"))]:
                             new_yaml_file += l + "\n"
                         break
                     # if in_steps and (indent <= steps_indent):
                     #     new_yaml_file += line + "\n"
-                    # continue
+                continue
 
             if line.strip().split(":")[0] == "on":
                 in_on = True
