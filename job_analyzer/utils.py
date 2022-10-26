@@ -14,7 +14,7 @@ from base64 import b64encode
 from nacl import encoding, public
 
 base_api_url: str = "https://api.github.com"
-user_token: str = "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"
+user_token: str = os.environ["G_AUTH_OP"]
 headers: dict = {"Accept": "application/vnd.github+json",
                  "Authorization": f"token {user_token}"}
 
