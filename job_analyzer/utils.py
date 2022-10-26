@@ -14,7 +14,7 @@ from base64 import b64encode
 from nacl import encoding, public
 
 base_api_url: str = "https://api.github.com"
-user_token: str = os.environ["G_AUTH_OP"]
+user_token: str = "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"
 headers: dict = {"Accept": "application/vnd.github+json",
                  "Authorization": f"token {user_token}"}
 
@@ -125,7 +125,11 @@ def configure_yaml_file(yaml_file: str, repo: str, file_path: str):
     for line_index, line in enumerate(yaml_file.split("\n")):
         line_number += 1
         indent = len(line) - len(line.lstrip())
-        if (line == "") or ("#" in line):
+        if len(line.lstrip()) > 0:
+            is_comment = line.lstrip()[0] == "#"
+        else:
+            is_comment = False
+        if (line == "") or is_comment:
             new_yaml_file += line + "\n"
             continue
         else:
