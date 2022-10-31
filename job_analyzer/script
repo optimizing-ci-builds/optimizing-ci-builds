@@ -3,7 +3,7 @@ import numpy as np
 import os
 
 
-def analyze_file(file_path):
+def show_directories(file_path):
     with open(file_path, 'r') as f:
         df = pd.read_csv(file_path, sep=',')
         paths = df["file_name"].to_list()
@@ -12,7 +12,9 @@ def analyze_file(file_path):
         for path in paths:
             find_and_insert(root, path.split("/")[1:])
 
-        root.print(True)
+        stack = []
+        root.print(True, stack)
+        return stack
 
 
 class TreeNode:
@@ -25,11 +27,11 @@ class TreeNode:
         self.children.append(node)
         return node
 
-    def print(self, is_root):
+    def print(self, is_root, stack):
         pre_0 = "    "
-        pre_1 = "│   "
-        pre_2 = "├── "
-        pre_3 = "└── "
+        pre_1 = "\u2502   "
+        pre_2 = "\u251c\u2500\u2500 "
+        pre_3 = "\u2514\u2500\u2500 "
 
         tree = self
         prefix = pre_2 if tree.parent and id(tree) != id(tree.parent.children[-1]) else pre_3
@@ -43,12 +45,12 @@ class TreeNode:
             tree = tree.parent
 
         if is_root:
-            print(self.name)
+            stack.append(self.name)
         else:
-            print(prefix + self.name)
+            stack.append(prefix + self.name)
 
         for child in self.children:
-            child.print(False)
+            child.print(False, stack)
 
 
 def find_and_insert(parent, edges):
@@ -166,4 +168,9 @@ for step, (starting_index, ending_index) in steps.items():
 step_df = pd.DataFrame(step_statistics)
 step_df.to_csv(f'/home/runner/work/{repo}/{repo}/optimizing-ci-builds-ci-analysis/steps.csv')
 info_df.to_csv(f'/home/runner/work/{repo}/{repo}/optimizing-ci-builds-ci-analysis/files.csv')
-analyze_file('/home/runner/work/{repo}/{repo}/optimizing-ci-builds-ci-analysis/files.csv')
+directories = show_directories('/home/runner/work/{repo}/{repo}/optimizing-ci-builds-ci-analysis/files.csv')
+string_version = ''
+for line in directories:
+    string_version += line + '\n'
+with open("/home/runner/work/{repo}/{repo}/optimizing-ci-builds-ci-analysis/directories.txt", "w+", encoding="utf-8") as f:
+    f.write(string_version)

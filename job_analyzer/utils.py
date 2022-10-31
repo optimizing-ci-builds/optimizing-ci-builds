@@ -125,14 +125,18 @@ def configure_yaml_file(yaml_file: str, repo: str, file_path: str, time):
     line_number = 0
     name = ""
     for line_index, line in enumerate(yaml_file.split("\n")):
+        if "secrets." in line:
+            print(f"Secret in repository: {repo} YAML file: {file_path}")
         line_number += 1
         indent = len(line) - len(line.lstrip())
         if len(line.lstrip()) > 0:
             is_comment = line.lstrip()[0] == "#"
         else:
             is_comment = False
-        if (line == "") or is_comment:
+        if (line == "") or is_comment :
             new_yaml_file += line + "\n"
+            continue
+        elif "if: " in line:
             continue
         else:
             if in_job and (indent == job_indent):

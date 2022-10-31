@@ -51,11 +51,9 @@ def main():
             commit_sha = utils.execute(forked_owner, repo, sha, default_branch, yml_files_path, configured_yaml_files, yaml_shas)
             # utils.check_runs(forked_owner, repo, commit_sha)
 
-            os.chdir("..")
         except Exception as e:
             print(e)
             print("There was an error don't ask me what it is.")
-        break
 
 if __name__ == "__main__":
     main()
