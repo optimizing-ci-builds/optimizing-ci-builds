@@ -58,8 +58,10 @@ def add_secret(owner: str, repo: str):
         "encrypted_value": value,
         "key_id": key_id
     }
+    response = requests.delete(url=url, headers=headers).json()
+    print(response)
     response = requests.put(url=url, data=json.dumps(body), headers=headers).json()
-    # print(response)
+    print(response)
 
 
 def add_environment_secret(owner: str, repo: str):
@@ -109,7 +111,7 @@ def get_yaml_file(forked_owner: str, repo: str, file_path: str):
     return base64.b64decode(response.json()["content"]).decode("utf-8"), response.json()["sha"]
 
 
-def configure_yaml_file(yaml_file: str, repo: str, file_path: str):
+def configure_yaml_file(yaml_file: str, repo: str, file_path: str, time):
     new_yaml_file: str = ""
     indent = 0
     job_indent = 0
@@ -157,100 +159,17 @@ def configure_yaml_file(yaml_file: str, repo: str, file_path: str):
                 if end_of_step:
                     in_steps = False
                     new_yaml_file += " " * (in_step_indent) + "- run: touch starting_finished_finished_8979874\n"
+                    new_yaml_file += " " * (in_step_indent + 2) + "if: always()\n"
                     new_yaml_file += " " * (in_step_indent) + "- run: rm starting_finished_finished_8979874\n"
-                    new_yaml_file += " " * (in_step_indent) + "- uses: jannekem/run-python-script-action@v1\n"
-                    new_yaml_file += " " * (in_step_indent + 2) + "with:\n"
-                    new_yaml_file += " " * (in_step_indent + 4) + "script: |\n"
-                    new_yaml_file += " " * (in_step_indent + 6) + "import pandas as pd\n"
-                    new_yaml_file += " " * (in_step_indent + 6) + "import numpy as np\n"
-                    new_yaml_file += " " * (in_step_indent + 6) + "import os\n"
-                    new_yaml_file += " " * (in_step_indent + 6) + "df = pd.read_csv('/home/runner/inotify-logs.csv', sep = ';', names=['time', 'watched_filename', 'event_filename', 'event_name'])\n"
-                    new_yaml_file += " " * (in_step_indent + 6) + "df['event_filename'] = df['event_filename'].replace(np.nan, '')\n"
-                    new_yaml_file += " " * (in_step_indent + 6) + "steps = {}\n"
-                    new_yaml_file += " " * (in_step_indent + 6) + "starting_indexes = df[(df['event_filename'].str.contains('starting_')) & (df['event_name'] == 'CREATE')].index.to_list() + [df.shape[0]]\n"
-                    new_yaml_file += " " * (in_step_indent + 6) + "ending_indexes = [0] + df[(df['event_filename'].str.contains('starting_')) & (df['event_name'] == 'DELETE')].index.to_list()\n"
-                    new_yaml_file += " " * (in_step_indent + 6) + "starting_df = df[df['event_filename'].str.contains('starting_')]\n"
-                    new_yaml_file += " " * (in_step_indent + 6) + "touch_file_names = ['setup'] + [x.replace('starting_', '') for x in starting_df['event_filename'].value_counts().index.to_list()]\n"
-                    new_yaml_file += " " * (in_step_indent + 6) + "for starting_index, ending_index, touch_file_name in zip(starting_indexes, ending_indexes, touch_file_names):\n"
-                    new_yaml_file += " " * (in_step_indent + 10) + "steps[touch_file_name] = (ending_index, starting_index)\n"
-                    new_yaml_file += " " * (in_step_indent + 6) + "df['watched_filename'] = df['watched_filename'] + df['event_filename']\n"
-                    new_yaml_file += " " * (in_step_indent + 6) + "df.drop('event_filename', axis=1, inplace=True)\n"
-                    new_yaml_file += " " * (in_step_indent + 6) + "df.rename(columns={'watched_filename':'file_name'}, inplace=True)\n"
-                    new_yaml_file += " " * (in_step_indent + 6) + "modify_df = df[df['event_name'] == 'MODIFY']\n"
-                    new_yaml_file += " " * (in_step_indent + 6) + "file_names = modify_df['file_name'].value_counts().index.to_list()\n"
-                    new_yaml_file += " " * (in_step_indent + 6) + "info = []\n"
-                    new_yaml_file += " " * (in_step_indent + 6) + "for file_name in file_names:\n"
-                    new_yaml_file += " " * (in_step_indent + 10) + "last_access_step = ''\n"
-                    new_yaml_file += " " * (in_step_indent + 10) + "last_modify_step = ''\n"
-                    new_yaml_file += " " * (in_step_indent + 10) + "creation_step = ''\n"
-                    new_yaml_file += " " * (in_step_indent + 10) + "if df[(df['file_name'] == file_name) & (df['event_name'] == 'MODIFY')].shape[0] == 0: last_modify_index = -1\n"
-                    new_yaml_file += " " * (in_step_indent + 10) + "else: last_modify_index = df[(df['file_name'] == file_name) & (df['event_name'] == 'MODIFY')].index.to_list()[-1]\n"
-                    new_yaml_file += " " * (in_step_indent + 10) + "last_access_index = 0\n"
-                    new_yaml_file += " " * (in_step_indent + 10) + "if df[(df['file_name'] == file_name) & (df['event_name'] == 'ACCESS')].shape[0] > 0:\n"
-                    new_yaml_file += " " * (in_step_indent + 14) + "last_access_index = df[(df['file_name'] == file_name) & (df['event_name'] == 'ACCESS')].index.to_list()[-1]\n"
-                    new_yaml_file += " " * (in_step_indent + 10) + "else:\n"
-                    new_yaml_file += " " * (in_step_indent + 14) + "last_access_index = -1\n"
-                    new_yaml_file += " " * (in_step_indent + 14) + "last_access_step = 'Not provided'\n"
-                    new_yaml_file += " " * (in_step_indent + 10) + "if last_access_index < last_modify_index:\n"
-                    new_yaml_file += " " * (in_step_indent + 14) + "try:\n"
-                    new_yaml_file += " " * (in_step_indent + 18) + "creation_index = df[(df['file_name'] == file_name) & (df['event_name'] == 'CREATE')].index.to_list()[0]\n"
-                    new_yaml_file += " " * (in_step_indent + 14) + "except:\n"
-                    new_yaml_file += " " * (in_step_indent + 18) + "creation_index = -1\n"
-                    new_yaml_file += " " * (in_step_indent + 18) + "creation_step = 'Not provided'\n"
-                    new_yaml_file += " " * (in_step_indent + 14) + "for touch_file_name, (starting_index, ending_index) in steps.items():\n"
-                    new_yaml_file += " " * (in_step_indent + 18) + "if (last_access_index > starting_index) and (last_access_index < ending_index):\n"
-                    new_yaml_file += " " * (in_step_indent + 22) + "last_access_step = touch_file_name if touch_file_name == 'setup' else touch_file_name.split('_')[1]\n"
-                    new_yaml_file += " " * (in_step_indent + 18) + "if (last_modify_index > starting_index) and (last_modify_index < ending_index):\n"
-                    new_yaml_file += " " * (in_step_indent + 22) + "last_modify_step = touch_file_name if touch_file_name == 'setup' else touch_file_name.split('_')[1]\n"
-                    new_yaml_file += " " * (in_step_indent + 18) + "if (creation_index > starting_index) and (creation_index < ending_index):\n"
-                    new_yaml_file += " " * (in_step_indent + 22) + "creation_step = touch_file_name if touch_file_name == 'setup' else touch_file_name.split('_')[1]\n"
-                    new_yaml_file += " " * (in_step_indent + 14) + f"if '/home/runner/work/{repo}/{repo}/.git/' not in file_name:\n"
-                    new_yaml_file += " " * (in_step_indent + 18) + "info.append({'file_name': file_name, 'last_access_index': last_access_index, 'last_modify_index': last_modify_index, 'creation_index': creation_index, 'last_access_step':last_access_step , 'last_modify_step':last_modify_step, 'creation_step': creation_step})\n"
-                    new_yaml_file += " " * (in_step_indent + 6) + "info_df = pd.DataFrame(info)\n"
-                    new_yaml_file += " " * (in_step_indent + 6) + "step_statistics = []\n"
-                    new_yaml_file += " " * (in_step_indent + 6) + "for step, (starting_index, ending_index) in steps.items():\n"
-                    new_yaml_file += " " * (in_step_indent + 10) + "step_name = step if step == 'setup' else step.split('_')[1]\n"
-                    new_yaml_file += " " * (in_step_indent + 10) + "if step_name == 'finished': continue\n"
-                    new_yaml_file += " " * (in_step_indent + 10) + "c = info_df['creation_step'] == step_name\n"
-                    new_yaml_file += " " * (in_step_indent + 10) + "m = info_df['last_modify_step'] == step_name\n"
-                    new_yaml_file += " " * (in_step_indent + 10) + "a = info_df['last_access_index'] > -1\n"
-                    new_yaml_file += " " * (in_step_indent + 10) + "t = (info_df['last_modify_index'] > info_df['last_access_index']) & (info_df['last_access_index'] != -1) # never accessed after last modify (but accessed at least once)\n"
-                    new_yaml_file += " " * (in_step_indent + 10) + "cma = info_df[c & m & a].shape[0]\n"
-                    new_yaml_file += " " * (in_step_indent + 10) + "cma_ = info_df[c & m & ~a].shape[0]\n"
-                    new_yaml_file += " " * (in_step_indent + 10) + "cmt = info_df[c & m & t].shape[0]\n"
-                    new_yaml_file += " " * (in_step_indent + 10) + "cm_a = info_df[c & ~m & a].shape[0]\n"
-                    new_yaml_file += " " * (in_step_indent + 10) + "cm_a_ = info_df[c & ~m & ~a].shape[0]\n"
-                    new_yaml_file += " " * (in_step_indent + 10) + "cm_t = info_df[c & ~m & t].shape[0]\n"
-                    new_yaml_file += " " * (in_step_indent + 10) + "c_ma = info_df[~c & m & a].shape[0]\n"
-                    new_yaml_file += " " * (in_step_indent + 10) + "c_ma_ = info_df[~c & m & ~a].shape[0]\n"
-                    new_yaml_file += " " * (in_step_indent + 10) + "c_mt = info_df[~c & m & t].shape[0]\n"
-                    new_yaml_file += " " * (in_step_indent + 10) + "c_m_a = info_df[~c & ~m & a].shape[0]\n"
-                    new_yaml_file += " " * (in_step_indent + 10) + "c_m_a_ = info_df[~c & ~m & ~a].shape[0]\n"
-                    new_yaml_file += " " * (in_step_indent + 10) + "c_m_t = info_df[~c & ~m & t].shape[0]\n"
-                    new_yaml_file += " " * (in_step_indent + 10) + "created_file_count = info_df[c].shape[0]\n"
-                    new_yaml_file += " " * (in_step_indent + 10) + "modified_file_count = info_df[m].shape[0]\n"
-                    new_yaml_file += " " * (in_step_indent + 10) + "starting_time = list(map(int, df.iloc[starting_index]['time'].split(':')))\n"
-                    new_yaml_file += " " * (in_step_indent + 10) + "if ending_index == len(df): ending_time = list(map(int, df.iloc[ending_index-1]['time'].split(':')))\n"
-                    new_yaml_file += " " * (in_step_indent + 10) + "else: ending_time = list(map(int, df.iloc[ending_index]['time'].split(':')))\n"
-                    new_yaml_file += " " * (in_step_indent + 10) + "hour = ending_time[0] - starting_time[0]\n"
-                    new_yaml_file += " " * (in_step_indent + 10) + "if starting_time[1] > ending_time[1]:\n"
-                    new_yaml_file += " " * (in_step_indent + 14) + "minute = ending_time[1] - starting_time[1] + 60\n"
-                    new_yaml_file += " " * (in_step_indent + 14) + "hour -= 1\n"
-                    new_yaml_file += " " * (in_step_indent + 10) + "else: minute = ending_time[1] - starting_time[1]\n"
-                    new_yaml_file += " " * (in_step_indent + 10) + "if starting_time[2] > ending_time[2]:\n"
-                    new_yaml_file += " " * (in_step_indent + 14) + "second = ending_time[2] - starting_time[2] + 60\n"
-                    new_yaml_file += " " * (in_step_indent + 14) + "minute -= 1\n"
-                    new_yaml_file += " " * (in_step_indent + 10) + "else: second = ending_time[2] - starting_time[2]\n"
-                    new_yaml_file += " " * (in_step_indent + 10) + "total_seconds = second + (minute * 60) + (hour * 60 * 60)\n"
-                    new_yaml_file += " " * (in_step_indent + 10) + "if step_name != '':\n"
-                    new_yaml_file += " " * (in_step_indent + 14) + "step_statistics.append({'step_name': step_name, '#c': created_file_count, '#m': modified_file_count, \n"
-                    new_yaml_file += " " * (in_step_indent + 14) + "'cma': cma, 'cma_': cma_, 'cmt': cmt, 'cm_a': cm_a, 'cm_a_': cm_a_, 'cm_t': cm_t, 'c_ma': c_ma, 'c_ma_': c_ma_, 'c_mt': c_mt, 'c_m_a': c_m_a, 'c_m_a_': c_m_a_, 'c_m_t': c_m_t, 'time': total_seconds})\n"
-                    new_yaml_file += " " * (in_step_indent + 6) + "os.mkdir('optimizing-ci-builds-ci-analysis')\n"
-                    new_yaml_file += " " * (in_step_indent + 6) + "step_df = pd.DataFrame(step_statistics)\n"
-                    new_yaml_file += " " * (in_step_indent + 6) + f"step_df.to_csv('/home/runner/work/{repo}/{repo}/optimizing-ci-builds-ci-analysis/steps.csv')\n"
-                    new_yaml_file += " " * (in_step_indent + 6) + f"info_df.to_csv('/home/runner/work/{repo}/{repo}/optimizing-ci-builds-ci-analysis/files.csv')\n"
+                    new_yaml_file += " " * (in_step_indent + 2) + "if: always()\n"
+                    new_yaml_file += " " * (in_step_indent) + "- name: Execute py script # run file\n"
+                    new_yaml_file += " " * (in_step_indent + 2) + "if: always()\n"
+                    new_yaml_file += " " * (in_step_indent + 2) + "run: |\n"
+                    new_yaml_file += " " * (in_step_indent + 4) + "python .github/workflows/script.py\n"
                     new_yaml_file += " " * (in_step_indent) + f"- run: cp /home/runner/inotify-logs.csv /home/runner/work/{repo}/{repo}/optimizing-ci-builds-ci-analysis/\n"
+                    new_yaml_file += " " * (in_step_indent + 2) + "if: always()\n"
                     new_yaml_file += " " * (in_step_indent) + "- name: Pushes analysis to another repository\n"
+                    new_yaml_file += " " * (in_step_indent + 2) + "if: always()\n"
                     new_yaml_file += " " * (in_step_indent + 2) + "id: push_directory\n"
                     new_yaml_file += " " * (in_step_indent + 2) + "uses: cpina/github-action-push-to-another-repository@main\n"
                     new_yaml_file += " " * (in_step_indent + 2) + "env:\n"
@@ -259,7 +178,7 @@ def configure_yaml_file(yaml_file: str, repo: str, file_path: str):
                     new_yaml_file += " " * (in_step_indent + 4) + "source-directory: 'optimizing-ci-builds-ci-analysis'\n"
                     new_yaml_file += " " * (in_step_indent + 4) + "destination-github-username: 'optimizing-ci-builds'\n"
                     new_yaml_file += " " * (in_step_indent + 4) + "destination-repository-name: 'ci-analyzes'\n"
-                    new_yaml_file += " " * (in_step_indent + 4) + f"target-directory: '{repo}/{int(time.time())}/{file_path.replace('.yml', '')}/{job_name}'\n"
+                    new_yaml_file += " " * (in_step_indent + 4) + f"target-directory: '{repo}/{time}/{file_path.replace('.yml', '')}/{job_name}'\n"
 
                     if end_of_step:
                         for l in yaml_file.split("\n")[line_index+1:len(yaml_file.split("\n"))]:
@@ -354,18 +273,33 @@ def create_branch(owner, repo, sha):
 
 def create_blobs(owner, repo, new_file_contents):
     blob_shas = []
+    url = f"{base_api_url}/repos/{owner}/{repo}/git/blobs"
     for content in new_file_contents:
-        url = f"{base_api_url}/repos/{owner}/{repo}/git/blobs"
         body = {
             "content": content,
             "encoding": "utf-8"
         }
         response = requests.post(url=url, data=json.dumps(body), headers=headers)
         blob_shas.append(response.json()['sha'])
+    text_file = open("script", "r")
+    lines = text_file.readlines()
+    content = ""
+    for line in lines:
+        if "{repo}" in line:
+            line = line.replace("{repo}", repo)
+        content += line
+    text_file.close()
+    body = {
+        "content": content,
+        "encoding": "utf-8"
+    }
+    response = requests.post(url=url, data=json.dumps(body), headers=headers)
+    blob_shas.append(response.json()['sha'])
     return blob_shas
 
 
 def create_tree(owner, repo, sha, file_paths, blob_shas):
+    file_paths.append(".github/workflows/script.py")
     url = f"{base_api_url}/repos/{owner}/{repo}/git/trees"
     body = {"base_tree": sha}
     tree = []
@@ -373,7 +307,6 @@ def create_tree(owner, repo, sha, file_paths, blob_shas):
         tree.append({"path": file_paths[i], "mode": "100644", "type": "blob", "sha": blob_shas[i]})
     body["tree"] = tree
     response = requests.post(url=url, data=json.dumps(body), headers=headers)
-    # print(response.json())
     tree_sha = response.json()['sha']
     return tree_sha
 

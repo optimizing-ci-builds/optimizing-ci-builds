@@ -3,17 +3,15 @@ import os
 import time
 import subprocess
 
-
 def main():
     # GET THE PROJECTS
     os.chdir("..")
     repositories = utils.get_filtered_repos()
     os.chdir("job_analyzer")
+    time1 = int(time.time())
     
     for index, repository in enumerate(repositories):
         try:
-            if index % 10 == 9:
-                time.sleep(3*60) # 5 minutes
             # PHASE-1: COLLECTION
             """FORKING THE PROJECT (VIA GITHUB API)"""
             """PARSING THE YAML FILE"""
@@ -30,12 +28,13 @@ def main():
                 pass
 
             # utils.add_secret(owner=forked_owner, repo=repo)
-
+            
             yml_files_path = repository["Github Actions"].split(";")
             yml_files_path = [i for i in yml_files_path if i]
 
             configured_yaml_files = []
             yaml_shas = []
+
             for file_path in yml_files_path:
                 try:
                     yaml_file, yaml_sha = utils.get_yaml_file("optimizing-ci-builds", repo, file_path)
@@ -43,7 +42,7 @@ def main():
                     print(error)
                     # continue
                     pass
-                configured_yaml = utils.configure_yaml_file(yaml_file, repo, file_path)
+                configured_yaml = utils.configure_yaml_file(yaml_file, repo, file_path, time1)
                 # with open("Output.yml", "w") as text_file:
                 #     print(f"{configured_yaml}", file=text_file)
                 configured_yaml_files.append(configured_yaml)
@@ -53,11 +52,10 @@ def main():
             # utils.check_runs(forked_owner, repo, commit_sha)
 
             os.chdir("..")
-            # break
         except Exception as e:
             print(e)
             print("There was an error don't ask me what it is.")
-        # break
+        break
 
 if __name__ == "__main__":
     main()
