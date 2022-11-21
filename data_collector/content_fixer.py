@@ -1,3 +1,7 @@
+# This script is not relevant anymore
+# This script is not relevant anymore
+# This script is not relevant anymore
+
 import base64
 import copy
 import csv

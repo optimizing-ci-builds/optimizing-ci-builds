@@ -74,7 +74,7 @@ def add_environment_secret(owner: str, repo: str):
     environment_name = "OCB"
     url = f"https://api.github.com/repositories/{repository_id}/environments/{environment_name}"
     body = {
-        "wait_timer": 800,
+        "wait_timer": 5000,
         "reviewers": []
     }
     response = requests.put(url=url, data=json.dumps(body), headers=headers).json()
@@ -143,7 +143,7 @@ def configure_yaml_file(yaml_file: str, repo: str, file_path: str, time):
                 job_name = line.strip()[:-1]
             if (in_job and (indent <= job_indent)) and (line.strip() != "") and (job_name != line.strip()[:-1]):
                 in_job = False
-            
+
             if in_on and (indent <= on_indent) and (line.strip() != ""):
                 in_on = False
             
