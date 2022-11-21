@@ -56,12 +56,12 @@ while i < len(repositories):
 # Save data to a csv file
 with open("data/file_paths.csv", "w", newline="", encoding="utf-8") as csv_file:
     csv_writer = csv.writer(csv_file)
-    csv_writer.writerow(["name", "link", "Default Branch", "SHA", "Stargazers Count", "Forks Count",
+    csv_writer.writerow(["name", "link", "Default Branch", "SHA", "Stargazers Count", "Forks Count", "Date"
                          "Maven", "Gradle", "Travis CI", "Github Actions"])
     for repository in repositories:
         csv_writer.writerow(
             [repository["name"], repository["link"], repository["default_branch"], repository["sha"],
-             repository["stargazers_count"], repository["forks_count"],
+             repository["stargazers_count"], repository["forks_count"], repository["date"],
              repository["Maven"], repository["Gradle"], repository["Travis CI"],
              repository["Github Actions"]])
 print("Done.")
