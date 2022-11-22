@@ -155,10 +155,10 @@ def configure_yaml_file(yaml_file: str, repo: str, file_path: str, time):
                 condition = True
             if (in_steps and condition):
                 end_of_step = True
-                for l in yaml_file.split("\n")[line_index+1:len(yaml_file.split("\n"))]:
-                    if l.strip() != "":
-                        end_of_step = False
-                        break
+                # for l in yaml_file.split("\n")[line_index+1:len(yaml_file.split("\n"))]:
+                #     if l.strip() != "":
+                #         end_of_step = False
+                #         break
                 new_yaml_file += line + "\n"
                 if end_of_step:
                     in_steps = False
@@ -184,10 +184,10 @@ def configure_yaml_file(yaml_file: str, repo: str, file_path: str, time):
                     new_yaml_file += " " * (in_step_indent + 4) + "destination-repository-name: 'ci-analyzes'\n"
                     new_yaml_file += " " * (in_step_indent + 4) + f"target-directory: '{repo}/{time}/{file_path.replace('.yml', '')}/{job_name}'\n"
 
-                    if end_of_step:
-                        for l in yaml_file.split("\n")[line_index+1:len(yaml_file.split("\n"))]:
-                            new_yaml_file += l + "\n"
-                        break
+                    # if end_of_step:
+                    #     for l in yaml_file.split("\n")[line_index+1:len(yaml_file.split("\n"))]:
+                    #         new_yaml_file += l + "\n"
+                    #     break
                     # if in_steps and (indent <= steps_indent):
                     #     new_yaml_file += line + "\n"
                 continue
@@ -285,7 +285,7 @@ def create_blobs(owner, repo, new_file_contents):
         }
         response = requests.post(url=url, data=json.dumps(body), headers=headers)
         blob_shas.append(response.json()['sha'])
-    text_file = open("script", "r")
+    text_file = open("job_analyzer/script", "r")
     lines = text_file.readlines()
     content = ""
     for line in lines:
