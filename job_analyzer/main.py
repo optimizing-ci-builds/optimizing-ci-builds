@@ -28,7 +28,7 @@ def main():
                 pass
 
             # utils.add_secret(owner=forked_owner, repo=repo)
-            
+
             yml_files_path = repository["Github Actions"].split(";")
             yml_files_path = [i for i in yml_files_path if i]
 
@@ -48,7 +48,7 @@ def main():
                 configured_yaml_files.append(configured_yaml)
                 yaml_shas.append(yaml_sha)
 
-            utils.retrieve_sha_ci_analyzes(forked_owner, repo, sha, time)
+            utils.retrieve_sha_ci_analyzes(forked_owner, "abc", time1)
             commit_sha = utils.execute(forked_owner, repo, sha, default_branch, yml_files_path, configured_yaml_files, yaml_shas)
             # utils.check_runs(forked_owner, repo, commit_sha)
 
