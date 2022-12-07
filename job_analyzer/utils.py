@@ -248,6 +248,26 @@ def configure_yaml_file(yaml_file: str, repo: str, file_path: str, time):
     return new_yaml_file
 
 
+def retrieve_sha_ci_analyzes(owner: str, repo: str, time):
+    url = f"https://api.github.com/repos/{owner}/ci-analyzes/branches/main"
+    response = requests.get(url=url, headers=headers).json()
+    sha = response['commit']['sha']
+    create_branch_ci_analyzes(owner, repo, sha, time)
+
+
+def create_branch_ci_analyzes(owner, repo, sha, time):
+    url = f"{base_api_url}/repos/{owner}/ci-analyzes/git/refs/heads/optimizing-ci-builds"
+    requests.delete(url=url,  headers=headers)
+    url = f"{base_api_url}/repos/{owner}/ci-analyzes/git/refs"
+    branch_name = f"refs/heads/{repo}.{time}"
+    body = {
+            "ref": branch_name,
+            "sha": sha
+    }
+    response = requests.post(url=url, data=json.dumps(body), headers=headers)
+    # print(response.json())
+
+
 def execute(owner: str, repo: str, sha:str, default_branch:str, file_paths, new_files, yaml_shas):
     commit_sha = commit_file(owner, repo, sha, default_branch,file_paths, new_files, yaml_shas)
     return commit_sha
