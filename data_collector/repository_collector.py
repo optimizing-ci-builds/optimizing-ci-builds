@@ -12,12 +12,12 @@ headers = {
 repositories = []
 names = []
 
-with open("data/repositories_old.csv", "r", newline="", encoding="utf-8") as csv_file:
-    csv_reader = csv.reader(csv_file, delimiter=',')
-    next(csv_reader, None)
-    for row in csv_reader:
-        names.append(row[0])
-print("Repositories taken.")
+# with open("data/repositories_old.csv", "r", newline="", encoding="utf-8") as csv_file:
+#     csv_reader = csv.reader(csv_file, delimiter=',')
+#     next(csv_reader, None)
+#     for row in csv_reader:
+#         names.append(row[0])
+# print("Repositories taken.")
 
 i = 0
 # There are 30 repos in every page, so with 34 iterations we get 1020 java repositories.
