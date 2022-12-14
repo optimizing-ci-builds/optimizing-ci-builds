@@ -18,8 +18,8 @@ with open("data/file_paths.csv", "r", newline="", encoding="utf8") as csv_file:
     for row in csv_reader:
         repositories.append(
             {"name": row[0], "link": row[1], "default_branch": row[2], "sha": row[3],
-             "stargazers_count": row[4], "forks_count": row[5],
-             "Maven": row[6], "Gradle": row[7], "Travis CI": row[8], "Github Actions": row[9]})
+             "stargazers_count": row[4], "forks_count": row[5], "Date": row[6],
+             "Maven": row[7], "Gradle": row[8], "Travis CI": row[9], "Github Actions": row[10]})
 print("Data have been read.")
 
 
@@ -219,7 +219,7 @@ for repository in repositories:
 with open("data/file_contents.csv", "w", newline="", encoding="utf-8") as csv_file:
     csv_writer = csv.writer(csv_file)
     csv_writer.writerow(
-        ["name", "link", "Default Branch", "SHA", "Stargazers Count", "Forks Count",
+        ["name", "link", "Default Branch", "SHA", "Stargazers Count", "Forks Count", "Date",
          "Maven", "Gradle", "Travis CI", "Github Actions",
          "Maven Jacoco", " Maven Cobertura", "Maven Javadoc",
          "Gradle Jacoco", "Gradle Cobertura", "Gradle Javadoc",
@@ -231,7 +231,7 @@ with open("data/file_contents.csv", "w", newline="", encoding="utf-8") as csv_fi
 
     for repository in repositories:
         csv_writer.writerow([repository["name"], repository["link"], repository["default_branch"], repository["sha"],
-                             repository["stargazers_count"], repository["forks_count"],
+                             repository["stargazers_count"], repository["forks_count"], repository["Date"],
                              repository["Maven"], repository["Gradle"],
                              repository["Travis CI"], repository["Github Actions"],
                              repository["MJacoco"], repository["MCobertura"], repository["MJavadoc"],
