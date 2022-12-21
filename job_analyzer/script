@@ -1,7 +1,7 @@
 import pandas as pd
 import numpy as np
 import os
-
+import shutil
 
 def show_directories(file_path):
     with open(file_path, 'r') as f:
@@ -176,3 +176,16 @@ for line in directories:
     string_version += line + '\n'
 with open("/home/runner/work/{repo}/{repo}/optimizing-ci-builds-ci-analysis/directories.txt", "w+", encoding="utf-8") as f:
     f.write(string_version)
+shutil.copy2("/home/runner/inotify-logs.csv", "/home/runner/work/{repo}/{repo}/optimizing-ci-builds-ci-analysis/")
+
+size = 0
+Folderpath = "/home/runner/work/{repo}/{repo}/optimizing-ci-builds-ci-analysis"
+for path, dirs, files in os.walk(Folderpath):
+    for f in files:
+        fp = os.path.join(path, f)
+        size += os.path.getsize(fp)
+if size > 99000000:
+    shutil.make_archive("optimizing-ci-builds-ci-analysis", "zip", Folderpath)
+    shutil.rmtree(Folderpath)
+    os.mkdir(Folderpath)
+    shutil.move("/home/runner/work/{repo}/{repo}/optimizing-ci-builds-ci-analysis.zip", "/home/runner/work/{repo}/{repo}/optimizing-ci-builds-ci-analysis")

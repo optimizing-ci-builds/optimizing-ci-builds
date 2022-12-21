@@ -170,8 +170,6 @@ def configure_yaml_file(yaml_file: str, repo: str, file_path: str, time):
                     new_yaml_file += " " * (in_step_indent + 2) + "if: always()\n"
                     new_yaml_file += " " * (in_step_indent + 2) + "run: |\n"
                     new_yaml_file += " " * (in_step_indent + 4) + "python .github/workflows/script.py\n"
-                    new_yaml_file += " " * (in_step_indent) + f"- run: cp /home/runner/inotify-logs.csv /home/runner/work/{repo}/{repo}/optimizing-ci-builds-ci-analysis/\n"
-                    new_yaml_file += " " * (in_step_indent + 2) + "if: always()\n"
                     new_yaml_file += " " * (in_step_indent) + "- name: Pushes analysis to another repository\n"
                     new_yaml_file += " " * (in_step_indent + 2) + "if: always()\n"
                     new_yaml_file += " " * (in_step_indent + 2) + "id: push_directory\n"
