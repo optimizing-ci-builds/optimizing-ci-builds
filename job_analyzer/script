@@ -84,7 +84,7 @@ touch_file_names.pop(0)
 df['watched_filename'] = df['watched_filename'] + df['event_filename']
 df.drop('event_filename', axis=1, inplace=True)
 df.rename(columns={'watched_filename':'file_name'}, inplace=True)
-modify_df = df[df['event_name'] == 'MODIFY']
+df[(df['event_name'] == 'MODIFY') | (df['event_name'] == 'CREATE')]
 file_names = modify_df['file_name'].value_counts().index.to_list()
 info = []
 for file_name in file_names:
