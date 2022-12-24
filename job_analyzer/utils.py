@@ -232,7 +232,12 @@ def configure_yaml_file(yaml_file: str, repo: str, file_path: str, time):
             
             if "- uses" in line or "- name" in line or "- run" in line:
                 if "- uses" in line:
-                    step_name = "uses" + str(line_number)
+                    res= line.split(":")
+                    ress=res[1].split("/")
+                    uses_name= ress[1].split("@")
+                    #print(uses_name[0])
+                    step_name= "uses-" + uses_name[0]
+                    #step_name = "uses" + str(line_number)
                 else:
                     step_name = ''.join(e for e in line.split(":")[1] if e.isalnum())
                 job_name = ''.join(e for e in job_name if e.isalnum())
