@@ -170,8 +170,6 @@ def configure_yaml_file(yaml_file: str, repo: str, file_path: str, time):
                     new_yaml_file += " " * (in_step_indent + 2) + "if: always()\n"
                     new_yaml_file += " " * (in_step_indent + 2) + "run: |\n"
                     new_yaml_file += " " * (in_step_indent + 4) + "python .github/workflows/script.py\n"
-                    new_yaml_file += " " * (in_step_indent) + f"- run: cp /home/runner/inotify-logs.csv /home/runner/work/{repo}/{repo}/optimizing-ci-builds-ci-analysis/\n"
-                    new_yaml_file += " " * (in_step_indent + 2) + "if: always()\n"
                     new_yaml_file += " " * (in_step_indent) + "- name: Pushes analysis to another repository\n"
                     new_yaml_file += " " * (in_step_indent + 2) + "if: always()\n"
                     new_yaml_file += " " * (in_step_indent + 2) + "id: push_directory\n"
@@ -234,7 +232,12 @@ def configure_yaml_file(yaml_file: str, repo: str, file_path: str, time):
             
             if "- uses" in line or "- name" in line or "- run" in line:
                 if "- uses" in line:
-                    step_name = "uses" + str(line_number)
+                    res= line.split(":")
+                    ress=res[1].split("/")
+                    uses_name= ress[1].split("@")
+                    #print(uses_name[0])
+                    step_name= "uses-" + uses_name[0]
+                    #step_name = "uses" + str(line_number)
                 else:
                     step_name = ''.join(e for e in line.split(":")[1] if e.isalnum())
                 job_name = ''.join(e for e in job_name if e.isalnum())
