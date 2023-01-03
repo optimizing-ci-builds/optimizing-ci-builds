@@ -87,6 +87,8 @@ df.rename(columns={'watched_filename':'file_name'}, inplace=True)
 modify_df = df[(df['event_name'] == 'MODIFY') | (df['event_name'] == 'CREATE')]
 file_names = modify_df['file_name'].value_counts().index.to_list()
 info = []
+useful = []
+
 for file_name in file_names:
     last_access_step = ''
     last_modify_step = ''
@@ -108,9 +110,23 @@ for file_name in file_names:
                 creation_step = touch_file_name.split('_')[1]
         if f'/home/runner/work/{repo}/{repo}/.git/' not in file_name:
             info.append({'file_name': file_name, 'last_access_index': last_access_index, 'last_modify_index': last_modify_index, 'creation_index': creation_index, 'last_access_step':last_access_step , 'last_modify_step':last_modify_step, 'creation_step': creation_step})
+
+    if last_access_index > last_modify_index:
+        for touch_file_name, (starting_index, ending_index) in steps.items():
+            if (last_access_index > starting_index) and (last_access_index < ending_index):
+                last_access_step = touch_file_name.split('_')[1]
+            if (last_modify_index > starting_index) and (last_modify_index < ending_index):
+                last_modify_step = touch_file_name.split('_')[1]
+            if (creation_index > starting_index) and (creation_index < ending_index):
+                creation_step = touch_file_name.split('_')[1]
+        if f'/home/runner/work/{repo}/{repo}/.git/' not in file_name:
+            useful.append({'file_name': file_name, 'last_access_index': last_access_index, 'last_modify_index': last_modify_index, 'creation_index': creation_index, 'last_access_step':last_access_step , 'last_modify_step':last_modify_step, 'creation_step': creation_step})
+
 os.mkdir(f'/home/runner/work/{repo}/{repo}/optimizing-ci-builds-ci-analysis')
 os.mkdir(f'/home/runner/work/{repo}/{repo}/optimizing-ci-builds-ci-analysis/step-details')
 info_df = pd.DataFrame(info)
+useful_df = pd.DataFrame(useful)
+
 step_statistics = []
 for step, (starting_index, ending_index) in steps.items():
     step_name = step.split('_')[1]
@@ -170,6 +186,7 @@ for step, (starting_index, ending_index) in steps.items():
 step_df = pd.DataFrame(step_statistics)
 step_df.to_csv(f'/home/runner/work/{repo}/{repo}/optimizing-ci-builds-ci-analysis/steps.csv')
 info_df.to_csv(f'/home/runner/work/{repo}/{repo}/optimizing-ci-builds-ci-analysis/files.csv')
+useful_df.to_csv(f'/home/runner/work/{repo}/{repo}/optimizing-ci-builds-ci-analysis/useful.csv')
 directories = show_directories('/home/runner/work/{repo}/{repo}/optimizing-ci-builds-ci-analysis/files.csv')
 string_version = ''
 for line in directories:
