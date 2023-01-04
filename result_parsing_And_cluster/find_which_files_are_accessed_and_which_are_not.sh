@@ -7,10 +7,10 @@
 #mooc-software-testing.1672101501
 #git checkout -f  MavenTestCI.1670985148
 
-if [[ $1 == "" || $2 == "" || $3 == "" ]]; then
+if [[ $1 == "" || $2 == "" ]]; then
     echo "give $1 (directory name)"
     echo "give $2 (Project name)"
-    echo "give $3 (useful.csv)"
+#    echo "give $3 (useful.csv)"
     exit
 fi
 currentDir=$(pwd)
@@ -21,9 +21,9 @@ fi
 if [ -f "$currentDir/Output/$2-accessed" ]; then
     rm "$currentDir/Output/$2-accessed"
 fi
-dir_arr=($(cd $1 && printf -- '%s\n' */))
+dir_arr=($(cd "$1/step-details/" && printf -- '%s\n' */))
 #$(find . -maxdepth 1 -type d -printf '%f\n')
-cd $1
+cd "$1/step-details/"
 #echo "PWD= ${dir_arr}"
 never_accessed_file_name_array=("cm_a.csv" "c_m_a.csv" "c_m__a.csv" "cm__a.csv"  "_cm_a.csv"  "_cm__a.csv.csv"  "_c_m_a.csv" "_c_m__a.csv" )
 accessed_file_name_array=("cma.csv" "c_ma.csv" "_cma.csv"  "_c_ma.csv"  )
@@ -74,17 +74,22 @@ cp "$currentDir/tmp" "$currentDir/Output/$2-never-accessed"
 rm "$currentDir/tmp1"
 rm "$currentDir/tmp"
 
-cat "$currentDir/Output/$2-accessed" | cut -d',' -f2 > "$currentDir/tmp-access"
-cat "$currentDir/tmp-access" | sort | uniq > "$currentDir/tmp-access1"
-cp "$currentDir/tmp-access1" "$currentDir/Output/$2-accessed" 
+if [[ -f "$currentDir/Output/$2-accessed" ]]; then
+    cat "$currentDir/Output/$2-accessed" | cut -d',' -f2 > "$currentDir/tmp-access"
+    cat "$currentDir/tmp-access" | sort | uniq > "$currentDir/tmp-access1"
+    cp "$currentDir/tmp-access1" "$currentDir/Output/$2-accessed" 
 
-rm "$currentDir/tmp-access1"
-rm "$currentDir/tmp-access"
+    rm "$currentDir/tmp-access1"
+    rm "$currentDir/tmp-access"
 
-comm -13 <(sort -u "$currentDir/Output/$2-never-accessed") <(sort -u  "$currentDir/Output/$2-never-accessed") >  "$currentDir/Output/$2-common"
+    comm -13 <(sort -u "$currentDir/Output/$2-never-accessed") <(sort -u  "$currentDir/Output/$2-never-accessed") >  "$currentDir/Output/$2-common"
+fi
 
 ### Process useful.csv
 cd $currentDir
+if [[ -f  "$currentDir/Output/$2-useful" ]]; then  
+    rm "$currentDir/Output/$2-useful"
+fi
 row_count=1
 while read line
 do
@@ -93,4 +98,4 @@ do
         echo $file_name >>  "$currentDir/Output/$2-useful" 
     fi
     row_count=$((row_count+1))
-done < $3
+done < "$1/useful.csv"

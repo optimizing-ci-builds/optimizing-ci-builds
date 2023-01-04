@@ -4,8 +4,9 @@
 #So, I considered 1st group(_cm__a,cm__a) and then 2nd group(__cma,cma) in the following code. It is noteworthy that all files in c and m are generated in target/
 #$1
 
-if [[ $1 == "" ]]; then
+if [[ $1 == "" || $4 == "" ]]; then
 	echo "plz give argument link (uses26)"
+	echo "plz give project name (JSQlParser)"
     exit
 fi
 if [[ ! -d "Clustering" ]]; then
@@ -13,7 +14,7 @@ if [[ ! -d "Clustering" ]]; then
 fi
 uses_name=$(echo $1 | rev | cut -d'/' -f1 | rev)
 echo ${uses_name}
-
+never_access=${uses_name}
 #===========Which are never ever accessed=========
 
 while read line 
@@ -50,6 +51,7 @@ fi
 #======================================== useful.csv ($3)===============================
 
 uses_name=$(echo $3 | rev | cut -d'/' -f1 | rev)
+useful=${uses_name}
 
 while read line 
 do
@@ -84,6 +86,13 @@ if [[ -f "tmp_site.csv" ]]; then
     rm "tmp_site.csv"
 fi
 
+#==========================WHICH ARE uncommon in useful file ==================================
+
+cat "Clustering/${never_access}_Clustering.csv" | cut -d',' -f1 > "tmp1_never"
+cat "Clustering/${useful}_Clustering.csv" | cut -d',' -f1 > "tmp2_useful"
+comm -13 <(sort -u "tmp2_useful") <(sort -u "tmp1_never") > "Clustering/$4-unnecessary.csv"  # Looking at is not in useful category but exists in never access
+rm "tmp1_never"
+rm "tmp2_useful"
 #================ WHICH are Aceesessed($2) ============================================
     if [[ $2 == "" ]]; then
         echo "arg2 is required"
@@ -123,11 +132,7 @@ fi
         
         rm "tmp_site.csv"
     fi
-    
-    #if [[ ! -d $2 ]]; then
-    #    mkdir $2
-    #fi
-    #mv *.csv  $2
 fi
+
 
 #python3 pychart_generator.py "${uses_name}_cm_Clustering.csv"
