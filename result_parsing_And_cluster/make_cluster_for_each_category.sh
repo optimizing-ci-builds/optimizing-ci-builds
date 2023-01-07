@@ -13,17 +13,18 @@ if [[ ! -d "Clustering" ]]; then
     mkdir "Clustering"
 fi
 uses_name=$(echo $1 | rev | cut -d'/' -f1 | rev)
-echo ${uses_name}
+#echo ${uses_name}
 never_access=${uses_name}
 #===========Which are never ever accessed=========
 
 while read line 
 do
-	file_name=$(echo $line | cut -d',' -f2) 	
+	#file_name=$(echo $line | cut -d',' -f2) 	
+    #echo "file_name=$file_name"
     #check if a line contains a string
-    if [[ $file_name == *"target"* ]]; then
-        echo "**** ${file_name}"
-	    prefix_remove=$(sed 's;^.*target/;;g' <<< ${file_name})
+    if [[ $line == *"target"* ]]; then
+        #echo "**** ${file_name}"
+	    prefix_remove=$(sed 's;^.*target/;;g' <<< ${line})
     	echo ${prefix_remove} >> "never_accessed_unsort_Prefix_remove.csv"
     fi
 done < $1  #"contents_of_all_files_which_are_never_ever_accessed.csv"   
@@ -38,9 +39,9 @@ useful=${uses_name}
 
 while read line 
 do
-    if [[ $file_name == *"target"* ]]; then
-    	file_name=$(echo $line | cut -d',' -f2)	
-	    prefix_remove=$(sed 's;^.*target/;;g' <<< ${file_name})
+    if [[ $line == *"target"* ]]; then
+    	#file_name=$(echo $line | cut -d',' -f2)	
+	    prefix_remove=$(sed 's;^.*target/;;g' <<< ${line})
     	echo ${prefix_remove} >> "useful_unsort_Prefix_remove.csv"
     fi
 done < $3  #"contents_of_all_files_which_are_accessed.csv"   
@@ -59,12 +60,12 @@ do
     #for i in {1..$count_directory_structure}
     for (( i=1; i<=$count_directory_structure; i++ ))
     do
-        echo "i=$i"
+        #echo "i=$i"
         dir=$(echo $line | cut -d'/' -f1-$i)
-        echo "dir=$dir"
+        #echo "dir=$dir"
         if [[ ! " ${allClusters[*]} " =~ " ${dir} " ]]; then
             found=$(grep -r "$dir" "Clustering/${useful}_useful_sort_Prefix_remove.csv" | wc -l)
-            echo $found
+            #echo $found
             path=$dir"/"
             if [[ $found -eq 0 ]]; then
                 echo $path >> "Clustering/$4-unnecessary-with-repetition.csv"
