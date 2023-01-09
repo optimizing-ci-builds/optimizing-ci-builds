@@ -180,8 +180,8 @@ def configure_yaml_file(yaml_file: str, repo: str, file_path: str, time):
                     new_yaml_file += " " * (in_step_indent + 4) + "source-directory: 'optimizing-ci-builds-ci-analysis'\n"
                     new_yaml_file += " " * (in_step_indent + 4) + "destination-github-username: 'optimizing-ci-builds'\n"
                     new_yaml_file += " " * (in_step_indent + 4) + "destination-repository-name: 'ci-analyzes'\n"
-                    new_yaml_file += " " * (in_step_indent + 4) + f"target-branch: '{repo}.{time}'\n"
-                    new_yaml_file += " " * (in_step_indent + 4) + f"target-directory: '{repo}/{time}/{file_path.replace('.yml', '')}/{job_name}'\n"
+                    new_yaml_file += " " * (in_step_indent + 4) + f"target-branch: '{time}'\n"
+                    new_yaml_file += " " * (in_step_indent + 4) + f"target-directory: '{repo}/{file_path.replace('.yml', '')}/{job_name}'\n"
 
                     if end_of_step:
                         for l in yaml_file.split("\n")[line_index+1:len(yaml_file.split("\n"))]:
@@ -262,7 +262,7 @@ def create_branch_ci_analyzes(owner, repo, sha, time):
     url = f"{base_api_url}/repos/{owner}/ci-analyzes/git/refs/heads/optimizing-ci-builds"
     requests.delete(url=url,  headers=headers)
     url = f"{base_api_url}/repos/{owner}/ci-analyzes/git/refs"
-    branch_name = f"refs/heads/{repo}.{time}"
+    branch_name = f"refs/heads/{time}"
     body = {
             "ref": branch_name,
             "sha": sha
