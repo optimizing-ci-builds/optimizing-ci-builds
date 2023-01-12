@@ -9,8 +9,9 @@ if [[ $1 == "" || $4 == "" ]]; then
 	echo "plz give project name (JSQlParser)"
     exit
 fi
-if [[ ! -d "Clustering" ]]; then
-    mkdir "Clustering"
+outputDir="Clustering-Useful"
+if [[ ! -d "$outputDir" ]]; then
+    mkdir "$outputDir"
 fi
 uses_name=$(echo $1 | rev | cut -d'/' -f1 | rev)
 #echo ${uses_name}
@@ -29,7 +30,7 @@ do
     fi
 done < $1  #"contents_of_all_files_which_are_never_ever_accessed.csv"   
 
-sort "never_accessed_unsort_Prefix_remove.csv" > "Clustering/${never_access}_sort_Prefix_remove.csv"
+sort "never_accessed_unsort_Prefix_remove.csv" > "$outputDir/${never_access}_sort_Prefix_remove.csv"
 rm  "never_accessed_unsort_Prefix_remove.csv"
 
 #======================================== useful.csv ($3)===============================
@@ -45,13 +46,13 @@ do
     	echo ${prefix_remove} >> "useful_unsort_Prefix_remove.csv"
     fi
 done < $3  #"contents_of_all_files_which_are_accessed.csv"   
-sort "useful_unsort_Prefix_remove.csv" > "Clustering/${useful}_useful_sort_Prefix_remove.csv"
+sort "useful_unsort_Prefix_remove.csv" > "$outputDir/${useful}_useful_sort_Prefix_remove.csv"
 rm  "useful_unsort_Prefix_remove.csv"
 
 #================= FOR COMPARING this two sorted csv =========================
 allClusters=()
-if [[ -f  "Clustering/$4-unnecessary.csv" ]]; then
-    rm "Clustering/$4-unnecessary.csv"
+if [[ -f  "$outputDir/$4-unnecessary.csv" ]]; then
+    rm "$outputDir/$4-unnecessary.csv"
 fi
 while read line
 do
@@ -64,11 +65,11 @@ do
         dir=$(echo $line | cut -d'/' -f1-$i)
         #echo "dir=$dir"
         if [[ ! " ${allClusters[*]} " =~ " ${dir} " ]]; then
-            found=$(grep -r "$dir" "Clustering/${useful}_useful_sort_Prefix_remove.csv" | wc -l)
+            found=$(grep -r "$dir" "$outputDir/${useful}_useful_sort_Prefix_remove.csv" | wc -l)
             #echo $found
             path=$dir"/"
             if [[ $found -eq 0 ]]; then
-                echo $path >> "Clustering/$4-unnecessary-with-repetition.csv"
+                echo $path >> "$outputDir/$4-unnecessary-with-repetition.csv"
                 allClusters+=($path)
                 break;
             fi
@@ -77,9 +78,9 @@ do
         fi
 
     done
-done <  "Clustering/${never_access}_sort_Prefix_remove.csv"
-sort "Clustering/$4-unnecessary-with-repetition.csv" | uniq -c > "Clustering/$4-unnecessary.csv"
+done <  "$outputDir/${never_access}_sort_Prefix_remove.csv"
+sort "$outputDir/$4-unnecessary-with-repetition.csv" | uniq -c > "$outputDir/$4-unnecessary.csv"
 
-rm "Clustering/${useful}_useful_sort_Prefix_remove.csv"
-rm "Clustering/${never_access}_sort_Prefix_remove.csv"
-rm "Clustering/$4-unnecessary-with-repetition.csv"
+rm "$outputDir/${useful}_useful_sort_Prefix_remove.csv"
+rm "$outputDir/${never_access}_sort_Prefix_remove.csv"
+rm "$outputDir/$4-unnecessary-with-repetition.csv"
