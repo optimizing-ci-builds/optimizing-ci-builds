@@ -1,13 +1,13 @@
 ##For getting unnecessary directories in top level
-bash make_cluster_for_each_category.sh Output/JSQlParser-never-accessed "" Output/JSQlParser-useful  JSQLParser Clustering
-bash make_cluster_for_each_category.sh Output/Algorithm-never-accessed "" Output/Algorithm-useful  Algorithm Clustering
-bash make_cluster_for_each_category.sh Output/MavenTestCI-never-accessed ""  Output/MavenTestCI-useful  MavenTestCI Clustering
-bash make_cluster_for_each_category.sh Output/jv-fruit-shop-never-accessed "" Output/jv-fruit-shop-useful  jv-fruit-shop Clustering
-bash make_cluster_for_each_category.sh Output/matism-example-project-never-accessed  ""  Output/matism-example-project-useful  matism-example-project Clustering
-bash make_cluster_for_each_category.sh Output/mcMMO-never-accessed ""  Output/mcMMO-useful  mcMMO Clustering
-bash make_cluster_for_each_category.sh Output/pipelines-java-never-accessed ""  Output/pipelines-java-useful  pipelines-java Clustering
-bash make_cluster_for_each_category.sh Output/spring-framework-petclinic-never-accessed "" Output/spring-framework-petclinic-useful spring-framework-petclinic Clustering
-bash make_cluster_for_each_category.sh Output/spring-petclinic-rest-never-accessed "" Output/spring-petclinic-rest-useful spring-petclinic-rest Clustering
+bash make_cluster_for_each_category.sh Output/JSQlParser-never-accessed "" Output/JSQlParser-useful  JSQLParser Clustering-Unused-Directories
+bash make_cluster_for_each_category.sh Output/Algorithm-never-accessed "" Output/Algorithm-useful  Algorithm Clustering-Unused-Directories
+bash make_cluster_for_each_category.sh Output/MavenTestCI-never-accessed ""  Output/MavenTestCI-useful  MavenTestCI Clustering-Unused-Directories
+bash make_cluster_for_each_category.sh Output/jv-fruit-shop-never-accessed "" Output/jv-fruit-shop-useful  jv-fruit-shop Clustering-Unused-Directories
+bash make_cluster_for_each_category.sh Output/matism-example-project-never-accessed  ""  Output/matism-example-project-useful  matism-example-project Clustering-Unused-Directories
+bash make_cluster_for_each_category.sh Output/mcMMO-never-accessed ""  Output/mcMMO-useful  mcMMO Clustering-Unused-Directories
+bash make_cluster_for_each_category.sh Output/pipelines-java-never-accessed ""  Output/pipelines-java-useful  pipelines-java Clustering-Unused-Directories
+bash make_cluster_for_each_category.sh Output/spring-framework-petclinic-never-accessed "" Output/spring-framework-petclinic-useful spring-framework-petclinic Clustering-Unused-Directories
+bash make_cluster_for_each_category.sh Output/spring-petclinic-rest-never-accessed "" Output/spring-petclinic-rest-useful spring-petclinic-rest Clustering-Unused-Directories
 
 ##For getting useful directories in top level
 bash make_cluster_for_each_category.sh Output/JSQlParser-useful  "" Output/JSQlParser-never-accessed JSQLParser Clustering-Useful-Directories 
