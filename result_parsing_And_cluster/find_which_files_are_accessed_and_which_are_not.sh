@@ -14,12 +14,18 @@ if [[ $1 == "" ]]; then
     exit
 fi
 currentDir=$(pwd)
-Output="Output-1"
+Output="Output"
+if [[ -f "projects_name_per_yaml.csv" ]]; then
+    rm "projects_name_per_yaml.csv"
+fi
+
 while read row_line
 do
     output_proj_name=$(echo $row_line |cut -d'/' -f8)
     workflow_name=$(echo $row_line | rev |cut -d'/' -f1-2| rev | sed 's/\//-/g' )
     proj_with_workflow="${output_proj_name}-$workflow_name"
+    
+    echo $proj_with_workflow >> "projects_name_per_yaml.csv"
 
     if [ -f "$currentDir/$Output/$proj_with_workflow-never-accessed" ]; then
         rm "$currentDir/$Output/$proj_with_workflow-never-accessed"
