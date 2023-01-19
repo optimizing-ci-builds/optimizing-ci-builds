@@ -12,6 +12,7 @@ import pandas as pd
 import numpy as np
 from base64 import b64encode
 from nacl import encoding, public
+import yaml
 
 base_api_url: str = "https://api.github.com"
 user_token: str = os.environ["G_AUTH_OP"]
@@ -111,6 +112,48 @@ def get_yaml_file(forked_owner: str, repo: str, file_path: str):
     return base64.b64decode(response.json()["content"]).decode("utf-8"), response.json()["sha"]
 
 
+def divide_yaml(yaml_file):
+    new_yaml_files = []
+    lines = yaml_file.splitlines()
+    
+    # with open(yaml_file, 'r') as f:
+    #     lines = f.readlines()
+    matrix_start = -1
+    matrix_end = -1
+    indentation = -1
+    for i in range(len(lines)):
+        line = lines[i]
+        if "strategy:" in line:
+            matrix_start = i
+            indentation = len(line) - len(line.lstrip())
+        if matrix_start != -1 and (line.strip() == "" or (indentation != -1 and len(line) - len(line.lstrip()) < indentation)):
+            matrix_end = i
+            break
+    if matrix_start == -1 or matrix_end == -1:
+        print("No strategy matrix found.")
+        new_yaml_files.append("".join(lines))
+        return new_yaml_files
+    part1 = "".join(lines[:matrix_start])
+    part2 = "".join(lines[matrix_start:matrix_end])
+    part3 = "".join(lines[matrix_end:])
+    
+    # load the yaml string into a dictionary
+    part2_dict = yaml.safe_load(part2)
+
+    # extract the matrix values
+    matrix_values = part2_dict["strategy"]["matrix"]["java_version"]
+    
+    # so there should be len(matrix_values) new yaml files
+
+    # generating new strings for each matrix value
+    for value in matrix_values:
+        part2_dict["strategy"]["matrix"]["java_version"] = [value]
+        new_string = yaml.dump(part2_dict)
+        new_yaml_files.append(f"{part1}{new_string}{part3}")
+
+    return new_yaml_files
+
+        
 def configure_yaml_file(yaml_file: str, repo: str, file_path: str, time):
     new_yaml_file: str = ""
     indent = 0
