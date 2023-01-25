@@ -117,9 +117,9 @@ def get_yaml_file(forked_owner: str, repo: str, file_path: str):
 
 
 def divide_yaml_per_job(yaml_string):
-    loaded_yaml = ruamel.yaml.safe_load(yaml_string)
+    new_set_of_jobs = []
     
-    print("Yaml string loaded")
+    loaded_yaml = ruamel.yaml.safe_load(yaml_string)
     
     # get high level keys of the yaml file
     yaml_keys = list(loaded_yaml.keys())
@@ -127,20 +127,18 @@ def divide_yaml_per_job(yaml_string):
     # find the index of the jobs key
     jobs_index = yaml_keys.index("jobs")
     
-    print("The job index is: " + str(jobs_index))
-    
-    # from index 0 to jobs_index, add the content to a string called part1, replace the text on by true if it is in the list
-    part1 = {}
-    for i in range(jobs_index):
-        key = yaml_keys[i]
-        # append the key content to part1
-        part1[key] = loaded_yaml[key]
+    # # from index 0 to jobs_index, add the content to a string called part1, replace the text on by true if it is in the list
+    # part1 = {}
+    # for i in range(jobs_index):
+    #     key = yaml_keys[i]
+    #     # append the key content to part1
+    #     part1[key] = loaded_yaml[key]
         
-        # part1 += yaml.dump({key: loaded_yaml[key]})    
+    #     # part1 += yaml.dump({key: loaded_yaml[key]})    
     
-    print(ruamel.yaml.dump(part1))
+    # print(ruamel.yaml.dump(part1))
     
-    #  PART 1 complete, everythin before the starting of the jobs
+    # #  PART 1 complete, everythin before the starting of the jobs
     
     
     
@@ -148,7 +146,7 @@ def divide_yaml_per_job(yaml_string):
     # The upper level key should be "jobs" and the 2nd level keys should be the key of jobs itself
     
     
-    part2 = {}
+    # part2 = {}
     # part2 = "jobs:\n"
     # part2 += "  " # add indentation for the new jobs
     
@@ -160,15 +158,61 @@ def divide_yaml_per_job(yaml_string):
         # if loaded_yaml["jobs"][job_name]["strategy"]["matrix"]:
         if "strategy" in loaded_yaml["jobs"][job_name] and "matrix" in loaded_yaml["jobs"][job_name]["strategy"]:
             print("found matrix in the job: " + job_name)
-            # also print the matrix
-            # print(loaded_yaml["jobs"][job_name]["strategy"]["matrix"])
+            
+            matrix_key = list(loaded_yaml["jobs"][job_name]["strategy"]["matrix"].keys())[0]
+            matrix_values = loaded_yaml["jobs"][job_name]["strategy"]["matrix"][matrix_key]
+            
+            print("matrix key: " + matrix_key)
+            
+            temp_dict = loaded_yaml.copy()
+            temp_dict["jobs"] = {}
+            temp_dict["jobs"][job_name] = loaded_yaml["jobs"][job_name]
+            
+            for matrix_value in matrix_values:
+                print("Evalueating matrix value: " + matrix_value + " for key: " + matrix_key)
+                
+                # replace the matrix value to the job
+                temp_dict["jobs"][job_name]["strategy"]["matrix"][matrix_key] = matrix_value
+                
+                # print(ruamel.yaml.dump(temp_dict))
+            
+                new_set_of_jobs.append({job_name+"_"+matrix_value: ruamel.yaml.dump(temp_dict)})
+        
+            if "needs" in loaded_yaml["jobs"][job_name]:
+                print("found needs in the job: " + job_name)
+            
+            else:
+                temp_dict = loaded_yaml.copy()
+                
+
         else:
-            part2 += "  " +  ruamel.yaml.dump(loaded_yaml["jobs"][job_name], Dumper=ruamel.yaml.RoundTripDumper)
+            # part2 += "  " +  ruamel.yaml.dump(loaded_yaml["jobs"][job_name], Dumper=ruamel.yaml.RoundTripDumper)
             print("no matrix in the job: " + job_name)
-            # print part 1 and part 2 concatenated
-            # print(part2)
+
+            # in a temp dict, copy the loaded_yaml and remove the value of jobs other than the current job name
+            # then append the temp dict to the new_set_of_jobs
+            
+            temp_dict = loaded_yaml.copy()
+            temp_dict["jobs"] = {}
+            temp_dict["jobs"][job_name] = loaded_yaml["jobs"][job_name]
+            
+            new_set_of_jobs.append({job_name: ruamel.yaml.dump(temp_dict)})
+            
+            
+            
     print("done")
-    return part1
+    
+    # print("The new set of jobs has the following names: " + str([list(x.keys())[0] for x in new_set_of_jobs]))
+    
+    # print the first entry in the new_set_of_jobs
+    # print(new_set_of_jobs)
+    
+    # for job in new_set_of_jobs:
+    #     print(list(job.keys())[0])
+    
+    return new_set_of_jobs
+    
+    # return part1
     
 
 
@@ -215,7 +259,7 @@ def divide_yaml(yaml_string):
     return new_yaml_files
 
         
-def configure_yaml_file(yaml_file: str, repo: str, file_path: str, time, matrix_value):
+def configure_yaml_file(yaml_file: str, repo: str, file_path: str, time, file_name:str):
     new_yaml_file: str = ""
     indent = 0
     job_indent = 0
@@ -285,7 +329,7 @@ def configure_yaml_file(yaml_file: str, repo: str, file_path: str, time, matrix_
                     new_yaml_file += " " * (in_step_indent + 4) + "destination-github-username: 'UT-SE-Research'\n"
                     new_yaml_file += " " * (in_step_indent + 4) + "destination-repository-name: 'ci-analyzes'\n"
                     new_yaml_file += " " * (in_step_indent + 4) + f"target-branch: '{time}'\n"
-                    new_yaml_file += " " * (in_step_indent + 4) + f"target-directory: '{repo}/{file_path.replace('.yml', '')}/{job_name}'\n"
+                    new_yaml_file += " " * (in_step_indent + 4) + f"target-directory: '{repo}/{file_path.replace('.yml', '')}/{file_name}'\n"
 
                     if end_of_step:
                         for l in yaml_file.split("\n")[line_index+1:len(yaml_file.split("\n"))]:
@@ -352,10 +396,9 @@ def configure_yaml_file(yaml_file: str, repo: str, file_path: str, time, matrix_
                 new_yaml_file += line + "\n"
             else:
                 new_yaml_file += line + "\n"
-    # save the new yaml file in a file named matrix_value.yml
-    print("Saving the new yaml file")
-    with open (f"{matrix_value}.yml", "w") as f:
-        f.write(new_yaml_file)
+    # print("Saving the new yaml file")
+    # with open (f"{file_name}.yml", "w") as f:
+    #     f.write(new_yaml_file)
     return new_yaml_file
 
 
