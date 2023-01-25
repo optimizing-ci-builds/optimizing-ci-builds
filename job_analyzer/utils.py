@@ -207,8 +207,8 @@ def divide_yaml_per_job(yaml_string):
     # print the first entry in the new_set_of_jobs
     # print(new_set_of_jobs)
     
-    # for job in new_set_of_jobs:
-    #     print(list(job.keys())[0])
+    for job in new_set_of_jobs:
+        print(list(job.keys())[0])
     
     return new_set_of_jobs
     

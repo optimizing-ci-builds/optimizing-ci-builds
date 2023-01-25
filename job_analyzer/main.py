@@ -43,9 +43,11 @@ def main():
                     print(error)
                     # continue
                     pass
-                yaml_files = utils.divide_yaml(yaml_file)
-                for yaml_file in yaml_files:    
-                    configured_yaml = utils.configure_yaml_file(yaml_file, repo, file_path, time1)
+                yaml_files = utils.divide_yaml_per_job(yaml_file)
+                print("Divided the yaml file")
+                for yaml_file in yaml_files:
+                    file_name = list(yaml_file.keys())[0]    
+                    configured_yaml = utils.configure_yaml_file(yaml_file[file_name], repo, file_path, time1, str(file_name))
                     # with open("Output.yml", "w") as text_file:
                     #     print(f"{configured_yaml}", file=text_file)
                     configured_yaml_files.append(configured_yaml)
