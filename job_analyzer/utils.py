@@ -1,5 +1,6 @@
 import base64
 import json
+import textwrap
 import time
 import os
 from urllib.parse import uses_relative
@@ -12,6 +13,10 @@ import pandas as pd
 import numpy as np
 from base64 import b64encode
 from nacl import encoding, public
+import yaml
+from yaml.resolver import BaseResolver
+import ruamel.yaml
+
 
 base_api_url: str = "https://api.github.com"
 user_token: str = os.environ["G_AUTH_OP"]
@@ -111,7 +116,106 @@ def get_yaml_file(forked_owner: str, repo: str, file_path: str):
     return base64.b64decode(response.json()["content"]).decode("utf-8"), response.json()["sha"]
 
 
-def configure_yaml_file(yaml_file: str, repo: str, file_path: str, time):
+def divide_yaml_per_job(yaml_string):
+    loaded_yaml = ruamel.yaml.safe_load(yaml_string)
+    
+    print("Yaml string loaded")
+    
+    # get high level keys of the yaml file
+    yaml_keys = list(loaded_yaml.keys())
+    
+    # find the index of the jobs key
+    jobs_index = yaml_keys.index("jobs")
+    
+    print("The job index is: " + str(jobs_index))
+    
+    # from index 0 to jobs_index, add the content to a string called part1, replace the text on by true if it is in the list
+    part1 = {}
+    for i in range(jobs_index):
+        key = yaml_keys[i]
+        # append the key content to part1
+        part1[key] = loaded_yaml[key]
+        
+        # part1 += yaml.dump({key: loaded_yaml[key]})    
+    
+    print(ruamel.yaml.dump(part1))
+    
+    #  PART 1 complete, everythin before the starting of the jobs
+    
+    
+    
+    # Begin the procressing of PART 2, we should separate each jobs and put it in a dict
+    # The upper level key should be "jobs" and the 2nd level keys should be the key of jobs itself
+    
+    
+    part2 = {}
+    # part2 = "jobs:\n"
+    # part2 += "  " # add indentation for the new jobs
+    
+    
+    jobs_names = list(loaded_yaml["jobs"].keys())
+    for job_name in jobs_names:
+        print("Evaluating job: " + job_name)
+        # if the job has a strategy->matrix, then we need to create a new yaml file per matrix
+        # if loaded_yaml["jobs"][job_name]["strategy"]["matrix"]:
+        if "strategy" in loaded_yaml["jobs"][job_name] and "matrix" in loaded_yaml["jobs"][job_name]["strategy"]:
+            print("found matrix in the job: " + job_name)
+            # also print the matrix
+            # print(loaded_yaml["jobs"][job_name]["strategy"]["matrix"])
+        else:
+            part2 += "  " +  ruamel.yaml.dump(loaded_yaml["jobs"][job_name], Dumper=ruamel.yaml.RoundTripDumper)
+            print("no matrix in the job: " + job_name)
+            # print part 1 and part 2 concatenated
+            # print(part2)
+    print("done")
+    return part1
+    
+
+
+def divide_yaml(yaml_string):
+    new_yaml_files = []
+    lines = yaml_string.splitlines()
+    matrix_start = -1
+    matrix_end = -1
+    indentation = -1
+    for i in range(len(lines)):
+        line = lines[i]
+        if "strategy:" in line:
+            matrix_start = i
+            indentation = len(line) - len(line.lstrip())
+        if matrix_start != -1 and (line.strip() == "" or (indentation != -1 and len(line) - len(line.lstrip()) < indentation)):
+            matrix_end = i
+            break
+    if matrix_start == -1 or matrix_end == -1:
+        print("No strategy matrix found.")
+        new_yaml_files.append("\n".join(lines))
+        return new_yaml_files
+    part1 = "\n".join(lines[:matrix_start])
+    part2 = textwrap.dedent("\n".join(lines[matrix_start:matrix_end]))
+    part3 = textwrap.dedent("\n".join(lines[matrix_end:]))
+    # load the yaml string into a dictionary
+    part2_dict = yaml.safe_load(part2)
+    
+    print(part2)
+    # extract the matrix values
+    # extract the keys of the matrix
+    matrix_key = list(part2_dict["strategy"]["matrix"].keys())[0]
+    matrix_values = part2_dict["strategy"]["matrix"][matrix_key]
+    # so there should be len(matrix_values) new yaml files
+    # generating new strings for each matrix value
+    for value in matrix_values:
+        part2_dict["strategy"]["matrix"][matrix_key] = [value]
+        new_string = yaml.dump(part2_dict)
+        # new_yaml_files.append(f"{part1}{new_string}{part3}")
+        
+        # append a dictionary with the new string and the matrix value
+        new_yaml_files.append({"yaml": f"{part1}{new_string}{part3}", "matrix_value": value})
+    
+    # print(new_yaml_files[0]["yaml"])
+    return new_yaml_files
+
+        
+def configure_yaml_file(yaml_file: str, repo: str, file_path: str, time, matrix_value):
     new_yaml_file: str = ""
     indent = 0
     job_indent = 0
@@ -248,7 +352,12 @@ def configure_yaml_file(yaml_file: str, repo: str, file_path: str, time):
                 new_yaml_file += line + "\n"
             else:
                 new_yaml_file += line + "\n"
+    # save the new yaml file in a file named matrix_value.yml
+    print("Saving the new yaml file")
+    with open (f"{matrix_value}.yml", "w") as f:
+        f.write(new_yaml_file)
     return new_yaml_file
+
 
 
 def retrieve_sha_ci_analyzes(owner: str, repo: str, time):
