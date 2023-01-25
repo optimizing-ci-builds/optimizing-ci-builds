@@ -13,7 +13,8 @@ import pandas as pd
 import numpy as np
 from base64 import b64encode
 from nacl import encoding, public
-import yaml
+# import yaml
+import oyaml as yaml
 from yaml.resolver import BaseResolver
 import ruamel.yaml
 
@@ -176,7 +177,7 @@ def divide_yaml_per_job(yaml_string):
                 
                 # print(ruamel.yaml.dump(temp_dict))
             
-                new_set_of_jobs.append({job_name+"_"+matrix_value: ruamel.yaml.dump(temp_dict)})
+                new_set_of_jobs.append({job_name+"_"+matrix_value: yaml.dump(temp_dict)})
         
             if "needs" in loaded_yaml["jobs"][job_name]:
                 print("found needs in the job: " + job_name)
@@ -196,7 +197,7 @@ def divide_yaml_per_job(yaml_string):
             temp_dict["jobs"] = {}
             temp_dict["jobs"][job_name] = loaded_yaml["jobs"][job_name]
             
-            new_set_of_jobs.append({job_name: ruamel.yaml.dump(temp_dict)})
+            new_set_of_jobs.append({job_name: yaml.dump(temp_dict)})
             
             
             
