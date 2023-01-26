@@ -120,37 +120,13 @@ def get_yaml_file(forked_owner: str, repo: str, file_path: str):
 def divide_yaml_per_job(yaml_string):
     new_set_of_jobs = []
     
-    loaded_yaml = ruamel.yaml.safe_load(yaml_string)
+    loaded_yaml = ruamel.yaml.safe_load(yaml_string)   
     
     # get high level keys of the yaml file
     yaml_keys = list(loaded_yaml.keys())
     
     # find the index of the jobs key
     jobs_index = yaml_keys.index("jobs")
-    
-    # # from index 0 to jobs_index, add the content to a string called part1, replace the text on by true if it is in the list
-    # part1 = {}
-    # for i in range(jobs_index):
-    #     key = yaml_keys[i]
-    #     # append the key content to part1
-    #     part1[key] = loaded_yaml[key]
-        
-    #     # part1 += yaml.dump({key: loaded_yaml[key]})    
-    
-    # print(ruamel.yaml.dump(part1))
-    
-    # #  PART 1 complete, everythin before the starting of the jobs
-    
-    
-    
-    # Begin the procressing of PART 2, we should separate each jobs and put it in a dict
-    # The upper level key should be "jobs" and the 2nd level keys should be the key of jobs itself
-    
-    
-    # part2 = {}
-    # part2 = "jobs:\n"
-    # part2 += "  " # add indentation for the new jobs
-    
     
     jobs_names = list(loaded_yaml["jobs"].keys())
     for job_name in jobs_names:
@@ -173,7 +149,7 @@ def divide_yaml_per_job(yaml_string):
                 print("Evalueating matrix value: " + matrix_value + " for key: " + matrix_key)
                 
                 # replace the matrix value to the job
-                temp_dict["jobs"][job_name]["strategy"]["matrix"][matrix_key] = matrix_value
+                temp_dict["jobs"][job_name]["strategy"]["matrix"][matrix_key] = [matrix_value]
                 
                 # print(ruamel.yaml.dump(temp_dict))
             
@@ -203,18 +179,11 @@ def divide_yaml_per_job(yaml_string):
             
     print("done")
     
-    # print("The new set of jobs has the following names: " + str([list(x.keys())[0] for x in new_set_of_jobs]))
-    
-    # print the first entry in the new_set_of_jobs
-    # print(new_set_of_jobs)
-    
+    # replace the 'on': with on: in the new_set_of_jobs
     for job in new_set_of_jobs:
-        print(list(job.keys())[0])
+        job[list(job.keys())[0]] = job[list(job.keys())[0]].replace("'on':", "on:") 
     
     return new_set_of_jobs
-    
-    # return part1
-    
 
 
 def divide_yaml(yaml_string):
