@@ -376,9 +376,9 @@ def configure_yaml_file(yaml_file: str, repo: str, file_path: str, time):
                 new_yaml_file += line + "\n"
             else:
                 new_yaml_file += line + "\n"
-    print("Saving the new yaml file: ", f"{file_path}")
-    with open (f"{file_path}", "w") as f:
-        f.write(new_yaml_file)
+    # print("Saving the new yaml file: ", f"{file_path}")
+    # with open (f"{file_path}", "w") as f:
+    #     f.write(new_yaml_file)
     return new_yaml_file
 
 
