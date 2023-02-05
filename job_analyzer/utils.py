@@ -1,4 +1,5 @@
 import base64
+import itertools
 import json
 import textwrap
 import time
@@ -229,7 +230,7 @@ def divide_yaml(yaml_string):
     return new_yaml_files
 
         
-def configure_yaml_file(yaml_file: str, repo: str, file_path: str, time, file_name:str):
+def configure_yaml_file(yaml_file: str, repo: str, file_path: str, time):
     new_yaml_file: str = ""
     indent = 0
     job_indent = 0
@@ -274,8 +275,11 @@ def configure_yaml_file(yaml_file: str, repo: str, file_path: str, time, file_na
             if (in_steps and condition):
                 end_of_step = True
                 for l in yaml_file.split("\n")[line_index+1:len(yaml_file.split("\n"))]:
+                    next_line_indent = (len(l) - len(l.lstrip()))
                     if l.strip() != "":
                         end_of_step = False
+                        if(next_line_indent < in_step_indent):
+                            end_of_step = True
                         break
                 new_yaml_file += line + "\n"
                 if end_of_step:
@@ -299,7 +303,13 @@ def configure_yaml_file(yaml_file: str, repo: str, file_path: str, time, file_na
                     new_yaml_file += " " * (in_step_indent + 4) + "destination-github-username: 'UT-SE-Research'\n"
                     new_yaml_file += " " * (in_step_indent + 4) + "destination-repository-name: 'ci-analyzes'\n"
                     new_yaml_file += " " * (in_step_indent + 4) + f"target-branch: '{time}'\n"
-                    new_yaml_file += " " * (in_step_indent + 4) + f"target-directory: '{repo}/{file_path.replace('.yml', '')}/{file_name}'\n"
+                    new_yaml_file += " " * (in_step_indent + 4) + f"target-directory: '{repo}/{file_path.replace('.yml', '')}/{job_name}'\n"
+                    
+                    # check if there is another job
+                    for l in yaml_file.split("\n")[line_index+1:len(yaml_file.split("\n"))]:
+                        if l.strip() == "steps:":
+                            end_of_step = False
+                            break
 
                     if end_of_step:
                         for l in yaml_file.split("\n")[line_index+1:len(yaml_file.split("\n"))]:
@@ -366,12 +376,122 @@ def configure_yaml_file(yaml_file: str, repo: str, file_path: str, time, file_na
                 new_yaml_file += line + "\n"
             else:
                 new_yaml_file += line + "\n"
-    # print("Saving the new yaml file")
-    # with open (f"{file_name}.yml", "w") as f:
-    #     f.write(new_yaml_file)
+    print("Saving the new yaml file: ", f"{file_path}")
+    with open (f"{file_path}", "w") as f:
+        f.write(new_yaml_file)
     return new_yaml_file
 
 
+def configure_yaml_file_new(yaml_file: str, repo: str, file_path: str, time):
+    new_yaml_file: str = ""
+    temp_dict = {}
+    
+    # Load the yaml file to a dictionary
+    loaded_yaml = ruamel.yaml.safe_load(yaml_file)
+    yaml_keys = list(loaded_yaml.keys())
+    jobs_index = yaml_keys.index("jobs")
+    jobs_names = list(loaded_yaml["jobs"].keys())
+    
+    
+    temp_dict = loaded_yaml.copy()
+    
+    # create a dict with the job names that has matrix
+    jobs_with_matrix = {}
+    for job_name in jobs_names:
+        print("Checking if the job has matrix: ", job_name)
+        if "strategy" in loaded_yaml["jobs"][job_name]:
+            if "matrix" in loaded_yaml["jobs"][job_name]["strategy"]:
+                jobs_with_matrix[job_name] = loaded_yaml["jobs"][job_name]["strategy"]["matrix"]
+                
+    # if len(jobs_with_matrix) > 1:
+    #     print("More than 1 job matrix")
+    #     with open("moreThanOneMatrix.txt", "a") as f:
+    #         f.write(f"{repo}    {file_path}")
+    #         f.write("\n")
+    
+    # for job_name in jobs_with_matrix.keys():
+    #     if len(jobs_with_matrix[job_name]) > 1:
+    #         print("Job with more than 1 matrix")
+    #         with open("oneJobMoreMatrix.txt", "a") as f:
+    #             f.write(f"{repo}    {file_path}   {job_name}")
+    #             f.write("\n")
+            
+    jobs_with_dependencies = {}
+    for job_name in jobs_names:
+        if "needs" in loaded_yaml["jobs"][job_name]:
+            print("The job has dependencies: ", job_name)
+            jobs_with_dependencies[job_name] = loaded_yaml["jobs"][job_name]["needs"]
+            
+    # print("Jobs with dependencies: ", jobs_with_dependencies)
+    
+    # print("Jobs with matrix: ", jobs_with_matrix)
+    # instrument the jobs
+    for job_name in jobs_names:
+        print("Evaluating the job: ", job_name)
+        
+        # TODO: of the job depends on another job which has a matrix, then make the job depends on the first matrix job before splitting the matrix
+        # if job_name in jobs_with_dependencies.keys():
+        #     print("The job has dependencies: ", job_name)
+        #     with open("withDependency.txt", "a") as f:
+        #         f.write(repo + "\t" + job_name)
+        #         f.write("\n")
+        #         # return
+        
+        # else:
+        #     print("The job does not have dependencies: ", job_name)
+        #     return
+        
+        # if jobname is in the jobs_with_matrix dict, then it has matrix
+        if job_name in jobs_with_matrix.keys():
+            print("The job has matrix : " + job_name)
+            
+            # if job_name in jobs_with_dependencies.keys():
+            #     print("The matrix has dependencies: ", job_name)
+            #     with open("jobWithDependency.txt", "a") as f:
+            #         f.write(repo + "\t" + job_name)
+            #         f.write("\n")
+            #         return
+            
+            # save the repo name to a file
+            # with open("withMatrix.txt", "a") as f:
+            #     f.write(repo + "\t" + job_name)
+            #     f.write("\n")
+            #     return
+            
+            # remove the job from the temp dict, if it is not already removed
+            if job_name in temp_dict["jobs"].keys():
+                temp_dict["jobs"].pop(job_name)
+            
+            matrix_keys = list(jobs_with_matrix[job_name].keys())
+            
+            # create cartesian product of the matrix values
+            final_matrix = list(itertools.product(*jobs_with_matrix[job_name].values()))
+            entry_per_final_matrix = len(final_matrix[0])
+            
+            for i, values in enumerate(final_matrix):
+                matrix_dict = {}
+                new_job_name = job_name
+                for j, value in enumerate(values):
+                    new_job_name += "_" + matrix_keys[j] + "_" + str(value)
+                    matrix_dict[matrix_keys[j]] = [value] 
+                    
+                print(matrix_dict)
+                
+
+                
+            print("Final matrix: ", final_matrix)
+    
+        # if the yaml file does not have a matrix, then:
+        # else:
+            # instrument the job
+            # for job in jobs_names:
+                
+    
+    print("Saving the new yaml file: ", f"{file_path}")
+    with open (f"{file_path}", "w") as f:
+        f.write(new_yaml_file)
+    return new_yaml_file
+    
 
 def retrieve_sha_ci_analyzes(owner: str, repo: str, time):
     url = f"https://api.github.com/repos/{owner}/ci-analyzes/branches/main"
