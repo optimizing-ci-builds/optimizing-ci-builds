@@ -43,14 +43,15 @@ def main():
                     print(error)
                     # continue
                     pass
+                yaml_file = utils.split_matrix(yaml_file)
                 configured_yaml = utils.configure_yaml_file(yaml_file, repo, file_path, time1)
                 # with open("Output.yml", "w") as text_file:
                 #     print(f"{configured_yaml}", file=text_file)
                 configured_yaml_files.append(configured_yaml)
                 yaml_shas.append(yaml_sha)
 
-            utils.retrieve_sha_ci_analyzes(analyzer_owner, repo, time1)
-            commit_sha = utils.execute(forked_owner, repo, sha, default_branch, yml_files_path, configured_yaml_files, yaml_shas)
+            # utils.retrieve_sha_ci_analyzes(analyzer_owner, repo, time1)
+            # commit_sha = utils.execute(forked_owner, repo, sha, default_branch, yml_files_path, configured_yaml_files, yaml_shas)
             # utils.check_runs(forked_owner, repo, commit_sha)
 
         except Exception as e:

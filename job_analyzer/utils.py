@@ -18,6 +18,7 @@ from nacl import encoding, public
 import oyaml as yaml
 from yaml.resolver import BaseResolver
 import ruamel.yaml
+import copy
 
 
 base_api_url: str = "https://api.github.com"
@@ -382,16 +383,9 @@ def configure_yaml_file(yaml_file: str, repo: str, file_path: str, time):
     return new_yaml_file
 
 
-def configure_yaml_file_new(yaml_file: str, repo: str, file_path: str, time):
-    new_yaml_file: str = ""
-    temp_dict = {}
-    
-    # Load the yaml file to a dictionary
+def split_matrix(yaml_file: str):
     loaded_yaml = ruamel.yaml.safe_load(yaml_file)
-    yaml_keys = list(loaded_yaml.keys())
-    jobs_index = yaml_keys.index("jobs")
-    jobs_names = list(loaded_yaml["jobs"].keys())
-    
+    jobs_names = list(loaded_yaml["jobs"].keys()) 
     
     temp_dict = loaded_yaml.copy()
     
@@ -402,94 +396,49 @@ def configure_yaml_file_new(yaml_file: str, repo: str, file_path: str, time):
         if "strategy" in loaded_yaml["jobs"][job_name]:
             if "matrix" in loaded_yaml["jobs"][job_name]["strategy"]:
                 jobs_with_matrix[job_name] = loaded_yaml["jobs"][job_name]["strategy"]["matrix"]
-                
-    # if len(jobs_with_matrix) > 1:
-    #     print("More than 1 job matrix")
-    #     with open("moreThanOneMatrix.txt", "a") as f:
-    #         f.write(f"{repo}    {file_path}")
-    #         f.write("\n")
-    
-    # for job_name in jobs_with_matrix.keys():
-    #     if len(jobs_with_matrix[job_name]) > 1:
-    #         print("Job with more than 1 matrix")
-    #         with open("oneJobMoreMatrix.txt", "a") as f:
-    #             f.write(f"{repo}    {file_path}   {job_name}")
-    #             f.write("\n")
             
-    jobs_with_dependencies = {}
-    for job_name in jobs_names:
-        if "needs" in loaded_yaml["jobs"][job_name]:
-            print("The job has dependencies: ", job_name)
-            jobs_with_dependencies[job_name] = loaded_yaml["jobs"][job_name]["needs"]
-            
-    # print("Jobs with dependencies: ", jobs_with_dependencies)
-    
-    # print("Jobs with matrix: ", jobs_with_matrix)
-    # instrument the jobs
     for job_name in jobs_names:
         print("Evaluating the job: ", job_name)
         
-        # TODO: of the job depends on another job which has a matrix, then make the job depends on the first matrix job before splitting the matrix
-        # if job_name in jobs_with_dependencies.keys():
-        #     print("The job has dependencies: ", job_name)
-        #     with open("withDependency.txt", "a") as f:
-        #         f.write(repo + "\t" + job_name)
-        #         f.write("\n")
-        #         # return
-        
-        # else:
-        #     print("The job does not have dependencies: ", job_name)
-        #     return
-        
-        # if jobname is in the jobs_with_matrix dict, then it has matrix
         if job_name in jobs_with_matrix.keys():
             print("The job has matrix : " + job_name)
             
-            # if job_name in jobs_with_dependencies.keys():
-            #     print("The matrix has dependencies: ", job_name)
-            #     with open("jobWithDependency.txt", "a") as f:
-            #         f.write(repo + "\t" + job_name)
-            #         f.write("\n")
-            #         return
-            
-            # save the repo name to a file
-            # with open("withMatrix.txt", "a") as f:
-            #     f.write(repo + "\t" + job_name)
-            #     f.write("\n")
-            #     return
-            
-            # remove the job from the temp dict, if it is not already removed
-            if job_name in temp_dict["jobs"].keys():
-                temp_dict["jobs"].pop(job_name)
-            
+            # Extract the matrices for this particular job with matrix
             matrix_keys = list(jobs_with_matrix[job_name].keys())
+            # print("The following matrix are found : ", matrix_keys)
             
             # create cartesian product of the matrix values
             final_matrix = list(itertools.product(*jobs_with_matrix[job_name].values()))
-            entry_per_final_matrix = len(final_matrix[0])
+            # print("The cartesian product of the matrix values: ", final_matrix)
             
+            # Based on the cartesian product, create new jobs
             for i, values in enumerate(final_matrix):
                 matrix_dict = {}
                 new_job_name = job_name
+                
+                # create new job name, and new sub-matrix dictioanry
                 for j, value in enumerate(values):
                     new_job_name += "_" + matrix_keys[j] + "_" + str(value)
-                    matrix_dict[matrix_keys[j]] = [value] 
-                    
-                print(matrix_dict)
+                    matrix_dict[matrix_keys[j]] = [value]  
                 
+                # print("New job name: ", new_job_name)
+                # print("Matrix dict: ", matrix_dict)
+                
+                temp_dict["jobs"][new_job_name] = copy.deepcopy(loaded_yaml["jobs"][job_name])
+                temp_dict["jobs"][new_job_name]["strategy"]["matrix"]={}
+                temp_dict["jobs"][new_job_name]["strategy"]["matrix"]= matrix_dict    
+                
+            # Remove the original job
+            del temp_dict["jobs"][job_name]
 
-                
-            print("Final matrix: ", final_matrix)
     
-        # if the yaml file does not have a matrix, then:
-        # else:
-            # instrument the job
-            # for job in jobs_names:
-                
+    new_yaml_file = yaml.dump(temp_dict)
     
-    print("Saving the new yaml file: ", f"{file_path}")
-    with open (f"{file_path}", "w") as f:
-        f.write(new_yaml_file)
+    # replace the 'on': with on: in the new_set_of_jobs
+    new_yaml_file = new_yaml_file.replace("'on':", "on:")
+        
+    # with open (f"{file_path}", "w") as f:
+    #     f.write(new_yaml_file)
     return new_yaml_file
     
 
