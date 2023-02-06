@@ -429,7 +429,7 @@ def split_matrix(yaml_file: str):
                 temp_dict["jobs"][new_job_name]["strategy"]["matrix"]= matrix_dict    
                 
             # Remove the original job
-            del temp_dict["jobs"][job_name]
+            # del temp_dict["jobs"][job_name]
 
     
     new_yaml_file = yaml.dump(temp_dict)
