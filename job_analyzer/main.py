@@ -43,8 +43,8 @@ def main():
                     print(error)
                     # continue
                     pass
-                yaml_file = utils.split_matrix(yaml_file)
-                configured_yaml = utils.configure_yaml_file(yaml_file, repo, file_path, time1)
+                job_with_matrix = utils.get_job_with_matrix(yaml_file)                
+                configured_yaml = utils.configure_yaml_file(yaml_file, repo, file_path, time1, job_with_matrix)
                 # with open("Output.yml", "w") as text_file:
                 #     print(f"{configured_yaml}", file=text_file)
                 configured_yaml_files.append(configured_yaml)

@@ -231,7 +231,7 @@ def divide_yaml(yaml_string):
     return new_yaml_files
 
         
-def configure_yaml_file(yaml_file: str, repo: str, file_path: str, time):
+def configure_yaml_file(yaml_file: str, repo: str, file_path: str, time, job_with_matrix):
     new_yaml_file: str = ""
     indent = 0
     job_indent = 0
@@ -244,6 +244,7 @@ def configure_yaml_file(yaml_file: str, repo: str, file_path: str, time):
     job_name = ""
     line_number = 0
     name = ""
+    apprnd_to_target_dir = ""
     for line_index, line in enumerate(yaml_file.split("\n")):
         if "secrets." in line:
             print(f"Secret in repository: {repo} YAML file: {file_path}")
@@ -261,6 +262,13 @@ def configure_yaml_file(yaml_file: str, repo: str, file_path: str, time):
         else:
             if in_job and (indent == job_indent):
                 job_name = line.strip()[:-1]
+                
+                # If the job has a matrix, then append the matrix name and value to the target directory
+                if job_name in job_with_matrix:
+                    for matrix_name in list(job_with_matrix[job_name].keys()):
+                        apprnd_to_target_dir += "_" + matrix_name + "_${{ matrix." + matrix_name + " }}"
+                        
+
             if (in_job and (indent <= job_indent)) and (line.strip() != "") and (job_name != line.strip()[:-1]):
                 in_job = False
 
@@ -304,8 +312,10 @@ def configure_yaml_file(yaml_file: str, repo: str, file_path: str, time):
                     new_yaml_file += " " * (in_step_indent + 4) + "destination-github-username: 'UT-SE-Research'\n"
                     new_yaml_file += " " * (in_step_indent + 4) + "destination-repository-name: 'ci-analyzes'\n"
                     new_yaml_file += " " * (in_step_indent + 4) + f"target-branch: '{time}'\n"
-                    new_yaml_file += " " * (in_step_indent + 4) + f"target-directory: '{repo}/{file_path.replace('.yml', '')}/{job_name}'\n"
+                    new_yaml_file += " " * (in_step_indent + 4) + f"target-directory: '{repo}/{file_path.replace('.yml', '')}/{job_name}{apprnd_to_target_dir}'\n"
                     
+                    apprnd_to_target_dir = ""
+                        
                     # check if there is another job
                     for l in yaml_file.split("\n")[line_index+1:len(yaml_file.split("\n"))]:
                         if l.strip() == "steps:":
@@ -378,9 +388,23 @@ def configure_yaml_file(yaml_file: str, repo: str, file_path: str, time):
             else:
                 new_yaml_file += line + "\n"
     # print("Saving the new yaml file: ", f"{file_path}")
-    # with open (f"{file_path}", "w") as f:
+    # with open ("newyaml.yaml", "w") as f:
     #     f.write(new_yaml_file)
     return new_yaml_file
+
+
+def get_job_with_matrix(yaml_file: str):
+    loaded_yaml = ruamel.yaml.safe_load(yaml_file)
+    jobs_names = list(loaded_yaml["jobs"].keys()) 
+    
+    # create a dict with the job names that has matrix
+    jobs_with_matrix = {}
+    for job_name in jobs_names:
+        print("Checking if the job has matrix: ", job_name)
+        if "strategy" in loaded_yaml["jobs"][job_name]:
+            if "matrix" in loaded_yaml["jobs"][job_name]["strategy"]:
+                jobs_with_matrix[job_name] = loaded_yaml["jobs"][job_name]["strategy"]["matrix"]
+    return jobs_with_matrix
 
 
 def split_matrix(yaml_file: str):
