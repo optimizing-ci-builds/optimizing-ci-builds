@@ -2,12 +2,10 @@ import base64
 import itertools
 import json
 import textwrap
-import time
 import os
 from urllib.parse import uses_relative
 import requests
 import csv
-import time
 import subprocess
 import sys
 import pandas as pd

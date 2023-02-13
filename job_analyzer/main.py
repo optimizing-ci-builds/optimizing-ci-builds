@@ -9,7 +9,7 @@ def main():
     repositories = utils.get_filtered_repos()
     os.chdir("job_analyzer")
     time1 = int(time.time())
-    
+    commit=subprocess.check_output(['git', 'rev-parse', '--short', 'HEAD']).decode('ascii').strip()
     for index, repository in enumerate(repositories):
         try:
             # PHASE-1: COLLECTION
@@ -44,13 +44,13 @@ def main():
                     # continue
                     pass
                 job_with_matrix = utils.get_job_with_matrix(yaml_file)                
-                configured_yaml = utils.configure_yaml_file(yaml_file, repo, file_path, time1, job_with_matrix)
+                branch_name=str(time1)+'-'+commit
+                configured_yaml = utils.configure_yaml_file(yaml_file, repo, file_path, branch_name, job_with_matrix)
                 # with open("Output.yml", "w") as text_file:
                 #     print(f"{configured_yaml}", file=text_file)
                 configured_yaml_files.append(configured_yaml)
                 yaml_shas.append(yaml_sha)
-
-            utils.retrieve_sha_ci_analyzes(analyzer_owner, repo, time1)
+            utils.retrieve_sha_ci_analyzes(analyzer_owner, repo, branch_name)
             commit_sha = utils.execute(forked_owner, repo, sha, default_branch, yml_files_path, configured_yaml_files, yaml_shas)
             # utils.check_runs(forked_owner, repo, commit_sha)
 
