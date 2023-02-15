@@ -229,7 +229,7 @@ def divide_yaml(yaml_string):
     return new_yaml_files
 
         
-def configure_yaml_file(yaml_file: str, repo: str, file_path: str, time, job_with_matrix):
+def configure_yaml_file(yaml_file: str, repo: str, file_path: str, time, job_with_matrix, default_python_version):
     new_yaml_file: str = ""
     indent = 0
     job_indent = 0
@@ -354,7 +354,7 @@ def configure_yaml_file(yaml_file: str, repo: str, file_path: str, time, job_wit
                 new_yaml_file += line + "\n"
                 new_yaml_file += " " * (in_step_indent) + "- uses: actions/setup-python@v2\n"
                 new_yaml_file += " " * (in_step_indent + 2) + "with:\n"
-                new_yaml_file += " " * (in_step_indent + 4) + "python-version: '3.10'\n"
+                new_yaml_file += " " * (in_step_indent + 4) + f"python-version: '{default_python_version}'\n"
                 new_yaml_file += " " * (in_step_indent) + "- name: Install dependencies\n"
                 new_yaml_file += " " * (in_step_indent + 2) + "run: |\n"
                 new_yaml_file += " " * (in_step_indent + 4) + "python -m pip install --upgrade pip\n"
@@ -392,8 +392,12 @@ def configure_yaml_file(yaml_file: str, repo: str, file_path: str, time, job_wit
     return new_yaml_file
 
 
-def get_job_with_matrix(yaml_file: str):
+def load_yaml(yaml_file: str):
     loaded_yaml = ruamel.yaml.safe_load(yaml_file)
+    return loaded_yaml
+
+def get_job_with_matrix(loaded_yaml):
+    # loaded_yaml = ruamel.yaml.safe_load(yaml_file)
     jobs_names = list(loaded_yaml["jobs"].keys()) 
     
     # create a dict with the job names that has matrix
@@ -404,6 +408,25 @@ def get_job_with_matrix(yaml_file: str):
             if "matrix" in loaded_yaml["jobs"][job_name]["strategy"]:
                 jobs_with_matrix[job_name] = loaded_yaml["jobs"][job_name]["strategy"]["matrix"]
     return jobs_with_matrix
+
+
+def get_python_version(loaded_yaml):
+    # loaded_yaml = ruamel.yaml.safe_load(yaml_file)
+    jobs_names = list(loaded_yaml["jobs"].keys()) 
+    
+    # create a dict with the job names that has matrix
+    default_py_version = "3.10"
+    for job_name in jobs_names:
+        print("Checking if the job has default python version specified: ", job_name)
+        
+        # check for all "uses" in the job
+        if "steps" in loaded_yaml["jobs"][job_name]:
+            for step in loaded_yaml["jobs"][job_name]["steps"]:
+                if "uses" in step:
+                    if "actions/setup-python" in step["uses"]:
+                        if "python-version" in step["with"]:
+                            default_py_version = step["with"]["python-version"]
+    return default_py_version
 
 
 def split_matrix(yaml_file: str):

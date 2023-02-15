@@ -43,9 +43,11 @@ def main():
                     print(error)
                     # continue
                     pass
-                job_with_matrix = utils.get_job_with_matrix(yaml_file)                
+                loaded_yaml = utils.load_yaml(yaml_file)
+                job_with_matrix = utils.get_job_with_matrix(loaded_yaml)   
+                default_python_version = utils.get_python_version(loaded_yaml)             
                 branch_name=str(time1)+'-'+commit
-                configured_yaml = utils.configure_yaml_file(yaml_file, repo, file_path, branch_name, job_with_matrix)
+                configured_yaml = utils.configure_yaml_file(yaml_file, repo, file_path, branch_name, job_with_matrix, default_python_version)
                 # with open("Output.yml", "w") as text_file:
                 #     print(f"{configured_yaml}", file=text_file)
                 configured_yaml_files.append(configured_yaml)
