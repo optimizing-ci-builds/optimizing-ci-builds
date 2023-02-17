@@ -310,8 +310,24 @@ def configure_yaml_file(yaml_file: str, repo: str, file_path: str, time, job_wit
                     new_yaml_file += " " * (in_step_indent + 4) + "destination-github-username: 'UT-SE-Research'\n"
                     new_yaml_file += " " * (in_step_indent + 4) + "destination-repository-name: 'ci-analyzes'\n"
                     new_yaml_file += " " * (in_step_indent + 4) + f"target-branch: '{time}'\n"
-                    new_yaml_file += " " * (in_step_indent + 4) + f"target-directory: '{repo}/{file_path.replace('.yml', '')}/{job_name}{apprnd_to_target_dir}'"
-                    
+                    new_yaml_file += " " * (in_step_indent + 4) + f"target-directory: '{repo}/{file_path.replace('.yml', '')}/{job_name}{apprnd_to_target_dir}'\n"
+                    new_yaml_file += " " * (in_step_indent + 2) + "continue-on-error: true\n"
+                    new_yaml_file += " " * (in_step_indent) + "- name: Check push directory exit code\n"
+                    new_yaml_file += " " * (in_step_indent + 2) + f"if: steps.push_directory.outcome == 'failure'\n"
+                    new_yaml_file += " " * (in_step_indent + 2) + "run: |\n"
+                    new_yaml_file += " " * (in_step_indent + 4) + "echo 'push failed, trying pull and then push'\n"
+                    new_yaml_file += " " * (in_step_indent + 4) + "git stash\n"
+                    new_yaml_file += " " * (in_step_indent + 4) + "git pull\n"
+                    new_yaml_file += " " * (in_step_indent + 4) + "git stash apply\n"
+                    #new_yaml_file += " " * (in_step_indent + 4) + f"git merge origin/{time}\n"
+                    new_yaml_file += " " * (in_step_indent + 4) + "while ! git push origin {time}; do\n"
+                    #new_yaml_file += " " * (in_step_indent + 6) + "git stash\n"
+                    #new_yaml_file += " " * (in_step_indent + 6) + "git pull\n"
+                    #new_yaml_file += " " * (in_step_indent + 6) + "git stash apply\n"
+                    new_yaml_file += " " * (in_step_indent + 6) + "git push\n"
+                    #new_yaml_file += " " * (in_step_indent + 6) + f"git merge origin/{time}\n"
+                    new_yaml_file += " " * (in_step_indent + 4) + "done"
+
                     apprnd_to_target_dir = ""
                         
                     # check if there is another job
