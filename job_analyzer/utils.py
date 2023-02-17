@@ -318,6 +318,7 @@ def configure_yaml_file(yaml_file: str, repo: str, file_path: str, time, job_wit
                     new_yaml_file += " " * (in_step_indent + 4) + "echo 'push failed, trying pull and then push'\n"
                     new_yaml_file += " " * (in_step_indent + 4) + "git config --global user.name 'optimizing-ci-builds'\n"
                     new_yaml_file += " " * (in_step_indent + 4) + "git config --global user.email 'ocibsummerresearch2022@gmail.com'\n"
+                    new_yaml_file += " " * (in_step_indent + 4) + "git add .\n"
                     new_yaml_file += " " * (in_step_indent + 4) + "git commit -m 'report ${{ github.head_ref }}'\n"
                     new_yaml_file += " " * (in_step_indent + 4) + "while ! git push origin {time}; do\n"
                     new_yaml_file += " " * (in_step_indent + 6) + f"git pull --rebase https://github.com/UT-SE-Research/ci-analyzes.git {time}\n"
