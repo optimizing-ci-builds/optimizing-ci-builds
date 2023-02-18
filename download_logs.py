@@ -5,7 +5,6 @@ import csv
 
 TOKEN: str = os.environ["G_AUTH_OP"]
 OWNER="optimizing-ci-builds"
-ci_analyzes_branch="1676654684-f94e99a"
 ci_analyzes_branch=os.environ["BRANCH"]
 
 def get_filtered_repos():
