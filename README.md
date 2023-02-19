@@ -55,9 +55,9 @@ Analysis part are done under by CI builds, using the python script we added to y
 
 ### Download logs
 
-To download logs related to the push in specofoc branch in [ci-analyzes](https://github.com/UT-SE-Research/ci-analyzes) repo, you should run the following the python file 
+To download logs related to the push in specofoc branch in [ci-analyzes](https://github.com/UT-SE-Research/ci-analyzes) repo, you should run the following the python file
 
-`.py` in the root of the project. You should specify the `G_AUTH` and `BRANCH` environment variables as follows
+`download_logs.py` in the root of the project. You should specify the `G_AUTH` and `BRANCH` environment variables as follows
 
 ```
 G_AUTH_OP=<your_github_token> BRANCH=<ci-analyzes-branch> python download_logs.py

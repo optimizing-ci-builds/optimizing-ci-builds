@@ -242,7 +242,7 @@ def configure_yaml_file(yaml_file: str, repo: str, file_path: str, time, job_wit
     job_name = ""
     line_number = 0
     name = ""
-    apprnd_to_target_dir = ""
+    append_to_target_dir = ""
     for line_index, line in enumerate(yaml_file.split("\n")):
         if "secrets." in line:
             print(f"Secret in repository: {repo} YAML file: {file_path}")
@@ -264,7 +264,7 @@ def configure_yaml_file(yaml_file: str, repo: str, file_path: str, time, job_wit
                 # If the job has a matrix, then append the matrix name and value to the target directory
                 if job_name in job_with_matrix:
                     for matrix_name in list(job_with_matrix[job_name].keys()):
-                        apprnd_to_target_dir += "_" + matrix_name + "_${{ matrix." + matrix_name + " }}"
+                        append_to_target_dir += "_" + matrix_name + "_${{ matrix." + matrix_name + " }}"
                         
 
             if (in_job and (indent <= job_indent)) and (line.strip() != "") and (job_name != line.strip()[:-1]):
@@ -310,7 +310,7 @@ def configure_yaml_file(yaml_file: str, repo: str, file_path: str, time, job_wit
                     new_yaml_file += " " * (in_step_indent + 4) + "destination-github-username: 'UT-SE-Research'\n"
                     new_yaml_file += " " * (in_step_indent + 4) + "destination-repository-name: 'ci-analyzes'\n"
                     new_yaml_file += " " * (in_step_indent + 4) + f"target-branch: '{time}'\n"
-                    new_yaml_file += " " * (in_step_indent + 4) + f"target-directory: '{repo}/{file_path.replace('.yml', '')}/{job_name}{apprnd_to_target_dir}'\n"
+                    new_yaml_file += " " * (in_step_indent + 4) + f"target-directory: '{repo}/{file_path.replace('.yml', '')}/{job_name}{append_to_target_dir}'\n"
                     new_yaml_file += " " * (in_step_indent + 2) + "continue-on-error: true\n"
                     new_yaml_file += " " * (in_step_indent) + "- name: Check push directory exit code\n"
                     new_yaml_file += " " * (in_step_indent + 2) + f"if: steps.push_directory.outcome == 'failure'\n"
@@ -328,7 +328,7 @@ def configure_yaml_file(yaml_file: str, repo: str, file_path: str, time, job_wit
                     #new_yaml_file += " " * (in_step_indent + 6) + f"git merge origin/{time}\n"
                     new_yaml_file += " " * (in_step_indent + 4) + "done"
 
-                    apprnd_to_target_dir = ""
+                    append_to_target_dir = ""
                         
                     # check if there is another job
                     for l in yaml_file.split("\n")[line_index+1:len(yaml_file.split("\n"))]:
@@ -378,7 +378,7 @@ def configure_yaml_file(yaml_file: str, repo: str, file_path: str, time, job_wit
                 new_yaml_file += " " * (in_step_indent + 4) + "pip install numpy\n"
                 new_yaml_file += " " * (in_step_indent) + "- run: sudo apt update\n"
                 new_yaml_file += " " * (in_step_indent) + "- run: sudo apt install inotify-tools\n"
-                new_yaml_file += " " * (in_step_indent) + f"- run: inotifywait -mr /home/runner/work/{repo}/{repo}/ --format '%T;%w;%f;%e' --timefmt %T -o /home/runner/inotify-logs.csv & echo 'basak'\n"
+                new_yaml_file += " " * (in_step_indent) + f"- run: inotifywait -mr /home/runner/work/{repo}/{repo}/ --format '%T;%w;%f;%e' --timefmt %T -o /home/runner/inotify-logs.csv & echo 'optimizing-ci-builds'\n"
                 continue
 
             if in_on:
