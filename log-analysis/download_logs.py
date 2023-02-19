@@ -2,14 +2,14 @@ import os
 import requests
 import json
 import csv
+import sys
 
 TOKEN: str = os.environ["G_AUTH_OP"]
 OWNER="optimizing-ci-builds"
-ci_analyzes_branch=os.environ["BRANCH"]
-
+ci_analyzes_branch=sys.argv[1]
 def get_filtered_repos():
     repositories = []
-    with open("data/filtered_repositories.csv", "r", newline="", encoding="utf8") as csv_file:
+    with open("../data/filtered_repositories.csv", "r", newline="", encoding="utf8") as csv_file:
         csv_reader = csv.reader(csv_file, delimiter=',')
         next(csv_reader, None)
         for row in csv_reader:
