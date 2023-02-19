@@ -23,9 +23,9 @@ def get_filtered_repos():
 repositories = get_filtered_repos()
 
 base_api_url: str = "https://api.github.com"
-user_token: str = TOKEN
+# user_token: str = TOKEN
 headers: dict = {"Accept": "application/vnd.github+json",
-                 "Authorization": f"token {user_token}"}
+                 "Authorization": f"token {TOKEN}"}
 
 
 # Making the logs directory if it does not exist already
