@@ -7,8 +7,11 @@ from collections import defaultdict
 log_directory=sys.argv[1]
 proj_list = os.listdir(log_directory)
 failure_type=[]
-failure_name_count={}
-failure_name_projName=defaultdict(list)
+first_failure_name_count={}
+first_failure_name_projName=defaultdict(list)
+
+all_failure_name_count={}
+all_failure_name_projName=defaultdict(list)
 #print(proj_list)
 for proj in proj_list:
     for file in glob.glob(log_directory+proj+"/*.json"):
@@ -31,14 +34,46 @@ for proj in proj_list:
 
                         for j in range(len(steps_content)):
                             if (steps_content[j]['conclusion'] == "failure"):
-                                if not steps_content[j]['name'] in failure_name_count: 
-                                    failure_name_count[steps_content[j]['name']]=1
-                                    failure_name_projName[steps_content[j]['name']].append(proj)
+                                if not steps_content[j]['name'] in first_failure_name_count: 
+                                    first_failure_name_count[steps_content[j]['name']]=1
+                                    first_failure_name_projName[steps_content[j]['name']].append(proj)
                                 else:
-                                    count=failure_name_count[steps_content[j]['name']]
-                                    failure_name_count[ steps_content[j]['name'] ] = count + 1
-                                    failure_name_projName[steps_content[j]['name']].append(proj)
+                                    count=first_failure_name_count[steps_content[j]['name']]
+                                    first_failure_name_count[ steps_content[j]['name'] ] = count + 1
+                                    first_failure_name_projName[steps_content[j]['name']].append(proj)
                                 break
-print(failure_name_count)
-print(failure_name_projName)
+                        
+                        for l in range(len(steps_content)):
+                            if (steps_content[l]['conclusion'] == "failure"):
+                                if not steps_content[l]['name'] in all_failure_name_count: 
+                                    all_failure_name_count[steps_content[l]['name']]=1
+                                    all_failure_name_projName[steps_content[l]['name']].append(proj)
+                                else:
+                                    count=all_failure_name_count[steps_content[l]['name']]
+                                    all_failure_name_count[ steps_content[l]['name'] ] = count + 1
+                                    all_failure_name_projName[steps_content[l]['name']].append(proj)
+
+
+print('======Result for first fialure in each job=======')
+for x, y in first_failure_name_count.items():
+  print(x,":",y) 
+print("************Project name and each failure step*********")
+for x, y in first_failure_name_projName.items():
+  print(x,":",y) 
+#print(first_failure_name_projName)
                 #elif build_conclusion=="skipped" :
+
+
+print()
+print()
+print()
+print('=========Result for all fialures in each job=========')
+print()
+for x, y in all_failure_name_count.items():
+  print(x,":",y) 
+print("************Project name and each failure step*********")
+for x, y in all_failure_name_projName.items():
+  print(x,":",y) 
+
+#print(all_failure_name_count)
+#print(all_failure_name_projName)

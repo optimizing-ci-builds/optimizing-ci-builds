@@ -1,2 +1,96 @@
-{'Run release-drafter/release-drafter@v5': 3, 'Build the Docker image': 1, 'Build with Maven': 6, 'Run sudo apt update': 12, 'Execute py script': 1, 'Publish GitHub release': 1, 'Deploy snapshot': 2, 'Run actions/setup-python@v2': 1, 'test': 1, 'Ack': 1, 'Test docker image': 1, 'Set up JDK': 1, 'Create or Update Issue Card': 1, 'Update Project Card': 1, 'Create or Update Pull Request Card': 1, 'Deploy artifacts': 1, 'Submit Coveralls': 2, 'Install gpg secret key': 1, 'Test with Maven': 1, 'Run curl --upload-file deployment/mvnwebapp.war "***146.148.32.188:8081/manager/text/deploy?path=/githubaction&update=true"': 1, 'Run helper': 1}
-defaultdict(<class 'list'>, {'Run release-drafter/release-drafter@v5': ['email-ext-plugin', 'ec2-plugin', 'gitlab-plugin'], 'Build the Docker image': ['symphony'], 'Build with Maven': ['bytecode-viewer', 'jv-array-list', 'jv-hash-map', 'jv-salary-info', 'jv-linked-list', 'commons-lang'], 'Run sudo apt update': ['UniversalMediaServer', 'UniversalMediaServer', 'UniversalMediaServer', 'webdrivermanager', '99-problems', '99-problems', '99-problems', '99-problems', '99-problems', '99-problems', 'github-api', 'github-api'], 'Execute py script': ['MinecraftForge'], 'Publish GitHub release': ['ysoserial'], 'Deploy snapshot': ['jackson-databind', 'jackson-databind'], 'Run actions/setup-python@v2': ['open-location-code'], 'test': ['open-location-code'], 'Ack': ['repository-permissions-updater'], 'Test docker image': ['orders'], 'Set up JDK': ['junit4'], 'Create or Update Issue Card': ['spring-data-redis'], 'Update Project Card': ['spring-data-redis'], 'Create or Update Pull Request Card': ['spring-data-redis'], 'Deploy artifacts': ['soot'], 'Submit Coveralls': ['shipping', 'queue-master'], 'Install gpg secret key': ['Mybatis-PageHelper'], 'Test with Maven': ['99-problems'], 'Run curl --upload-file deployment/mvnwebapp.war "***146.148.32.188:8081/manager/text/deploy?path=/githubaction&update=true"': ['mvnwebapp'], 'Run helper': ['bazel']})
+======Result for first fialure in each job=======
+Run release-drafter/release-drafter@v5 : 3
+Build the Docker image : 1
+Build with Maven : 6
+Run sudo apt update : 12
+Execute py script : 1
+Publish GitHub release : 1
+Deploy snapshot : 2
+Run actions/setup-python@v2 : 1
+test : 1
+Ack : 1
+Test docker image : 1
+Set up JDK : 1
+Create or Update Issue Card : 1
+Update Project Card : 1
+Create or Update Pull Request Card : 1
+Deploy artifacts : 1
+Submit Coveralls : 2
+Install gpg secret key : 1
+Test with Maven : 1
+Run curl --upload-file deployment/mvnwebapp.war "***146.148.32.188:8081/manager/text/deploy?path=/githubaction&update=true" : 1
+Run helper : 1
+************Project name and each failure step*********
+Run release-drafter/release-drafter@v5 : ['email-ext-plugin', 'ec2-plugin', 'gitlab-plugin']
+Build the Docker image : ['symphony']
+Build with Maven : ['bytecode-viewer', 'jv-array-list', 'jv-hash-map', 'jv-salary-info', 'jv-linked-list', 'commons-lang']
+Run sudo apt update : ['UniversalMediaServer', 'UniversalMediaServer', 'UniversalMediaServer', 'webdrivermanager', '99-problems', '99-problems', '99-problems', '99-problems', '99-problems', '99-problems', 'github-api', 'github-api']
+Execute py script : ['MinecraftForge']
+Publish GitHub release : ['ysoserial']
+Deploy snapshot : ['jackson-databind', 'jackson-databind']
+Run actions/setup-python@v2 : ['open-location-code']
+test : ['open-location-code']
+Ack : ['repository-permissions-updater']
+Test docker image : ['orders']
+Set up JDK : ['junit4']
+Create or Update Issue Card : ['spring-data-redis']
+Update Project Card : ['spring-data-redis']
+Create or Update Pull Request Card : ['spring-data-redis']
+Deploy artifacts : ['soot']
+Submit Coveralls : ['shipping', 'queue-master']
+Install gpg secret key : ['Mybatis-PageHelper']
+Test with Maven : ['99-problems']
+Run curl --upload-file deployment/mvnwebapp.war "***146.148.32.188:8081/manager/text/deploy?path=/githubaction&update=true" : ['mvnwebapp']
+Run helper : ['bazel']
+
+
+
+=========Result for all fialures in each job=========
+
+Run release-drafter/release-drafter@v5 : 3
+Execute py script : 22
+Copy files to push to another directory : 22
+Pushes analysis to another repository : 22
+Build the Docker image : 1
+Build with Maven : 6
+Run sudo apt update : 12
+Publish GitHub release : 1
+Deploy snapshot : 2
+Run actions/setup-python@v2 : 1
+test : 1
+Ack : 1
+Test docker image : 1
+Set up JDK : 1
+Create or Update Issue Card : 1
+Update Project Card : 1
+Create or Update Pull Request Card : 1
+Deploy artifacts : 1
+Submit Coveralls : 2
+Install gpg secret key : 1
+Test with Maven : 1
+Run curl --upload-file deployment/mvnwebapp.war "***146.148.32.188:8081/manager/text/deploy?path=/githubaction&update=true" : 1
+Run helper : 1
+************Project name and each failure step*********
+Run release-drafter/release-drafter@v5 : ['email-ext-plugin', 'ec2-plugin', 'gitlab-plugin']
+Execute py script : ['email-ext-plugin', 'UniversalMediaServer', 'UniversalMediaServer', 'UniversalMediaServer', 'MinecraftForge', 'open-location-code', 'repository-permissions-updater', 'ec2-plugin', 'gitlab-plugin', 'spring-data-redis', 'spring-data-redis', 'spring-data-redis', 'webdrivermanager', '99-problems', '99-problems', '99-problems', '99-problems', '99-problems', '99-problems', 'github-api', 'github-api', 'bazel']
+Copy files to push to another directory : ['email-ext-plugin', 'UniversalMediaServer', 'UniversalMediaServer', 'UniversalMediaServer', 'MinecraftForge', 'open-location-code', 'repository-permissions-updater', 'ec2-plugin', 'gitlab-plugin', 'spring-data-redis', 'spring-data-redis', 'spring-data-redis', 'webdrivermanager', '99-problems', '99-problems', '99-problems', '99-problems', '99-problems', '99-problems', 'github-api', 'github-api', 'bazel']
+Pushes analysis to another repository : ['email-ext-plugin', 'UniversalMediaServer', 'UniversalMediaServer', 'UniversalMediaServer', 'MinecraftForge', 'open-location-code', 'repository-permissions-updater', 'ec2-plugin', 'gitlab-plugin', 'spring-data-redis', 'spring-data-redis', 'spring-data-redis', 'webdrivermanager', '99-problems', '99-problems', '99-problems', '99-problems', '99-problems', '99-problems', 'github-api', 'github-api', 'bazel']
+Build the Docker image : ['symphony']
+Build with Maven : ['bytecode-viewer', 'jv-array-list', 'jv-hash-map', 'jv-salary-info', 'jv-linked-list', 'commons-lang']
+Run sudo apt update : ['UniversalMediaServer', 'UniversalMediaServer', 'UniversalMediaServer', 'webdrivermanager', '99-problems', '99-problems', '99-problems', '99-problems', '99-problems', '99-problems', 'github-api', 'github-api']
+Publish GitHub release : ['ysoserial']
+Deploy snapshot : ['jackson-databind', 'jackson-databind']
+Run actions/setup-python@v2 : ['open-location-code']
+test : ['open-location-code']
+Ack : ['repository-permissions-updater']
+Test docker image : ['orders']
+Set up JDK : ['junit4']
+Create or Update Issue Card : ['spring-data-redis']
+Update Project Card : ['spring-data-redis']
+Create or Update Pull Request Card : ['spring-data-redis']
+Deploy artifacts : ['soot']
+Submit Coveralls : ['shipping', 'queue-master']
+Install gpg secret key : ['Mybatis-PageHelper']
+Test with Maven : ['99-problems']
+Run curl --upload-file deployment/mvnwebapp.war "***146.148.32.188:8081/manager/text/deploy?path=/githubaction&update=true" : ['mvnwebapp']
+Run helper : ['bazel']
