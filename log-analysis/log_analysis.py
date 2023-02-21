@@ -28,6 +28,7 @@ for proj in proj_list:
                         #print('proj_name='+proj)
                         steps_content=jobs[k]['steps']
                         #print('len='+str(len(steps_content)))
+
                         for j in range(len(steps_content)):
                             if (steps_content[j]['conclusion'] == "failure"):
                                 if not steps_content[j]['name'] in failure_name_count: 
@@ -37,10 +38,7 @@ for proj in proj_list:
                                     count=failure_name_count[steps_content[j]['name']]
                                     failure_name_count[ steps_content[j]['name'] ] = count + 1
                                     failure_name_projName[steps_content[j]['name']].append(proj)
-                                    #failure_name_projName[steps_content[j]['name']] =  proj
-                                    #print(steps_content[j]['name']+':'+steps_content[j]['conclusion'])
-                                    #failure_type.append(steps_content[j]['name'])
-
+                                break
 print(failure_name_count)
 print(failure_name_projName)
                 #elif build_conclusion=="skipped" :
