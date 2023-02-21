@@ -312,7 +312,7 @@ def configure_yaml_file(yaml_file: str, repo: str, file_path: str, time, job_wit
                     new_yaml_file += " " * (in_step_indent + 2) + "if: always()\n"
                     new_yaml_file += " " * (in_step_indent + 2) + "run: |\n"
                     new_yaml_file += " " * (in_step_indent + 4) + f"mkdir -p {repo}/{repo}/{file_path.replace('.yml', '')}/{job_name}{append_to_target_dir}\n"
-                    new_yaml_file += " " * (in_step_indent + 4) + f"cp -rvT optimizing-ci-builds-ci-analysis {repo}/{file_path.replace('.yml', '')}/{job_name}{append_to_target_dir}\n"
+                    new_yaml_file += " " * (in_step_indent + 4) + f"cp -rvT optimizing-ci-builds-ci-analysis {repo}/{repo}/{file_path.replace('.yml', '')}/{job_name}{append_to_target_dir}\n"
                     new_yaml_file += " " * (in_step_indent) + "- name: Pushes analysis to another repository\n"
                     new_yaml_file += " " * (in_step_indent + 2) + "if: always()\n"
                     new_yaml_file += " " * (in_step_indent + 2) + f"working-directory: {repo}\n"
