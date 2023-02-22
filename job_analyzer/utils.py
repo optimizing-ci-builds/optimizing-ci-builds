@@ -308,6 +308,7 @@ def configure_yaml_file(yaml_file: str, repo: str, file_path: str, time, job_wit
                     new_yaml_file += " " * (in_step_indent + 4) + "repository: 'UT-SE-Research/ci-analyzes'\n"
                     new_yaml_file += " " * (in_step_indent + 4) + "token: '${{ secrets.API_TOKEN_GITHUB }}'\n"
                     new_yaml_file += " " * (in_step_indent + 4) + "persist-credentials: true\n"
+                    # Push the log to another repository
                     new_yaml_file += " " * (in_step_indent) + "- name: Copy files to push to another directory\n"
                     new_yaml_file += " " * (in_step_indent + 2) + "if: always()\n"
                     new_yaml_file += " " * (in_step_indent + 2) + "run: |\n"
