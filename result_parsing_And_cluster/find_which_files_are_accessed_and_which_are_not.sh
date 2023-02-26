@@ -19,14 +19,16 @@ if [[ -f "projects_name_per_yaml.csv" ]]; then
     rm "projects_name_per_yaml.csv"
 fi
 
-while read row_line
-do
-    output_proj_name=$(echo $row_line |cut -d'/' -f8)
-    workflow_name=$(echo $row_line | rev |cut -d'/' -f1-2| rev | sed 's/\//-/g' )
+#while read row_line
+#do
+    #echo "$row_line ***************"
+    output_proj_name=$2
+    workflow_name=$(echo $1 | rev |cut -d'/' -f2-3| rev | sed 's/\//-/g' )
+    echo "workflow name= ${workflow_name}"
     proj_with_workflow="${output_proj_name}-$workflow_name"
     
     echo $proj_with_workflow >> "projects_name_per_yaml.csv"
-
+    
     if [ -f "$currentDir/$Output/$proj_with_workflow-never-accessed" ]; then
         rm "$currentDir/$Output/$proj_with_workflow-never-accessed"
     fi
@@ -34,9 +36,10 @@ do
     if [ -f "$currentDir/$Output/$proj_with_workflow-accessed" ]; then
         rm "$currentDir/$Output/$proj_with_workflow-accessed"
     fi
-    dir_arr=($(cd "$row_line/step-details/" && printf -- '%s\n' */))
+    dir_arr=($(cd "$1" && printf -- '%s\n' */))
+    echo "Line 39 ${dir_arr}"
     #$(find . -maxdepth 1 -type d -printf '%f\n')
-    cd "$row_line/step-details/"
+    cd "$1"
     #echo "PWD= ${dir_arr}"
     never_accessed_file_name_array=("cm_a.csv" "c_m_a.csv" "c_m__a.csv" "cm__a.csv"  "_cm_a.csv"  "_cm__a.csv.csv"  "_c_m_a.csv" "_c_m__a.csv" )
     accessed_file_name_array=("cma.csv" "c_ma.csv" "_cma.csv"  "_c_ma.csv"  )
@@ -70,7 +73,7 @@ do
             for k in "${accessed_file_name_array[@]}"
             do
                 if [ -f $i$k ]; then
-                    echo "pwd =$(pwd)"
+                    echo "accessed *******************************pwd =$(pwd)"
                     echo $i$k
                     cat "$i$k" >> "$currentDir/$Output/$proj_with_workflow-accessed"
                 fi
@@ -99,6 +102,7 @@ do
     fi
     
     ### Process useful.csv
+
     cd $currentDir
     if [[ -f  "$currentDir/$Output/$proj_with_workflow-useful" ]]; then  
         rm "$currentDir/$Output/$proj_with_workflow-useful"
@@ -111,6 +115,6 @@ do
             echo $file_name >>  "$currentDir/$Output/$proj_with_workflow-useful" 
         fi
         row_count=$((row_count+1))
-    done < "$row_line/useful.csv"
+    done < "$1/../useful.csv"
 
-done < $1
+#done < $1
