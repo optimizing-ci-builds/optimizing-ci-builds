@@ -35,7 +35,7 @@ do
         echo "SUCEESS"
         proj_name=$(echo $line | cut -d',' -f1) 
         echo ${proj_name} 
-        echo $(pwd)
+        #echo $(pwd)
         workflow_name="ci-analyzes/${proj_name}/.github/workflows"
         step_details_dir=($(find ${workflow_name} -name "step-details"))
         size=${#step_details_dir[@]}
@@ -49,10 +49,16 @@ do
             echo "HI step-details = ${step_details_dir[$i]}" ; 
             echo ${step_details_dir[$i]} >> P.csv
             bash  find_which_files_are_accessed_and_which_are_not.sh "${step_details_dir[$i]}" ${proj_name}
+
+            workflow_job_name=$(echo ${step_details_dir[$i]} | rev |cut -d'/' -f2-3| rev | sed 's/\//-/g' )
+            echo "Before make_cluster $workflow_job_name"
+            #exit
+            #bash make_cluster_for_each_category.sh "Output/${proj_name}-${workflow_job_name}-never-accessed" "Output/${proj_name}-${workflow_job_name}-useful"  "${proj_name}" "${proj_name}-${workflow_job_name}"
+            #bash make_cluster_for_each_category.sh "Output/${proj_name}-${workflow_job_name}-never-accessed" "Output/${proj_name}-${workflow_job_name}-useful"  "${proj_name}-${workflow_job_name}" "Clustering-Unused-Directories"
+            bash make_cluster_for_each_category.sh "${proj_name}-${workflow_job_name}" "Clustering" "never-accessed" "useful" 
+            #exit
         done
 
-        #bash make_cluster_for_each_category.sh Output/${proj_name}-never-accessed  "" Output/${proj_name}-useful ${proj_name}
-        #exit
     fi
     #if [[ $count == 2 ]];then
     #  exit

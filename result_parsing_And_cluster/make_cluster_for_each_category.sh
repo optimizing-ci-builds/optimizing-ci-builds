@@ -11,10 +11,10 @@ if [[ ! -d "$outputDir" ]]; then
     mkdir "$outputDir"
 fi
 
-while read row_line
-do
-    echo $row_line
-    uses_name="${row_line}-$3" #$(echo $1 | rev | cut -d'/' -f1 | rev) #normally it will be never-accessed
+#while read row_line
+#do
+    echo $1
+    uses_name="${1}-$3" #$(echo $1 | rev | cut -d'/' -f1 | rev) #normally it will be never-accessed
     #echo ${uses_name}
     never_access=${uses_name}
     #===========Which are never ever accessed=========
@@ -37,7 +37,7 @@ do
     
     #======================================== useful.csv ($3)===============================
     
-    uses_name="${row_line}-$4" #$(echo $3 | rev | cut -d'/' -f1 | rev) #normally it will be useful
+    uses_name="${1}-$4" #$(echo $3 | rev | cut -d'/' -f1 | rev) #normally it will be useful
     useful=${uses_name}
     
     while read line 
@@ -59,8 +59,8 @@ do
     
     #================= FOR COMPARING this two sorted csv =========================
     allClusters=()
-    if [[ -f  "$outputDir/${row_line}-unnecessary.csv" ]]; then
-        rm "$outputDir/${row_line}-unnecessary.csv"
+    if [[ -f  "$outputDir/${1}-unnecessary.csv" ]]; then
+        rm "$outputDir/${1}-unnecessary.csv"
     fi
     while read line
     do
@@ -89,7 +89,7 @@ do
                     else
                         path="target$dir/"
                     fi
-                    echo $path >> "$outputDir/${row_line}-unnecessary-with-repetition.csv"
+                    echo $path >> "$outputDir/${1}-unnecessary-with-repetition.csv"
                     allClusters+=($path)
                     break;
                 fi
@@ -99,12 +99,12 @@ do
     
         done
     done <  "$outputDir/${never_access}_sort_Prefix_remove.csv"
-    if [[ -f "$outputDir/${row_line}-unnecessary-with-repetition.csv" ]]; then
-        sort "$outputDir/${row_line}-unnecessary-with-repetition.csv" | uniq -c > "$outputDir/${row_line}.csv"
-        rm "$outputDir/${row_line}-unnecessary-with-repetition.csv"
+    if [[ -f "$outputDir/${1}-unnecessary-with-repetition.csv" ]]; then
+        sort "$outputDir/${1}-unnecessary-with-repetition.csv" | uniq -c > "$outputDir/${1}.csv"
+        rm "$outputDir/${1}-unnecessary-with-repetition.csv"
     fi
 
     rm "$outputDir/${useful}_sort_Prefix_remove.csv"
     rm "$outputDir/${never_access}_sort_Prefix_remove.csv"
 
-done < $1
+#done < $1
