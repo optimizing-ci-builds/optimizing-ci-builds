@@ -1,110 +1,69 @@
 #!/bin/bash
-#$1
 
 if [[ $1 == "" ]]; then
 	echo "plz give project list in a csv (projects_name.csv)"
     exit
 fi
-#outputDir="Clustering-Useful-Directories"
 outputDir="$2"
 if [[ ! -d "$outputDir" ]]; then
     mkdir "$outputDir"
 fi
 
-#while read row_line
-#do
-    echo $1
-    uses_name="${1}-$3" #$(echo $1 | rev | cut -d'/' -f1 | rev) #normally it will be never-accessed
-    #echo ${uses_name}
-    never_access=${uses_name}
-    #===========Which are never ever accessed=========
-    
-    while read line 
-    do
-        #check if a line contains a string
-        if [[ $line == *"target"* ]]; then
-            #echo "**** ${file_name}"
-    	    prefix_remove=$(sed 's;^.*target;;g' <<< ${line})
-        	echo ${prefix_remove} >> "never_accessed_unsort_Prefix_remove.csv"
-        fi
-    done < "Output/$uses_name"  #"contents_of_all_files_which_are_never_ever_accessed.csv"   
-    if [[ -f   "never_accessed_unsort_Prefix_remove.csv" ]]; then
-        sort "never_accessed_unsort_Prefix_remove.csv" > "$outputDir/${never_access}_sort_Prefix_remove.csv"
-        rm  "never_accessed_unsort_Prefix_remove.csv"
-    else
-        touch  "$outputDir/${never_access}_sort_Prefix_remove.csv"
-    fi
-    
-    #======================================== useful.csv ($3)===============================
-    
-    uses_name="${1}-$4" #$(echo $3 | rev | cut -d'/' -f1 | rev) #normally it will be useful
-    useful=${uses_name}
-    
-    while read line 
-    do
-        if [[ $line == *"target"* ]]; then
-        	#file_name=$(echo $line | cut -d',' -f2)	
-    	    prefix_remove=$(sed 's;^.*target;;g' <<< ${line})
-        	echo ${prefix_remove} >> "useful_unsort_Prefix_remove.csv"
-        fi
-    done < "Output/$uses_name"  #"contents_of_all_files_which_are_accessed.csv"   
-    
-    if [[ -f "useful_unsort_Prefix_remove.csv" ]]; then
-        sort "useful_unsort_Prefix_remove.csv" > "$outputDir/${useful}_sort_Prefix_remove.csv"
-        rm  "useful_unsort_Prefix_remove.csv"
-    else
-        touch "$outputDir/${useful}_sort_Prefix_remove.csv"
-    fi
+echo $1
+uses_name="${1}-$3" #$(echo $1 | rev | cut -d'/' -f1 | rev) #normally it will be never-accessed
+never_access=${uses_name}
+#===========Which are never ever accessed=========
 
-    
-    #================= FOR COMPARING this two sorted csv =========================
-    allClusters=()
-    if [[ -f  "$outputDir/${1}-unnecessary.csv" ]]; then
-        rm "$outputDir/${1}-unnecessary.csv"
-    fi
-    while read line
+cat "Output/$uses_name"  > "$outputDir/${never_access}_sort_Prefix_remove.csv"
+#======================================== useful.csv ($3)===============================
+
+uses_name="${1}-$4" #$(echo $3 | rev | cut -d'/' -f1 | rev) #normally it will be useful
+useful=${uses_name}
+
+cat "Output/$uses_name"  > "$outputDir/${useful}_sort_Prefix_remove.csv"
+
+#================= FOR COMPARING this two sorted csv =========================
+allClusters=()
+if [[ -f  "$outputDir/${1}-unnecessary.csv" ]]; then
+    rm "$outputDir/${1}-unnecessary.csv"
+fi
+while read line
+do
+    count_directory_structure=$(echo $line | tr -cd / | wc -c)
+    path=""
+    boundary=$((count_directory_structure + 1))
+    #for i in {1..$count_directory_structure}
+    for (( i=2; i<=$boundary; i++ ))
     do
-        count_directory_structure=$(echo $line | tr -cd / | wc -c)
-        path=""
-        boundary=$((count_directory_structure + 1))
-        #for i in {1..$count_directory_structure}
-        for (( i=2; i<=$boundary; i++ ))
-        do
-            #echo "i=$i"
-            #echo "HI** $count_directory_structure"
-            dir=$(echo $line | cut -d'/' -f1-$i)
-            #echo "dir=$dir"
-            if [[ ! " ${allClusters[*]} " =~ " ${dir} " ]]; then
-    
-                if [[ $i < $boundary ]]; then
-                    found=$(grep -r "$dir/" "$outputDir/${useful}_sort_Prefix_remove.csv" | wc -l)
-                    path=$dir"/"
-                else
-                    found=$(grep -r "$dir" "$outputDir/${useful}_sort_Prefix_remove.csv" | wc -l)
-                fi
-    
-                if [[ $found -eq 0 ]]; then
-                    if [[ $i -eq $boundary ]]; then
-                        path="target$dir"
-                    else
-                        path="target$dir/"
-                    fi
-                    echo $path >> "$outputDir/${1}-unnecessary-with-repetition.csv"
-                    allClusters+=($path)
-                    break;
-                fi
+        dir=$(echo $line | cut -d'/' -f1-$i)
+        if [[ ! " ${allClusters[*]} " =~ " ${dir} " ]]; then
+            if [[ $i < $boundary ]]; then
+                found=$(grep -r "$dir/" "$outputDir/${useful}_sort_Prefix_remove.csv" | wc -l)
+                path=$dir"/"
             else
-                echo "need to count same cluster name"
+                found=$(grep -r "$dir" "$outputDir/${useful}_sort_Prefix_remove.csv" | wc -l)
             fi
-    
-        done
-    done <  "$outputDir/${never_access}_sort_Prefix_remove.csv"
-    if [[ -f "$outputDir/${1}-unnecessary-with-repetition.csv" ]]; then
-        sort "$outputDir/${1}-unnecessary-with-repetition.csv" | uniq -c > "$outputDir/${1}.csv"
-        rm "$outputDir/${1}-unnecessary-with-repetition.csv"
-    fi
+            if [[ $found -eq 0 ]]; then
+                if [[ $i -eq $boundary ]]; then
+                    path="target$dir"
+                else
+                    path="target$dir/"
+                fi
+                echo $path >> "$outputDir/${1}-unnecessary-with-repetition.csv"
+                allClusters+=($path)
+                break;
+            fi
+        else
+            echo "need to count same cluster name"
+        fi
 
-    rm "$outputDir/${useful}_sort_Prefix_remove.csv"
-    rm "$outputDir/${never_access}_sort_Prefix_remove.csv"
+    done
+done <  "$outputDir/${never_access}_sort_Prefix_remove.csv"
+if [[ -f "$outputDir/${1}-unnecessary-with-repetition.csv" ]]; then
+    sort "$outputDir/${1}-unnecessary-with-repetition.csv" | uniq -c > "$outputDir/${1}.csv"
+    rm "$outputDir/${1}-unnecessary-with-repetition.csv"
+fi
 
-#done < $1
+rm "$outputDir/${useful}_sort_Prefix_remove.csv"
+rm "$outputDir/${never_access}_sort_Prefix_remove.csv"
+
