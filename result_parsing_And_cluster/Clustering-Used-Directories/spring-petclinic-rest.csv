@@ -1,8 +1,0 @@
-    139 target/classes/
-      7 target/generated-sources/annotations/
-     29 target/generated-sources/openapi/src/
-      1 target/jacoco.exec
-      1 target/maven-archiver/
-      1 target/spring-petclinic-rest-2.6.2.jar
-      3 target/surefire/
-     19 target/test-classes/
