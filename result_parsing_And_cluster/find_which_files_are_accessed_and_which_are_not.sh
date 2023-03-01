@@ -1,11 +1,9 @@
 #!/bin/bash
-
 if [[ $1 == "" ]]; then
     echo "give csv $1 (workflow_dir.csv)"
-    #echo "give $2 (Project name)"
-#    echo "give $3 (useful.csv)"
     exit
 fi
+
 currentDir=$(pwd)
 Output="Output"
 if [[ -f "projects_name_per_yaml.csv" ]]; then
@@ -27,10 +25,8 @@ if [ -f "$currentDir/$Output/$proj_with_workflow-accessed" ]; then
     rm "$currentDir/$Output/$proj_with_workflow-accessed"
 fi
 dir_arr=($(cd "$1" && printf -- '%s\n' */))
-echo "Line 39 ${dir_arr}"
-#$(find . -maxdepth 1 -type d -printf '%f\n')
+echo "Line 39 ${dir_arr}" 
 cd "$1"
-#echo "PWD= ${dir_arr}"
 never_accessed_file_name_array=("cm_a.csv" "c_m_a.csv" "c_m__a.csv" "cm__a.csv"  "_cm_a.csv"  "_cm__a.csv.csv"  "_c_m_a.csv" "_c_m__a.csv" )
 #accessed_file_name_array=("cma.csv" "c_ma.csv" "_cma.csv"  "_c_ma.csv"  )
 
@@ -43,17 +39,17 @@ do
 
     echo "==========$i ========== $(pwd)"
     if [[ "$i" =~ .*"checkout".* ]]; then
-        echo "checkout found"
+        #echo "checkout found"
         continue
     elif [[ "$i" =~ .*"setup".* ]]; then
-       echo "setup found"
+       #echo "setup found"
        continue
     else
         for j in "${never_accessed_file_name_array[@]}"
         do
             #echo $i$j
             if [ -f $i$j ]; then
-                echo "Found $i$j"
+                #echo "Found $i$j"
                 cat "$i$j" >> "$currentDir/$Output/$proj_with_workflow-never-accessed"
             else 
                 echo "Not Found"

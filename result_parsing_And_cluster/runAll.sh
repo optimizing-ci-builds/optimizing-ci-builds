@@ -5,7 +5,6 @@ fi
 currentDir=$(pwd)
 branch_name=$(echo $1 | rev | cut -d'/' -f1 | rev | cut -d'-' -f2- | cut -d'.' -f1)
 echo $branch_name
-#exit
 if [[ ! -d "ci-analyzes" ]]; then
     git clone https://github.com/UT-SE-Research/ci-analyzes.git 
 fi
@@ -13,8 +12,6 @@ cd ci-analyzes
 git checkout ${branch_name}
 
 cd $currentDir
-#p="Hello"
-#echo "PP = $p HI"
 count=0 
 while read line
 do 
@@ -46,15 +43,11 @@ do
         fi
         for (( i=0; i<$size; i++ )); 
             do 
-            echo "HI step-details = ${step_details_dir[$i]}" ; 
-            echo ${step_details_dir[$i]} >> P.csv
+            #echo "HI step-details = ${step_details_dir[$i]}" ; 
             bash  find_which_files_are_accessed_and_which_are_not.sh "${step_details_dir[$i]}" ${proj_name}
             workflow_job_name=$(echo ${step_details_dir[$i]} | rev |cut -d'/' -f2-3| rev | sed 's/\//-/g' )
-            #exit
-            echo "Before make_cluster $workflow_job_name"
             bash make_cluster_for_each_category.sh "${proj_name}-${workflow_job_name}" "Clustering-Unused-Directories" "never-accessed" "useful" 
             bash make_cluster_for_each_category.sh "${proj_name}-${workflow_job_name}" "Clustering-Used-Directories" "useful"  "never-accessed" 
-            #exit
         done
 
     fi
