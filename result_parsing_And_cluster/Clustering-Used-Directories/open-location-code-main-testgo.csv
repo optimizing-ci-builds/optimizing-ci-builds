@@ -1,0 +1,14 @@
+      1 /home/runner/work/open-location-code/open-location-code/.github/workflows/script.py
+      1 /home/runner/work/open-location-code/open-location-code/go/corpus/
+      1 /home/runner/work/open-location-code/open-location-code/go/decode.go
+      1 /home/runner/work/open-location-code/open-location-code/go/encode.go
+      1 /home/runner/work/open-location-code/open-location-code/go/go.mod
+      1 /home/runner/work/open-location-code/open-location-code/go/olc.go
+      1 /home/runner/work/open-location-code/open-location-code/go/olc_gofuzz.go
+      1 /home/runner/work/open-location-code/open-location-code/go/olc_test.go
+      1 /home/runner/work/open-location-code/open-location-code/go/shorten.go
+      1 /home/runner/work/open-location-code/open-location-code/test_data/decoding.csv
+      1 /home/runner/work/open-location-code/open-location-code/test_data/encoding.csv
+      1 /home/runner/work/open-location-code/open-location-code/test_data/shortCodeTests.csv
+      1 /home/runner/work/open-location-code/open-location-code/test_data/validityTests.csv
+     19 /home/runner/work/open-location-code/open-location-code/tile_server/gridserver/
