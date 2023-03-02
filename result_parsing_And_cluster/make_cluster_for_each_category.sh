@@ -30,6 +30,7 @@ fi
 while read line
 do
     count_directory_structure=$(echo $line | tr -cd / | wc -c)
+
     path=""
     boundary=$((count_directory_structure + 1))
     #for i in {1..$count_directory_structure}
@@ -37,7 +38,7 @@ do
     do
         dir=$(echo $line | cut -d'/' -f1-$i)
         if [[ ! " ${allClusters[*]} " =~ " ${dir} " ]]; then
-            if [[ $i < $boundary ]]; then
+            if [[ $i < $boundary ]]; then # For handling directory and files differently
                 found=$(grep -r "$dir/" "$outputDir/${useful}_sort_Prefix_remove.csv" | wc -l)
                 path=$dir"/"
             else
@@ -45,9 +46,9 @@ do
             fi
             if [[ $found -eq 0 ]]; then
                 if [[ $i -eq $boundary ]]; then
-                    path="target$dir"
+                    path="$dir" # it will be file
                 else
-                    path="target$dir/"
+                    path="$dir/" # it will be directory
                 fi
                 echo $path >> "$outputDir/${1}-unnecessary-with-repetition.csv"
                 allClusters+=($path)
