@@ -6,6 +6,7 @@ from collections import defaultdict
 import csv
 from pathlib import Path
 import pathlib
+
 log_directory=sys.argv[1]
 proj_list = os.listdir(log_directory)
 failure_type=[]
@@ -65,7 +66,6 @@ for proj in proj_list:
                         if build_conclusion == None:
                             build_conclusion="in_progress"
                         file_name_only=Path(json_file).name            
-                        
                         writer.writerow([proj, file_name_only,build_name, build_conclusion])
 
 print('total job_count='+str(job_count))
