@@ -1,0 +1,11 @@
+/home/runner/work/MavenTestCI/MavenTestCI/.github/workflows/script.py
+/home/runner/work/MavenTestCI/MavenTestCI/pom.xml
+/home/runner/work/MavenTestCI/MavenTestCI/src/main/java/Indicator.java
+/home/runner/work/MavenTestCI/MavenTestCI/src/test/java/Test.java
+/home/runner/work/MavenTestCI/MavenTestCI/target/classes/Indicator.class
+/home/runner/work/MavenTestCI/MavenTestCI/target/jacoco.exec
+/home/runner/work/MavenTestCI/MavenTestCI/target/site/jacoco/jacoco.xml
+/home/runner/work/MavenTestCI/MavenTestCI/target/surefire/surefire_012176275352981306142tmp
+/home/runner/work/MavenTestCI/MavenTestCI/target/surefire/surefire568296451703398030tmp
+/home/runner/work/MavenTestCI/MavenTestCI/target/surefire/surefirebooter4699433389442572185.jar
+/home/runner/work/MavenTestCI/MavenTestCI/target/test-classes/Test.class
