@@ -10,15 +10,17 @@ do
     #echo ${#m[@]}
     for file in ${files[@]}
     do
-        echo $file
+        #echo $file
+        count=0
         proj_name=$(echo $file | cut -d':' -f1 | cut -d'#' -f1)
         job_name=$(echo $file | cut -d':' -f1 | cut -d'#' -f2) #| sed 's/.csv//g')
-        res=$(grep -r "${line}" $file | cut -d'/' -f1 | sed 's/ //g')
-        #echo "$line,$proj_name,$job_name,$res"
-        #after_colon=$(echo $item | cut -d':' -f2)
-        #echo "after_colon=$after_colon"
-        #count_unnecessary_file=$(echo $after_colon | cut -d'/' -f1)
-        echo "$line,$proj_name,$job_name,$res" >> "$currentDir/Result_for_each_unnecessary_file.csv"
+        res=($(grep -r "${line}" $file | cut -d'/' -f1 | sed 's/ //g'))
+        echo "len=${#res[@]}"
+        for i in ${res[@]}
+        do
+           count=$((count + i)) 
+        done
+        echo "$line,$proj_name,$job_name,$count" >> "$currentDir/Histogram_for_each_unnecessary_file.csv"
     done
-    exit
+    #exit
 done < "../x.csv"
