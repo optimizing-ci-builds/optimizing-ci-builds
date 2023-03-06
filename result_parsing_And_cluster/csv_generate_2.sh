@@ -13,7 +13,7 @@ do
         #echo $file
         count=0
         proj_name=$(echo $file | cut -d':' -f1 | cut -d'#' -f1)
-        job_name=$(echo $file | cut -d':' -f1 | cut -d'#' -f2) #| sed 's/.csv//g')
+        job_name=$(echo $file | cut -d':' -f1 | cut -d'#' -f2 | sed 's/.csv//g')
         res=($(grep -r "${line}" $file | cut -d'/' -f1 | sed 's/ //g'))
         echo "len=${#res[@]}"
         for i in ${res[@]}
