@@ -179,7 +179,8 @@ if (info_flag == 1) :
         else: second = ending_time[2] - starting_time[2]
         total_seconds = second + (minute * 60) + (hour * 60 * 60)
         if step_name != '':
-            os.mkdir(f'/home/runner/work/{repo}/{repo}/optimizing-ci-builds-ci-analysis/step-details/{step_name}')
+            if not os.path.exists(f'/home/runner/work/{repo}/{repo}/optimizing-ci-builds-ci-analysis/step-details/{step_name}'):
+                os.mkdir(f'/home/runner/work/{repo}/{repo}/optimizing-ci-builds-ci-analysis/step-details/{step_name}')
             if created_file_count > 0: info_df[c]["file_name"].to_csv(f'/home/runner/work/{repo}/{repo}/optimizing-ci-builds-ci-analysis/step-details/{step_name}/c.csv')
             if modified_file_count > 0: info_df[m]["file_name"].to_csv(f'/home/runner/work/{repo}/{repo}/optimizing-ci-builds-ci-analysis/step-details/{step_name}/m.csv')
             if cma > 0: info_df[c & m & a]["file_name"].to_csv(f'/home/runner/work/{repo}/{repo}/optimizing-ci-builds-ci-analysis/step-details/{step_name}/cma.csv')
