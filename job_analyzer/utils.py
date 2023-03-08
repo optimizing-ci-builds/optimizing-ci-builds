@@ -391,7 +391,7 @@ def configure_yaml_file(yaml_file: str, repo: str, file_path: str, time, job_wit
                 continue
             
             if "- uses" in line or "- name" in line or "- run" in line:
-                if "- uses" in line:
+                if "- uses" in line and "@" in line:
                     res= line.split(":")
                     ress=res[1].split("/")
                     uses_name= ress[1].split("@")
