@@ -13,7 +13,7 @@ fi
 output_proj_name=$2
 workflow_name=$(echo $1 | rev |cut -d'/' -f2-3| rev | sed 's/\//-/g' )
 echo "workflow name= ${workflow_name}"
-proj_with_workflow="${output_proj_name}-$workflow_name"
+proj_with_workflow="${output_proj_name}#$workflow_name"
 
 echo $proj_with_workflow >> "projects_name_per_yaml.csv"
 

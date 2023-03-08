@@ -46,8 +46,8 @@ do
             #echo "HI step-details = ${step_details_dir[$i]}" ; 
             bash  find_which_files_are_accessed_and_which_are_not.sh "${step_details_dir[$i]}" ${proj_name}
             workflow_job_name=$(echo ${step_details_dir[$i]} | rev |cut -d'/' -f2-3| rev | sed 's/\//-/g' )
-            bash make_cluster_for_each_category.sh "${proj_name}-${workflow_job_name}" "Clustering-Unused-Directories" "never-accessed" "useful" 
-            bash make_cluster_for_each_category.sh "${proj_name}-${workflow_job_name}" "Clustering-Used-Directories" "useful"  "never-accessed" 
+            bash make_cluster_for_each_category.sh "${proj_name}#${workflow_job_name}" "Clustering-Unused-Directories" "never-accessed" "useful" 
+            bash make_cluster_for_each_category.sh "${proj_name}#${workflow_job_name}" "Clustering-Used-Directories" "useful"  "never-accessed" 
         done
 
     fi

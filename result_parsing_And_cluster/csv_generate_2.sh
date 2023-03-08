@@ -35,8 +35,8 @@ do
         fi
     done
     echo "total=$total"
-    exit
+    #exit
 done < "../x.csv"
 #sort -k1 "$currentDir/Histogram_for_each_unnecessary_file.csv"
-sort -k4 -n -t, -r "$currentDir/tmp.csv" > "$currentDir/Histogram_for_each_unnecessary_file.csv"
+sort -k4 -n -t, -r "$currentDir/tmp.csv" > "$currentDir/Parsed-Results-of-those-unnecessary-clusters/Histogram_for_each_unnecessary_file.csv"
 rm "$currentDir/tmp.csv"
