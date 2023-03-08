@@ -1,5 +1,11 @@
 #!/bin/bash
 #for item in ${arr_unnecessary_files_items[@]}
+if [[ $1 == "" || $2 == "" ]]; then
+    echo "please give Ununsed directory"
+    echo "please give Output directory (Parsed-Results-of-Different-clusters/Result_Unnnecessary_file.csv)"
+    exit
+fi
+
 currentDir=$(pwd)
 cd $1
 while read line
@@ -36,7 +42,8 @@ do
     done
     echo "total=$total"
     #exit
-done < "../x.csv"
+done < "$currentDir/x.csv"
+rm "$currentDir/x.csv"
 #sort -k1 "$currentDir/Histogram_for_each_unnecessary_file.csv"
-sort -k4 -n -t, -r "$currentDir/tmp.csv" > "$currentDir/Parsed-Results-of-those-unnecessary-clusters/Histogram_for_each_unnecessary_file.csv"
+sort -k4 -n -t, -r "$currentDir/tmp.csv" > "$currentDir/$2"
 rm "$currentDir/tmp.csv"

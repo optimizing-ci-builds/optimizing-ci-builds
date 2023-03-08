@@ -8,5 +8,10 @@ To parse all unused files=>
 
 cat Clustering-Unused-Directories/* | sort -k1 -n -r -t' ' | tr -s " " | uniq  > all_unnecessary.csv
 
-bash csv_generate.sh Clustering-Unused-Directories/ 
-bash csv_generate_2.sh Clustering-Unused-Directories/
+bash csv_generate.sh Clustering-Unused-Directories/ Parsed-Results-of-Different-clusters/Result_Unnnecessary_file.csv Parsed-Results-of-Different-clusters/Histogram_for_each_unnecessary_file.csv
+
+bash csv_generate.sh Clustering-Used-Directories/ Parsed-Results-of-Different-clusters/Result_Used_file.csv Parsed-Results-of-Different-clusters/Histogram_for_each_used_file.csv
+
+#bash csv_generate_2.sh Clustering-Unused-Directories/ Parsed-Results-of-Different-clusters/Histogram_for_each_unnecessary_file.csv
+
+

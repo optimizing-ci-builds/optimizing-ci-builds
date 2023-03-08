@@ -1,8 +1,10 @@
 #!/bin/bash
 #$1="Clustering-Unused-Directories/"
 #cat $1/* | sort -k1 -n -r -t' ' | uniq  > all_unnecessary.csv
-if [[ $1 == "" ]]; then
+if [[ $1 == "" || $2 == "" || $3 == "" ]]; then
     echo "please give Ununsed directory"
+    echo "please give Output directory (Parsed-Results-of-Different-clusters/Result_Unnnecessary_file.csv)"
+    echo "please give Output directory (Parsed-Results-of-Different-clusters/Histogram_for_each_unnecessary_file.csv)"
     exit
 fi
 
@@ -27,18 +29,19 @@ do
         count_files_per_job=$(($count_files_per_job + $x))
     done < $job
     total=$(( $total+ $count_files_per_job))
-    echo -n "$(echo $job | cut -d'#' -f1)" >> "$currentDir/Parsed-Results-of-those-unnecessary-clusters/Result_Unnnecessary_file.csv" #project_name
-    echo -n ",$(echo $job | cut -d'#' -f2 | sed 's/.csv//g')" >> "$currentDir/Parsed-Results-of-those-unnecessary-clusters/Result_Unnnecessary_file.csv" #job_name
-    echo ",$count_files_per_job" >> "$currentDir/Parsed-Results-of-those-unnecessary-clusters/Result_Unnnecessary_file.csv" #count of unnecessary files in a job    
+    echo -n "$(echo $job | cut -d'#' -f1)" >> "$currentDir/$2" #project_name
+    echo -n ",$(echo $job | cut -d'#' -f2 | sed 's/.csv//g')" >> "$currentDir/$2" #job_name
+    echo ",$count_files_per_job" >> "$currentDir/$2" #count of unnecessary files in a job    
 done    
 echo "total=$total"
 len=${#arr_unnecessary_files_items[@]}
 echo $len
-bash csv_generate_2.sh Clustering-Unused-Directories/ "x.csv"
+cd $currentDir
+bash csv_generate_2.sh "$1" "$3"
 
-for item in ${arr_unnecessary_files_items[@]}
-do
+#for item in ${arr_unnecessary_files_items[@]}
+#do
     #echo $item
-    x=$(grep -r "$item" $1 ) 
-done
+#    x=$(grep -r "$item" $1 ) 
+#done
 #cat $1/* | sort -k1 -n -r -t' ' | tr -s " " | uniq  > all_unnecessary.csv
