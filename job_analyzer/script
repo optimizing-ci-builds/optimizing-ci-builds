@@ -128,10 +128,11 @@ os.mkdir(f'/home/runner/work/{repo}/{repo}/optimizing-ci-builds-ci-analysis/step
 # Add the job.csv file to the directory optimizing-ci-builds-ci-analysis
 current_run_id = os.environ['GITHUB_RUN_ID']
 job_id = os.environ['GITHUB_JOB']
+workflow = os.environ['GITHUB_WORKFLOW']
 save_path = f'/home/runner/work/{repo}/{repo}/optimizing-ci-builds-ci-analysis/job.csv'
 # write the current_run_id to the file job.csv
 with open(save_path, 'w') as f:
-    f.write(current_run_id  + ',' + job_id + ',' + f"{repo}")
+    f.write(current_run_id  + ',' + job_id + ',' + f"{repo}" + ',' + workflow)
 
 info_flag=0
 if ( len(info) > 0 ):
