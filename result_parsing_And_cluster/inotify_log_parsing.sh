@@ -17,10 +17,7 @@ echo  "branch,inotify_file_path,line_in_inotify_file,created file,actions_of_thi
 while read inotify
 do
 
-    echo -n ${branch_name} >> $result
-    echo -n ",$inotify" >> $result    
     total_line_of_inotify_log=$(wc -l) 
-    echo -n ",$total_line_of_inotify_log" >> $result
     line_count=1
     arr_unique_line=()
     proj_name="$(echo $inotify | cut -d'/' -f2)-$(echo $inotify | rev | cut -d'/' -f2 | rev)"
@@ -28,6 +25,7 @@ do
     while read line
     do
         echo $line
+
         time=$(echo $line | cut -d';' -f1)
         created_file_dir=$(echo $line | cut -d';' -f2)
         created_file_name=$(echo $line | cut -d';' -f3)
@@ -36,10 +34,14 @@ do
         if [[  -z $created_file_name ]]; then 
             continue
         else
+
              
             full_file_name="${created_file_dir};${created_file_name};"
             if [[ ! " ${arr_unique_line[*]} " =~ "${full_file_name}" ]]; then
                 
+                echo -n ${branch_name} >> $result
+                echo -n ",$inotify" >> $result    
+                echo -n ",$total_line_of_inotify_log" >> $result
                 echo -n ",$full_file_name" >> $result #This is a created file name
                 arr_unique_line+=(${full_file_name})
                 #Need to check
@@ -102,13 +104,28 @@ do
                         all_operation+="A"
                     fi
                 done
-                echo -n ",$all_operation" >> $result
-                echo -n ",$all_lines" >> $result
+                remove_last_underline=$(echo $all_operation | rev | cut -d'_' -f2 | rev)
+                last_op=$(echo ${remove_last_underline} | rev | cut -d'_' -f1 | rev)
+                category="-"
+                if [[ $last_op =~ "A" ]]; then
+                    category="Accessed"
+                elif [[ ! "$remove_last_underline" =~ "A" ]]; then
+                    category="Never_accessed"
+                elif [[ $last_op =~ "M" ]]; then
+                    category="Unnecessary_modify"
+                fi
+
+                echo -n ",$category" >> $result
+                echo -n ",$remove_last_underline" >> $result
+                ln=$(echo "$all_lines" | rev | cut -d'_' -f2- |rev)
+
+                echo  ",$ln"  >> $result
+                #echo  ",$all_lines"  >> $result
                 #exit
                 rm "$inotify_result_dir/tmp.csv"
                 rm "$inotify_result_dir/all_lines_after_last_modify_or_create.csv"
             fi
         fi
-       #exit 
     done<"$inotify"
+    #exit 
 done < "$currentDir/all_inotify-logs.csv"
