@@ -23,7 +23,7 @@ do
             arr_unique_line+=(${full_file_name})
 
             #Need to check
-            grep -r "$created_file_name;" $1 >> "tmp.csv"
+            grep -n "$created_file_name;" $1 >> "tmp.csv"
             create_line=($(grep -n "CREATE" "tmp.csv" | cut -d':' -f1))  # to get the line numbe of the create
             echo $create_line
 
@@ -50,7 +50,7 @@ do
                fi
             fi
 
-            echo $boundary
+            #echo $boundary
             total_line=$(wc -l < "tmp.csv")
             echo $total_line
             tail -n +$((boundary+1)) "tmp.csv" >> "all_lines_after_last_modify_or_create.csv"
@@ -61,7 +61,31 @@ do
                 echo $full_file_name   >> "UNUSED_FILE_$2.csv"
             fi
             line_count=$((line_count + 1)) 
-            #exit
+
+            #Collect all operation's execution sequence 
+            arr_all_operation=($(cut -d';' -f1,4 "tmp.csv" ))
+            echo $arr_all_operation
+            
+            all_operation=""
+            all_lines=""
+            for i in "${arr_all_operation[@]}"
+            do
+                echo $i
+                if [[ "$i" =~ "CREATE" ]]; then
+                    all_operation+="C"
+                    all_lines+="$(echo $i |  cut -d':' -f1)_"
+
+                elif [[ "$i" =~ "MODIFY" ]]; then 
+                    all_operation+="M"
+                    all_lines+="$(echo $i | cut -d':' -f1)_"
+                elif [[ "$i" =~ "ACCESS" ]]; then
+                    all_lines+="$(echo $i | cut -d':' -f1)_"
+                    all_operation+="A"
+                fi
+            done
+            echo $all_lines
+            echo $all_operation
+            exit
             rm "tmp.csv"
             rm "all_lines_after_last_modify_or_create.csv"
         fi
