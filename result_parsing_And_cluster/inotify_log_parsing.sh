@@ -7,14 +7,20 @@ if [[ $1 == "" ]]; then
 fi
 currentDir=$(pwd)
 cd $1
-branch_name=$(git rev-parse --abbrev-ref HEAD)
-result="$currentDir/Output.csv"
-echo ${branch_name} >> $result
 find -name "inotify-logs.csv" > "$currentDir/all_inotify-logs.csv"
+branch_name=$(git rev-parse --abbrev-ref HEAD)
+inotify_result_dir="$currentDir/Inotify-Parse-Result"
+mkdir "$inotify_result_dir"
+result="$currentDir/Inotify-Parse-Result/Output.csv"
+echo  "branch,inotify_file_path,line_in_inotify_file,created file,actions_of_this_file,line_number_of_operations_index_in_yaml" >> $result
 
 while read inotify
 do
-    
+
+    echo -n ${branch_name} >> $result
+    echo -n ",$inotify" >> $result    
+    total_line_of_inotify_log=$(wc -l) 
+    echo -n ",$total_line_of_inotify_log" >> $result
     line_count=1
     arr_unique_line=()
     proj_name="$(echo $inotify | cut -d'/' -f2)-$(echo $inotify | rev | cut -d'/' -f2 | rev)"
@@ -30,16 +36,18 @@ do
         if [[  -z $created_file_name ]]; then 
             continue
         else
+             
             full_file_name="${created_file_dir};${created_file_name};"
-            echo $full_file_name
             if [[ ! " ${arr_unique_line[*]} " =~ "${full_file_name}" ]]; then
+                
+                echo -n ",$full_file_name" >> $result #This is a created file name
                 arr_unique_line+=(${full_file_name})
                 #Need to check
-                grep -n "$created_file_name;" $inotify >> "tmp.csv"
-                create_line=($(grep -n "CREATE" "tmp.csv" | cut -d':' -f1))  # to get the line numbe of the create
+                grep -n "$created_file_name;" $inotify >> "$inotify_result_dir/tmp.csv"
+                create_line=($(grep -n "CREATE" "$inotify_result_dir/tmp.csv" | cut -d':' -f1))  # to get the line numbe of the create
                 echo $create_line
     
-                modify_line=($(grep -n "MODIFY" "tmp.csv" | cut -d':' -f1)) 
+                modify_line=($(grep -n "MODIFY" "$inotify_result_dir/tmp.csv" | cut -d':' -f1)) 
                 echo $modify_line
                 boundary=0 
                 
@@ -62,19 +70,19 @@ do
                    fi
                 fi
                 #echo $boundary
-                total_line=$(wc -l < "tmp.csv")
+                total_line=$(wc -l < "$inotify_result_dir/tmp.csv")
                 echo $total_line
-                tail -n +$((boundary+1)) "tmp.csv" >> "all_lines_after_last_modify_or_create.csv"
-                count=$(grep -r "ACCESS"  "all_lines_after_last_modify_or_create.csv" | wc -l)
+                tail -n +$((boundary+1)) "$inotify_result_dir/tmp.csv" >> "$inotify_result_dir/all_lines_after_last_modify_or_create.csv"
+                count=$(grep -r "ACCESS"  "$inotify_result_dir/all_lines_after_last_modify_or_create.csv" | wc -l)
                 if [[ $count -gt 0 ]]; then # USEFUL FILE
-                    echo $full_file_name   >> "USEFUL_FILE_${proj_name}.csv"
+                    echo $full_file_name   >> "$inotify_result_dir/USEFUL_FILE_${proj_name}.csv"
                 else
-                    echo $full_file_name   >> "UNUSED_FILE_${proj_name}.csv"
+                    echo $full_file_name   >> "$inotify_result_dir/UNUSED_FILE_${proj_name}.csv"
                 fi
                 line_count=$((line_count + 1)) 
     
                 #Collect all operation's execution sequence 
-                arr_all_operation=($(cut -d';' -f1,4 "tmp.csv" ))
+                arr_all_operation=($(cut -d';' -f1,4 "$inotify_result_dir/tmp.csv" ))
                 echo $arr_all_operation
                 
                 all_operation=""
@@ -94,11 +102,11 @@ do
                         all_operation+="A"
                     fi
                 done
-                echo $all_lines
-                echo $all_operation
-                exit
-                rm "tmp.csv"
-                rm "all_lines_after_last_modify_or_create.csv"
+                echo -n ",$all_operation" >> $result
+                echo -n ",$all_lines" >> $result
+                #exit
+                rm "$inotify_result_dir/tmp.csv"
+                rm "$inotify_result_dir/all_lines_after_last_modify_or_create.csv"
             fi
         fi
        #exit 
