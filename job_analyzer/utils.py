@@ -297,6 +297,7 @@ def configure_yaml_file(yaml_file: str, repo: str, file_path: str, time, job_wit
                     new_yaml_file += " " * (in_step_indent + 2) + "if: always()\n"
 
                     new_yaml_file += " " * (in_step_indent) + "- name: Check script file exists and execute\n"
+                    new_yaml_file += " " * (in_step_indent + 2) + "if: always()\n"
                     new_yaml_file += " " * (in_step_indent + 2) + "id: check_files\n"
                     new_yaml_file += " " * (in_step_indent + 2) + "uses: andstor/file-existence-action@v1\n"
                     new_yaml_file += " " * (in_step_indent + 2) + "with:\n"
@@ -320,6 +321,7 @@ def configure_yaml_file(yaml_file: str, repo: str, file_path: str, time, job_wit
                     new_yaml_file += " " * (in_step_indent + 2) + "run: |\n"
                     new_yaml_file += " " * (in_step_indent + 4) + f"mkdir -p {repo}/{repo}/{file_path.replace('.yml', '')}/{job_name}{append_to_target_dir}\n"
                     new_yaml_file += " " * (in_step_indent + 4) + f"cp -rvT optimizing-ci-builds-ci-analysis {repo}/{repo}/{file_path.replace('.yml', '')}/{job_name}{append_to_target_dir}\n"
+                    new_yaml_file += " " * (in_step_indent) + f"- run: echo https://github.com/UT-SE-Research/ci-analyzes/tree/{time}/{repo}/{file_path.replace('.yml', '')}/{job_name}{append_to_target_dir}\n"
                     new_yaml_file += " " * (in_step_indent) + "- name: Pushes analysis to another repository\n"
                     new_yaml_file += " " * (in_step_indent + 2) + f"if: steps.check_files.outputs.files_exists == 'true'\n"
                     new_yaml_file += " " * (in_step_indent + 2) + f"working-directory: {repo}\n"
