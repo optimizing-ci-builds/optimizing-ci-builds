@@ -6,25 +6,30 @@ if [[ $1 == "" ]]; then
     exit
 fi
 currentDir=$(pwd)
-cd $1
-find -name "inotify-logs.csv" > "$currentDir/all_inotify-logs.csv"
+#cd $1
+find $1 -name "inotify-logs.csv" > "$currentDir/all_inotify-logs.csv"
 branch_name=$(git rev-parse --abbrev-ref HEAD)
 inotify_result_dir="$currentDir/Inotify-Parse-Result"
 mkdir "$inotify_result_dir"
-result="$currentDir/Inotify-Parse-Result/Output.csv"
-echo  "branch,inotify_file_path,line_in_inotify_file,created file,actions_of_this_file,line_number_of_operations_index_in_yaml" >> $result
 
 while read inotify
 do
+    echo "PU**"
+    echo $inotify
+    total_line_of_inotify_log=$(cat $inotify | wc -l ) 
 
-    total_line_of_inotify_log=$(wc -l) 
+    echo $total_line_of_inotify_log
+    #exit
     line_count=1
     arr_unique_line=()
     proj_name="$(echo $inotify | cut -d'/' -f2)-$(echo $inotify | rev | cut -d'/' -f2 | rev)"
+    result="$currentDir/Inotify-Parse-Result/Output_${proj_name}.csv"
+    echo  "branch,inotify_file_path,line_in_inotify_file,created file,actions_of_this_file,line_number_of_operations_index_in_yaml" >> $result
+
     echo $proj_name
     while read line
     do
-        echo $line
+        #echo $line
 
         time=$(echo $line | cut -d';' -f1)
         created_file_dir=$(echo $line | cut -d';' -f2)
@@ -34,8 +39,7 @@ do
         if [[  -z $created_file_name ]]; then 
             continue
         else
-
-             
+            #break             
             full_file_name="${created_file_dir};${created_file_name};"
             if [[ ! " ${arr_unique_line[*]} " =~ "${full_file_name}" ]]; then
                 
@@ -127,5 +131,8 @@ do
             fi
         fi
     done<"$inotify"
-    #exit 
-done < "$currentDir/all_inotify-logs.csv"
+    
+    echo "HI I AM : $(pwd)"    
+    cd $currentDir
+done<"$currentDir/all_inotify-logs.csv"
+#cat "$currentDir/all_inotify-logs.csv"
