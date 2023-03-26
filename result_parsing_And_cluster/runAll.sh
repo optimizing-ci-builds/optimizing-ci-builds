@@ -5,16 +5,18 @@ fi
 currentDir=$(pwd)
 branch_name=$(echo $1 | rev | cut -d'/' -f1 | rev | cut -d'-' -f2- | cut -d'.' -f1)
 echo $branch_name
-if [[ ! -d "ci-analyzes" ]]; then
-    git clone https://github.com/UT-SE-Research/ci-analyzes.git 
-fi
-cd ci-analyzes
-git checkout ${branch_name}
+#if [[ ! -d "ci-analyzes" ]]; then
+#    git clone https://github.com/UT-SE-Research/ci-analyzes.git 
+#fi
+#cd ci-analyzes
+#git checkout ${branch_name}
 
 cd $currentDir
 count=0 
 while read line
 do 
+    #echo $line
+    #exit
     count=$((count+1))
     if [[ ${line} =~ ^\# ]]; then
         echo "Line starts with Hash $line"
