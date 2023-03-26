@@ -50,8 +50,9 @@ do
             echo "${proj_name}-${workflow_job_name}"
             #exit
             bash make_cluster_for_each_category.sh "${proj_name}-${workflow_job_name}" "Clustering-Unused-Directories" "Unused" "Useful" 
-            exit
-            bash make_cluster_for_each_category.sh "${proj_name}-${workflow_job_name}.csv" "Clustering-Used-Directories" "Useful"  "Unused" 
+            #exit
+            bash make_cluster_for_each_category.sh "${proj_name}-${workflow_job_name}" "Clustering-Used-Directories" "Useful"  "Unused" 
+            #exit
         done
 
     fi
