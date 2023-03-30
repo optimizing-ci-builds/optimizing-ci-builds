@@ -330,13 +330,13 @@ def configure_yaml_file(yaml_file: str, repo: str, file_path: str, time, job_wit
                     new_yaml_file += " " * (in_step_indent) + "- name: rat check\n"
                     new_yaml_file += " " * (in_step_indent + 2) + f"if: always()\n"
                     new_yaml_file += " " * (in_step_indent + 2) + f"run: |\n"
-                    new_yaml_file += " " * (in_step_indent + 4) + f"[ -f /home/runner/work/{repo}/{repo}/target/rat.txt ] && cat /home/runner/work/{repo}/{repo}/target/rat.txt\n"
+                    new_yaml_file += " " * (in_step_indent + 4) + f" if [ -f /home/runner/work/{repo}/{repo}/target/rat.txt ]; then cat /home/runner/work/{repo}/{repo}/target/rat.txt; fi\n"
 
                     new_yaml_file += " " * (in_step_indent) + "- name: Check script file exists and execute\n"
                     new_yaml_file += " " * (in_step_indent + 2) + "if: always()\n"
                     new_yaml_file += " " * (in_step_indent + 2) + "run: |\n"
                     new_yaml_file += " " * (in_step_indent + 4) + "[ -f .github/workflows/script.py ] && python .github/workflows/script.py\n"
-                    new_yaml_file += " " * (in_step_indent + 4) + f'[ -f /home/runner/work/{repo}/{repo}/optimizing-ci-builds-ci-analysis/job.csv ] || mkdir -p /home/runner/work/{repo}/{repo}/optimizing-ci-builds-ci-analysis/; echo ' + '"${GITHUB_RUN_ID},${GITHUB_JOB},${GITHUB_REPOSITORY},${GITHUB_WORKFLOW}"' + f' > /home/runner/work/{repo}/{repo}/optimizing-ci-builds-ci-analysis/job.csv\n' # if the job.csv file does not exist, then create the file with content run_id, job_id,repo,workflow
+                    new_yaml_file += " " * (in_step_indent + 4) + f'[ -f /home/runner/work/{repo}/{repo}/optimizing-ci-builds-ci-analysis/job.csv ] || mkdir -p /home/runner/work/{repo}/{repo}/optimizing-ci-builds-ci-analysis/; echo ' + '"${GITHUB_RUN_ID},${GITHUB_JOB},' + f'{repo}' + ',${GITHUB_WORKFLOW}"' + f' > /home/runner/work/{repo}/{repo}/optimizing-ci-builds-ci-analysis/job.csv\n' # if the job.csv file does not exist, then create the file with content run_id, job_id,repo,workflow
                     new_yaml_file += " " * (in_step_indent) + "- name: Checkout to destination CI-analyzes repo\n"
                     new_yaml_file += " " * (in_step_indent + 2) + "uses: actions/checkout@v3\n"
                     new_yaml_file += " " * (in_step_indent + 2) + "if: always()\n"
