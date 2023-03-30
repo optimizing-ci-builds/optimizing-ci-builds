@@ -17,6 +17,7 @@ import oyaml as yaml
 from yaml.resolver import BaseResolver
 import ruamel.yaml
 import copy
+import re
 
 
 base_api_url: str = "https://api.github.com"
@@ -35,6 +36,17 @@ def get_filtered_repos():
                 {"name": row[0], "link": row[1], "default_branch": row[2], "sha": row[3],
                 "stargazers_count": row[4], "forks_count": row[5], "Date": row[6],
                 "Maven": row[7], "Gradle": row[8], "Travis CI": row[9], "Github Actions": row[10]})
+    return repositories
+
+
+def get_repositories_to_rerun():
+    repositories = []
+    with open ("data/all_yamls.csv", "r", newline="", encoding="utf8") as csv_file:
+        csv_reader = csv.reader(csv_file, delimiter=',')
+        next(csv_reader, None)
+        for row in csv_reader:
+            if row[5] == "":
+                repositories.append(row[0])
     return repositories
 
 
@@ -109,6 +121,7 @@ def add_environment_secret(owner: str, repo: str):
 
 def get_yaml_file(forked_owner: str, repo: str, file_path: str):
     url_path: str = f"{base_api_url}/repos/{forked_owner}/{repo}/contents/{file_path}"
+    print(url_path)
     # will change here
     response = requests.get(url=url_path, headers=headers)
     if response.status_code != 200:
@@ -234,15 +247,19 @@ def configure_yaml_file(yaml_file: str, repo: str, file_path: str, time, job_wit
     indent = 0
     job_indent = 0
     on_indent = 0
+    if_indent = 0
     steps_indent = 0
     in_step_indent = 0
     in_job = False
     in_on = False
+    in_if= False
     in_steps = False
     job_name = ""
     line_number = 0
     name = ""
     append_to_target_dir = ""
+    inside_if=False
+    
     for line_index, line in enumerate(yaml_file.split("\n")):
         if "secrets." in line:
             print(f"Secret in repository: {repo} YAML file: {file_path}")
@@ -255,8 +272,19 @@ def configure_yaml_file(yaml_file: str, repo: str, file_path: str, time, job_wit
         if (line == "") or is_comment :
             new_yaml_file += line + "\n"
             continue
+        elif "- if:" in line: #multiline if statement
+            new_yaml_file += " " * (indent) + "- "
+            in_if = True
+            if_indent = indent + 2
+            continue
+            continue
+        elif "if: |" in line: #multiline if statement
+            in_if = True
+            if_indent = indent
+            continue
         elif "if: " in line:
             continue
+
         else:
             if in_job and (indent == job_indent):
                 job_name = line.strip()[:-1]
@@ -272,6 +300,9 @@ def configure_yaml_file(yaml_file: str, repo: str, file_path: str, time, job_wit
 
             if in_on and (indent <= on_indent) and (line.strip() != ""):
                 in_on = False
+            
+            if in_if and (indent <= if_indent) and (line.strip() != ""):
+                in_if = False
             
             condition = None
             try:
@@ -295,17 +326,17 @@ def configure_yaml_file(yaml_file: str, repo: str, file_path: str, time, job_wit
                     new_yaml_file += " " * (in_step_indent + 2) + "if: always()\n"
                     new_yaml_file += " " * (in_step_indent) + "- run: rm starting_finished_finished_8979874\n"
                     new_yaml_file += " " * (in_step_indent + 2) + "if: always()\n"
+                    
+                    new_yaml_file += " " * (in_step_indent) + "- name: rat check\n"
+                    new_yaml_file += " " * (in_step_indent + 2) + f"if: always()\n"
+                    new_yaml_file += " " * (in_step_indent + 2) + f"run: |\n"
+                    new_yaml_file += " " * (in_step_indent + 4) + f"[ -f /home/runner/work/{repo}/{repo}/target/rat.txt ] && cat /home/runner/work/{repo}/{repo}/target/rat.txt\n"
 
                     new_yaml_file += " " * (in_step_indent) + "- name: Check script file exists and execute\n"
                     new_yaml_file += " " * (in_step_indent + 2) + "if: always()\n"
-                    new_yaml_file += " " * (in_step_indent + 2) + "id: check_files\n"
-                    new_yaml_file += " " * (in_step_indent + 2) + "uses: andstor/file-existence-action@v1\n"
-                    new_yaml_file += " " * (in_step_indent + 2) + "with:\n"
-                    new_yaml_file += " " * (in_step_indent + 4) + "files: .github/workflows/script.py\n"
-                    new_yaml_file += " " * (in_step_indent) + "- name: File exists\n"
-                    new_yaml_file += " " * (in_step_indent + 2) + f"if: steps.check_files.outputs.files_exists == 'true'\n"
                     new_yaml_file += " " * (in_step_indent + 2) + "run: |\n"
-                    new_yaml_file += " " * (in_step_indent + 4) + "python .github/workflows/script.py\n"
+                    new_yaml_file += " " * (in_step_indent + 4) + "[ -f .github/workflows/script.py ] && python .github/workflows/script.py\n"
+                    new_yaml_file += " " * (in_step_indent + 4) + f'[ -f /home/runner/work/{repo}/{repo}/optimizing-ci-builds-ci-analysis/job.csv ] || mkdir -p /home/runner/work/{repo}/{repo}/optimizing-ci-builds-ci-analysis/; echo ' + '"${GITHUB_RUN_ID},${GITHUB_JOB},${GITHUB_REPOSITORY},${GITHUB_WORKFLOW}"' + f' > /home/runner/work/{repo}/{repo}/optimizing-ci-builds-ci-analysis/job.csv\n' # if the job.csv file does not exist, then create the file with content run_id, job_id,repo,workflow
                     new_yaml_file += " " * (in_step_indent) + "- name: Checkout to destination CI-analyzes repo\n"
                     new_yaml_file += " " * (in_step_indent + 2) + "uses: actions/checkout@v3\n"
                     new_yaml_file += " " * (in_step_indent + 2) + "if: always()\n"
@@ -317,13 +348,13 @@ def configure_yaml_file(yaml_file: str, repo: str, file_path: str, time, job_wit
                     new_yaml_file += " " * (in_step_indent + 4) + "persist-credentials: true\n"
                     # Push the log to another repository
                     new_yaml_file += " " * (in_step_indent) + "- name: Copy files to push to another directory\n"
-                    new_yaml_file += " " * (in_step_indent + 2) + f"if: steps.check_files.outputs.files_exists == 'true'\n"
+                    new_yaml_file += " " * (in_step_indent + 2) + f"if: always()\n"
                     new_yaml_file += " " * (in_step_indent + 2) + "run: |\n"
                     new_yaml_file += " " * (in_step_indent + 4) + f"mkdir -p {repo}/{repo}/{file_path.replace('.yml', '')}/{job_name}{append_to_target_dir}\n"
                     new_yaml_file += " " * (in_step_indent + 4) + f"cp -rvT optimizing-ci-builds-ci-analysis {repo}/{repo}/{file_path.replace('.yml', '')}/{job_name}{append_to_target_dir}\n"
                     new_yaml_file += " " * (in_step_indent) + f"- run: echo https://github.com/UT-SE-Research/ci-analyzes/tree/{time}/{repo}/{file_path.replace('.yml', '')}/{job_name}{append_to_target_dir}\n"
                     new_yaml_file += " " * (in_step_indent) + "- name: Pushes analysis to another repository\n"
-                    new_yaml_file += " " * (in_step_indent + 2) + f"if: steps.check_files.outputs.files_exists == 'true'\n"
+                    new_yaml_file += " " * (in_step_indent + 2) + f"if: always()\n"
                     new_yaml_file += " " * (in_step_indent + 2) + f"working-directory: {repo}\n"
                     new_yaml_file += " " * (in_step_indent + 2) + "run: |\n"
                     new_yaml_file += " " * (in_step_indent + 4) + "commit_message=$GITHUB_REPOSITORY@$GITHUB_WORKFLOW_SHA\n"
@@ -331,7 +362,7 @@ def configure_yaml_file(yaml_file: str, repo: str, file_path: str, time, job_wit
                     new_yaml_file += " " * (in_step_indent + 4) + "git config --global user.email '${{ secrets.EMAIL }}'\n"
                     new_yaml_file += " " * (in_step_indent + 4) + "git add .\n"
                     new_yaml_file += " " * (in_step_indent + 4) + "git commit -m $commit_message\n"
-                    new_yaml_file += " " * (in_step_indent + 4) + f"while ! git push -f origin {time}; do\n"
+                    new_yaml_file += " " * (in_step_indent + 4) + f"while ! git push origin {time}; do\n"
                     new_yaml_file += " " * (in_step_indent + 6) + f"git pull --rebase origin {time}\n"
                     new_yaml_file += " " * (in_step_indent + 6) + "sleep $((RANDOM % 5 + 1))\n"
                     new_yaml_file += " " * (in_step_indent + 4) + "done"
@@ -392,6 +423,9 @@ def configure_yaml_file(yaml_file: str, repo: str, file_path: str, time, job_wit
             if in_on:
                 continue
             
+            if in_if:
+                continue
+            
             if "- uses" in line or "- name" in line or "- run" in line:
                 if "- uses" in line and "@" in line:
                     res= line.split(":")
@@ -410,8 +444,17 @@ def configure_yaml_file(yaml_file: str, repo: str, file_path: str, time, job_wit
                 new_yaml_file += line + "\n"
             else:
                 new_yaml_file += line + "\n"
+            
+            last_line = new_yaml_file.split("\n")[-2]
+            
+            if re.search(r"-\s+", last_line):
+                new_last_line = re.sub(r"-\s+", "- ", last_line)
+                new_yaml_file = re.sub(last_line, new_last_line, new_yaml_file)
     # print("Saving the new yaml file: ", f"{file_path}")
-    # with open ("newyaml.yaml", "w") as f:
+    # f"{file_path}" if this directory does not exist, it will create it
+    # if not os.path.exists(os.path.dirname(f"{file_path}")):
+    #     os.makedirs(os.path.dirname(f"{file_path}"))
+    # with open (f"{file_path}", "w") as f:
     #     f.write(new_yaml_file)
     return new_yaml_file
 
