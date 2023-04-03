@@ -4,7 +4,8 @@ if [[ $1 == "" ]]; then
     echo "plz give the branch name"
 fi
 
-python3 download_logs.py $1 
+bash get_jobs_info.sh $1
+python3 download_logs_2.py $1 
 python3 log_analysis.py logs/$1/  > Result_$1  #with instrumentation
 
 #python3 log_analysis.py logs/one-run-to-find-them-all/  #w/o instrumentation
