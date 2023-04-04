@@ -24,6 +24,7 @@ do
     inotify_log=$(echo ${job_line} | cut -d',' -f10 | cut -d'/' -f8-)
     branch_name=$(echo ${job_line} | cut -d',' -f10 | cut -d'/' -f7)
     proj_name=$(echo ${job_line} | cut -d',' -f10 | cut -d'/' -f8)
+    job_name=$(echo ${job_line} | cut -d',' -f4 | sed 's; ;_;g')
     echo "ci-analyzes/$inotify_log" >> "$currentDir/data/all_inotify-logs.csv"
     if [[ ! -d  ci-analyzes ]]; then
 	    git clone https://github.com/UT-SE-Research/ci-analyzes.git 
@@ -38,7 +39,7 @@ do
     echo $total_line_of_inotify_log
     #line_count=1
     arr_unique_line=()
-    result="$inotify_result_dir/Output_${proj_name}.csv"
+    result="$inotify_result_dir/Output_${proj_name}_${job_name}.csv"
     echo  "branch,inotify_file_path,line_in_inotify_file,created file,actions_of_this_file,line_number_of_operations_index_in_yaml" >> $result
 
     #echo $proj_name
@@ -111,9 +112,9 @@ do
                 tail -n +$((boundary+1)) "$inotify_result_dir/tmp.csv" >> "$inotify_result_dir/all_lines_after_last_modify_or_create.csv" #copy everything after last modify or create into another file
                 count=$(grep -r "ACCESS"  "$inotify_result_dir/all_lines_after_last_modify_or_create.csv" | wc -l) #If access happens after last modify/create
                 if [[ $count -gt 0 ]]; then # USEFUL FILE
-                    echo $full_file_name   >> "$inotify_result_dir/${proj_name}_Useful.csv"
+                    echo $full_file_name   >> "$inotify_result_dir/${proj_name}_${job_name}_Useful.csv"
                 else
-                    echo $full_file_name   >> "$inotify_result_dir/${proj_name}_Unused.csv"
+                    echo $full_file_name   >> "$inotify_result_dir/${proj_name}_${job_name}_Unused.csv"
                 fi
                 #line_count=$((line_count + 1))
 
