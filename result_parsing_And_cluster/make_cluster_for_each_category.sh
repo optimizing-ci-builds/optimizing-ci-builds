@@ -10,18 +10,18 @@ if [[ ! -d "$outputDir" ]]; then
 fi
 
 echo $1
-uses_name="${1}-$3" #$(echo $1 | rev | cut -d'/' -f1 | rev) #normally it will be never-accessed
+uses_name="${1}_$3" #$(echo $1 | rev | cut -d'/' -f1 | rev) #normally it will be never-accessed
 never_access=${uses_name}
 #===========Which are never ever accessed=========
 
 
-cat "data/Inotify-Parse-Result/$uses_name"  > "$outputDir/${never_access}_sort_Prefix_remove.csv"
+cat "data/Inotify-Parse-Result/$uses_name.csv"  > "$outputDir/${never_access}_sort_Prefix_remove.csv"
 #======================================== useful.csv ($3)===============================
 
-uses_name="${1}-$4" #$(echo $3 | rev | cut -d'/' -f1 | rev) #normally it will be useful
+uses_name="${1}_$4" #$(echo $3 | rev | cut -d'/' -f1 | rev) #normally it will be useful
 useful=${uses_name}
 
-cat "data/Inotify-Parse-Result/$uses_name"  > "$outputDir/${useful}_sort_Prefix_remove.csv"
+cat "data/Inotify-Parse-Result/$uses_name.csv"  > "$outputDir/${useful}_sort_Prefix_remove.csv"
 
 #================= FOR COMPARING this two sorted csv =========================
 allClusters=()
@@ -61,7 +61,7 @@ do
 
     done
 done <  "$outputDir/${never_access}_sort_Prefix_remove.csv"
-exit
+#exit
 if [[ -f "$outputDir/${1}-unnecessary-with-repetition.csv" ]]; then
     sort "$outputDir/${1}-unnecessary-with-repetition.csv" | uniq -c > "$outputDir/${1}.csv"
     rm "$outputDir/${1}-unnecessary-with-repetition.csv"

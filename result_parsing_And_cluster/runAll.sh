@@ -28,33 +28,12 @@ do
     proj_name=$(echo $line | cut -d',' -f1) 
     #workflow_path=$(echo $line | cut -d',' -f3) 
     echo ${proj_name} 
-    #workflow_name="ci-analyzes/${proj_name}/.github/workflows"
-    #step_details_dir=($(find ${workflow_name} -name "step-details"))
-    #size=${#step_details_dir[@]}
-    #echo "size= $size"
-    #if [[ $size -gt 1 ]]; then 
-    #    echo "large size"
-        #exit
-    #fi
-    #for (( i=0; i<$size; i++ )); 
-     #   do 
-        #echo "HI step-details = ${step_details_dir[$i]}" ; 
-        #bash  find_which_files_are_accessed_and_which_are_not.sh "${step_details_dir[$i]}" ${proj_name} # I dont need this anymore, Because it's main responsibility was to make the unuse and used files that I alread have according to our recent changes
-      #  echo ${step_details_dir[$i]} 
-
         workflow_job_name=$(echo ${line} | cut -d',' -f10 | cut -d'/' -f11- | sed 's;\/;-;g') # example, Parsing(https://github.com/UT-SE-Research/ci-analyzes/tree/1680156014-f3221fe/soot/.github/workflows/ci/BuildAndTest)
-        #workflow_job_name=$(echo ${step_details_dir[$i]} | rev |cut -d'/' -f2-3| rev | sed 's/\//-/g' )
-        #workflow_job_name=$(echo ${step_details_dir[$i]}) #| rev |cut -d'/' -f2-3| rev | sed 's/\//-/g' )
         echo "workflow= $workflow_job_name"
         echo "${proj_name}_${workflow_job_name}"
+        bash make_cluster_for_each_category.sh "${proj_name}_${workflow_job_name}" "Clustering-Unused-Directories" "Unused" "Useful" 
         exit
-        #workflow= ci-DeployArtifacts
-        #soot-ci-DeployArtifacts
-#soo-analyzes/soot/.github/workflows/ci/DeployArtifacts/step-details
-#makuster_for_each_category.sh: line 17: Clustering-Unused-Directories/soot-ci-analyzes/soot/.github/workflows/ci/DeployArtifacts/step-details-Unused_sort_Prefix_remove.csv: No such file or directory
-        bash make_cluster_for_each_category.sh "${proj_name}-${workflow_job_name}" "Clustering-Unused-Directories" "Unused" "Useful" 
-        exit
-        bash make_cluster_for_each_category.sh "${proj_name}-${workflow_job_name}" "Clustering-Used-Directories" "Useful"  "Unused" 
+        bash make_cluster_for_each_category.sh "${proj_name}_${workflow_job_name}" "Clustering-Used-Directories" "Useful"  "Unused" 
         exit
     #done
 
