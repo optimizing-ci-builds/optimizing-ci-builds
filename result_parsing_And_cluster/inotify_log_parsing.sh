@@ -8,6 +8,8 @@ if [[ $1 == "" || $2 == "" ]]; then
 fi
 currentDir=$(pwd)
 
+#in2csv -I --sheet "master_sheet" ~/Downloads/Github_Actions.xlsx > "$currentDir/data/master_cell.csv"
+
 inotify_result_dir="$currentDir/data/Inotify-Parse-Result"
 if [[ ! -d "$inotify_result_dir" ]]; then
 	mkdir -p "$inotify_result_dir"
@@ -24,7 +26,8 @@ do
     inotify_log=$(echo ${job_line} | cut -d',' -f10 | cut -d'/' -f8-)
     branch_name=$(echo ${job_line} | cut -d',' -f10 | cut -d'/' -f7)
     proj_name=$(echo ${job_line} | cut -d',' -f10 | cut -d'/' -f8)
-    job_name=$(echo ${job_line} | cut -d',' -f4 | sed 's; ;_;g')
+    job_name=$(echo ${job_line} | cut -d',' -f10 | cut -d'/' -f11- | sed 's;\/;-;g')
+    #job_name=$(echo ${job_line} | cut -d',' -f4 | sed 's; ;_;g')
     echo "ci-analyzes/$inotify_log" >> "$currentDir/data/all_inotify-logs.csv"
     if [[ ! -d  ci-analyzes ]]; then
 	    git clone https://github.com/UT-SE-Research/ci-analyzes.git 
