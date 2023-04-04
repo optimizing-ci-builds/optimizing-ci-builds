@@ -32,7 +32,6 @@ do
         echo "workflow= $workflow_job_name"
         echo "${proj_name}_${workflow_job_name}"
         bash make_cluster_for_each_category.sh "${proj_name}_${workflow_job_name}" "Clustering-Unused-Directories" "Unused" "Useful" 
-        exit
         bash make_cluster_for_each_category.sh "${proj_name}_${workflow_job_name}" "Clustering-Used-Directories" "Useful"  "Unused" 
         exit
     #done
