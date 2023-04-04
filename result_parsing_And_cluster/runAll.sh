@@ -42,11 +42,11 @@ do
         #bash  find_which_files_are_accessed_and_which_are_not.sh "${step_details_dir[$i]}" ${proj_name} # I dont need this anymore, Because it's main responsibility was to make the unuse and used files that I alread have according to our recent changes
       #  echo ${step_details_dir[$i]} 
 
-        workflow_job_name=$(echo ${job_line} | cut -d',' -f10 | cut -d'/' -f11- | sed 's;\/;-;g') # example, Parsing(https://github.com/UT-SE-Research/ci-analyzes/tree/1680156014-f3221fe/soot/.github/workflows/ci/BuildAndTest)
+        workflow_job_name=$(echo ${line} | cut -d',' -f10 | cut -d'/' -f11- | sed 's;\/;-;g') # example, Parsing(https://github.com/UT-SE-Research/ci-analyzes/tree/1680156014-f3221fe/soot/.github/workflows/ci/BuildAndTest)
         #workflow_job_name=$(echo ${step_details_dir[$i]} | rev |cut -d'/' -f2-3| rev | sed 's/\//-/g' )
         #workflow_job_name=$(echo ${step_details_dir[$i]}) #| rev |cut -d'/' -f2-3| rev | sed 's/\//-/g' )
         echo "workflow= $workflow_job_name"
-        echo "${proj_name}-${workflow_job_name}"
+        echo "${proj_name}_${workflow_job_name}"
         exit
         #workflow= ci-DeployArtifacts
         #soot-ci-DeployArtifacts
