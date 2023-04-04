@@ -7,12 +7,10 @@ if [[ $1 == "" || $2 == "" ]]; then
     exit
 fi
 currentDir=$(pwd)
-#find $1 -name "inotify-logs.csv" > "$currentDir/all_inotify-logs.csv"
-#grep -r ",success,success" $2 | cut -d',' -f1 | sort  | uniq > "$currentDir/data/all_successful_proj.csv"
 
 inotify_result_dir="$currentDir/data/Inotify-Parse-Result"
 if [[ ! -d "$inotify_result_dir" ]]; then
-	mkdir "$inotify_result_dir"
+	mkdir -p "$inotify_result_dir"
 fi
 
 grep -r ",success,success" $2  > "$currentDir/data/all_successful_job.csv"
