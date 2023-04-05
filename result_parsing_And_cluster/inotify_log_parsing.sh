@@ -43,11 +43,12 @@ do
     #line_count=1
     arr_unique_line=()
     result="$inotify_result_dir/Output_${proj_name}_${job_name}.csv"
-    echo  "branch,inotify_file_path,line_in_inotify_file,created file,actions_of_this_file,line_number_of_operations_index_in_yaml" >> $result
-
+    echo  "branch,inotify_file_path,line_in_inotify_file,created file,actions_of_this_file,line_number_of_operations_index_in_yaml,Step_name(Line:step_name)" >> $result
+    pos=0 # Need to know line_number of a line
     #echo $proj_name
     while read line
     do
+        pos=$((pos+1))
         time=$(echo $line | cut -d';' -f1)
         created_file_dir=$(echo $line | cut -d';' -f2)
         created_file_name=$(echo $line | cut -d';' -f3)
@@ -58,6 +59,8 @@ do
             continue
         elif [[ $created_file_name == *"optimizing-ci-builds"* ]]; then #Skipping if it is optimizing-ci-analyze because that file is made by us
             continue
+        elif [[ $created_file_name == *"starting_"* ]]; then #Skipping if it is optimizing-ci-analyze because that file is made by us
+            continue
         elif [[ " ${array[*]} " =~ " ${full_file_name} " ]]; then #Skipping if that file already visited
             continue
         else
@@ -65,14 +68,8 @@ do
             array+=(${full_file_name})
 			x=$((x+1))
 			# Iterate the loop to read and print each array element
-            #for value in "${array[@]}"
-            #do
-            #     echo "ARRAY=$value"
-            #done
-			#echo "OUTSIDE"
-			#if [[ $x == 300 ]]; then
-	        #    exit
-			#fi
+            
+
             if [[ ! " ${arr_unique_line[*]} " =~ "${full_file_name}" ]]; then
                 echo -n ${branch_name} >> $result
                 echo -n ",$inotify" >> $result
@@ -111,6 +108,14 @@ do
                         continue
                     fi
                 fi
+                #echo $boundary
+                #pos=$(grep -r "${full_file_name}" $inotify | tail -1)
+                #echo $pos
+                sed -n "1,$pos"p $inotify  >> "$inotify_result_dir/steps.txt" # Collecting which step is making this file
+                starting_step=$(grep -n "starting_" "$inotify_result_dir/steps.txt" | tail -1)
+                #echo $starting_step
+                rm "$inotify_result_dir/steps.txt"
+                #exit
                 total_line=$(wc -l < "$inotify_result_dir/tmp.csv")
                 tail -n +$((boundary+1)) "$inotify_result_dir/tmp.csv" >> "$inotify_result_dir/all_lines_after_last_modify_or_create.csv" #copy everything after last modify or create into another file
                 count=$(grep -r "ACCESS"  "$inotify_result_dir/all_lines_after_last_modify_or_create.csv" | wc -l) #If access happens after last modify/create
@@ -156,7 +161,9 @@ do
                 echo -n ",$category" >> $result
                 echo -n ",$remove_last_underline" >> $result
                 ln=$(echo "$all_lines" | rev | cut -d'_' -f2- |rev)
-                echo  ",$ln"  >> $result
+                echo -n ",$ln"  >> $result
+                echo ",$starting_step" >> $result
+
                 rm "$inotify_result_dir/tmp.csv"
                 rm "$inotify_result_dir/all_lines_after_last_modify_or_create.csv"
             fi
