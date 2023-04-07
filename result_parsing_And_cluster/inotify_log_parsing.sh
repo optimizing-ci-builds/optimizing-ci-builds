@@ -71,16 +71,21 @@ do
             
 
             if [[ ! " ${arr_unique_line[*]} " =~ "${full_file_name}" ]]; then
-                echo -n ${branch_name} >> $result
-                echo -n ",$inotify" >> $result
-                echo -n ",$total_line_of_inotify_log" >> $result
-                echo -n ",$full_file_name" >> $result #This is a created file name
                 arr_unique_line+=(${full_file_name})
-                
-                grep -n "$created_file_name;" $inotify >> "$inotify_result_dir/tmp.csv" #For each of the filename, I am adding everything of that filename in tmp.csv. Then I will process
-                create_line=($(grep -n "CREATE" "$inotify_result_dir/tmp.csv" | cut -d':' -f1))  # to get the line numbe of the create
-                #echo $create_line
+                #echo $full_file_name;
+                echo ${created_file_name}
+                #FOR DEBUGGING
+                #if [[ ${full_file_name} == *"jacoco/net.sf.jsqlparser.util.validation.validator/;ValuesStatementValidator.java.html;"* ]]; then
+                #    echo "substring matched, so stop"
+                #    exit
+                #fi
 
+                #rm "$inotify_result_dir/tmp.csv"
+                grep -n "$full_file_name" $inotify >> "$inotify_result_dir/tmp.csv" #For each of the filename, I am adding everything of that filename in tmp.csv. Then I will process
+                #create_line=()
+                #modify_line=()
+                
+                create_line=($(grep -n "CREATE" "$inotify_result_dir/tmp.csv" | cut -d':' -f1))  # to get the line numbe of the create
                 modify_line=($(grep -n "MODIFY" "$inotify_result_dir/tmp.csv" | cut -d':' -f1)) # to get the line numbe of the modify
                 #echo $modify_line
                 boundary=0
@@ -97,13 +102,19 @@ do
                 elif [ $modify_flag -eq 0 ] && [ $create_flag -eq 1 ] ; then #If create happens
                     boundary=${create_line[-1]}
                 else
-                    if [ $modify_flag -eq 1 ] && [ $create_flag -eq 1 ] ; then # This is needed because sometimes I saw a file is not being created or modified, rather only Open and close, so need to ignore those files
+                    if [ $modify_flag -eq 1 ] && [ $create_flag -eq 1 ] ; then # If both operation happens
                        if [[ ${modify_line[-1]} -gt ${create_line[-1]} ]]; then #to get the last element from the array, because mutilple create and modify might exists
                            boundary=${modify_line[-1]}
                        else
                            boundary=${create_line[-1]}
                        fi
                     else
+
+                    #FOR DEBUGGING
+                    #if [[ ${full_file_name} == *"/home/runner/work/JSqlParser/JSqlParser/.git/;shallow;"* ]]; then
+                    #    echo "*** substring matched, shallow ***"
+                        #exit
+                    #fi
                         echo "I am not modify or create"
                         continue
                     fi
@@ -118,6 +129,11 @@ do
                 #exit
                 total_line=$(wc -l < "$inotify_result_dir/tmp.csv")
                 tail -n +$((boundary+1)) "$inotify_result_dir/tmp.csv" >> "$inotify_result_dir/all_lines_after_last_modify_or_create.csv" #copy everything after last modify or create into another file
+                #FOR DEBUGGING
+                #if [[ ${full_file_name} == *"jacoco/net.sf.jsqlparser.util.validation.validator/;ValuesStatementValidator.java.html;"* ]]; then
+                #    echo "substring matched, so stop"
+                #    exit
+                #fi
                 count=$(grep -r "ACCESS"  "$inotify_result_dir/all_lines_after_last_modify_or_create.csv" | wc -l) #If access happens after last modify/create
                 if [[ $count -gt 0 ]]; then # USEFUL FILE
                     echo $full_file_name   >> "$inotify_result_dir/${proj_name}_${job_name}_Useful.csv"
@@ -157,12 +173,18 @@ do
                 elif [[ $last_op =~ "M" ]]; then
                     category="Unnecessary_modify"
                 fi
-
+                
+                echo -n ${branch_name} >> $result
+                echo -n ",$inotify" >> $result
+                echo -n ",$total_line_of_inotify_log" >> $result
+                echo -n ",$full_file_name" >> $result #This is a created file name
+                
                 echo -n ",$category" >> $result
                 echo -n ",$remove_last_underline" >> $result
                 ln=$(echo "$all_lines" | rev | cut -d'_' -f2- |rev)
                 echo -n ",$ln"  >> $result
-                echo ",$starting_step" >> $result
+                echo -n ",$starting_step" >> $result
+                echo "" >> $result
 
                 rm "$inotify_result_dir/tmp.csv"
                 rm "$inotify_result_dir/all_lines_after_last_modify_or_create.csv"
