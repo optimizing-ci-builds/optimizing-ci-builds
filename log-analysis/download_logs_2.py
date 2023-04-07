@@ -22,6 +22,9 @@ headers: dict = {"Accept": "application/vnd.github+json",
 
 if not os.path.exists(log_dir):
     os.makedirs(log_dir)
+
+if not os.path.exists(raw_log_dir):
+    os.makedirs(raw_log_dir)
     
 if not os.path.exists(analysis_dir):
     os.makedirs(analysis_dir)
