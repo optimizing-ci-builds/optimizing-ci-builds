@@ -61,10 +61,14 @@ do
             continue
         elif [[ $created_file_name == *"starting_"* ]]; then #Skipping if it is optimizing-ci-analyze because that file is made by us
             continue
+
+        elif [[ $(echo $line | grep "ISDIR" | wc -l) -eq 1 ]]; then
+            echo "I AM ISDIR = $line"
+            continue
         elif [[ " ${array[*]} " =~ " ${full_file_name} " ]]; then #Skipping if that file already visited
             continue
         else
-			echo ${full_file_name}
+			#echo ${full_file_name}
             array+=(${full_file_name})
 			x=$((x+1))
 			# Iterate the loop to read and print each array element
@@ -73,17 +77,8 @@ do
             if [[ ! " ${arr_unique_line[*]} " =~ "${full_file_name}" ]]; then
                 arr_unique_line+=(${full_file_name})
                 #echo $full_file_name;
-                echo ${created_file_name}
-                #FOR DEBUGGING
-                #if [[ ${full_file_name} == *"jacoco/net.sf.jsqlparser.util.validation.validator/;ValuesStatementValidator.java.html;"* ]]; then
-                #    echo "substring matched, so stop"
-                #    exit
-                #fi
-
-                #rm "$inotify_result_dir/tmp.csv"
+                #echo ${created_file_name}
                 grep -n "$full_file_name" $inotify >> "$inotify_result_dir/tmp.csv" #For each of the filename, I am adding everything of that filename in tmp.csv. Then I will process
-                #create_line=()
-                #modify_line=()
                 
                 create_line=($(grep -n "CREATE" "$inotify_result_dir/tmp.csv" | cut -d':' -f1))  # to get the line numbe of the create
                 modify_line=($(grep -n "MODIFY" "$inotify_result_dir/tmp.csv" | cut -d':' -f1)) # to get the line numbe of the modify
