@@ -2,7 +2,7 @@
 if [[ $1 == "" || $2 == "" ]]; then
     #echo "please provide the inotify log(e.g., ci-analyzes/joda-time/.github/workflows/build/build/inotify-logs.csv)"
     echo "please provide the inotify log(e.g., ci-analyzes)"
-    echo "please provide the run-result-status(e.g., data/master_cell.csv)"
+    echo "please provide the run-result-status(e.g., data-dir/master_cell.csv)"
     #echo "please provide the project name (e.g., joda-time)"
     exit
 fi
