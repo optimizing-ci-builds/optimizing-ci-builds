@@ -16,12 +16,13 @@ if [[ ! -d "$inotify_result_dir" ]]; then
 fi
 
 grep -r ",success,success" $2  > "$currentDir/data/all_successful_job.csv"
-x=0
-array=()
 echo $(pwd)
 echo "$currentDir/data/all_successful_job.csv"
+
 while read job_line #all_successful_job.csv
 do
+    x=0
+    array=()
 	echo $job_line
     inotify_log=$(echo ${job_line} | cut -d',' -f10 | cut -d'/' -f8-)
     branch_name=$(echo ${job_line} | cut -d',' -f10 | cut -d'/' -f7)
@@ -39,7 +40,7 @@ do
     inotify="$currentDir/ci-analyzes/$inotify_log/inotify-logs.csv"
     total_line_of_inotify_log=$(cat $inotify | wc -l )
 
-    echo $total_line_of_inotify_log
+    #echo $total_line_of_inotify_log
     #line_count=1
     arr_unique_line=()
     result="$inotify_result_dir/Output_${proj_name}_${job_name}.csv"
@@ -55,6 +56,7 @@ do
         create_flag=0
         modify_flag=0
         full_file_name="${created_file_dir};${created_file_name};"
+        
         if [[  -z $created_file_name ]]; then #Skipping if it is empty
             continue
         elif [[ $created_file_name == *"optimizing-ci-builds"* ]]; then #Skipping if it is optimizing-ci-analyze because that file is made by us
@@ -66,6 +68,11 @@ do
             echo "I AM ISDIR = $line"
             continue
         elif [[ " ${array[*]} " =~ " ${full_file_name} " ]]; then #Skipping if that file already visited
+            #if [[ ${full_file_name} == *"site/apidocs/;options"* ]]; then
+            #    echo "File already visited,substring matched, so stop, ="${full_file_name}
+            #    echo "array=${array[*]}"
+            #    exit
+            #fi
             continue
         else
 			#echo ${full_file_name}
@@ -73,11 +80,8 @@ do
 			x=$((x+1))
 			# Iterate the loop to read and print each array element
             
-
             if [[ ! " ${arr_unique_line[*]} " =~ "${full_file_name}" ]]; then
                 arr_unique_line+=(${full_file_name})
-                #echo $full_file_name;
-                #echo ${created_file_name}
                 grep -n "$full_file_name" $inotify >> "$inotify_result_dir/tmp.csv" #For each of the filename, I am adding everything of that filename in tmp.csv. Then I will process
                 
                 create_line=($(grep -n "CREATE" "$inotify_result_dir/tmp.csv" | cut -d':' -f1))  # to get the line numbe of the create
@@ -100,23 +104,15 @@ do
                     if [ $modify_flag -eq 1 ] && [ $create_flag -eq 1 ] ; then # If both operation happens
                        if [[ ${modify_line[-1]} -gt ${create_line[-1]} ]]; then #to get the last element from the array, because mutilple create and modify might exists
                            boundary=${modify_line[-1]}
+                           #echo "** modify later $boundary"
                        else
                            boundary=${create_line[-1]}
                        fi
                     else
-
-                    #FOR DEBUGGING
-                    #if [[ ${full_file_name} == *"/home/runner/work/JSqlParser/JSqlParser/.git/;shallow;"* ]]; then
-                    #    echo "*** substring matched, shallow ***"
-                        #exit
-                    #fi
                         echo "I am not modify or create"
                         continue
                     fi
                 fi
-                #echo $boundary
-                #pos=$(grep -r "${full_file_name}" $inotify | tail -1)
-                #echo $pos
                 sed -n "1,$pos"p $inotify  >> "$inotify_result_dir/steps.txt" # Collecting which step is making this file
                 starting_step=$(grep -n "starting_" "$inotify_result_dir/steps.txt" | tail -1)
                 #echo $starting_step
@@ -124,10 +120,10 @@ do
                 #exit
                 total_line=$(wc -l < "$inotify_result_dir/tmp.csv")
                 tail -n +$((boundary+1)) "$inotify_result_dir/tmp.csv" >> "$inotify_result_dir/all_lines_after_last_modify_or_create.csv" #copy everything after last modify or create into another file
-                #FOR DEBUGGING
-                #if [[ ${full_file_name} == *"jacoco/net.sf.jsqlparser.util.validation.validator/;ValuesStatementValidator.java.html;"* ]]; then
-                #    echo "substring matched, so stop"
-                #    exit
+                
+                #if [[ ${full_file_name} == *"site/apidocs/;options"* ]]; then
+                    #echo "all_lines_after_last_modify_or_create ="${full_file_name}
+                    #exit
                 #fi
                 count=$(grep -r "ACCESS"  "$inotify_result_dir/all_lines_after_last_modify_or_create.csv" | wc -l) #If access happens after last modify/create
                 if [[ $count -gt 0 ]]; then # USEFUL FILE
