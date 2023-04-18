@@ -14,8 +14,7 @@ inotify_result_dir="$currentDir/data/Inotify-Parse-Result"
 if [[ ! -d "$inotify_result_dir" ]]; then
 	mkdir -p "$inotify_result_dir"
 fi
-
-grep -r ",success,success" $2  > "$currentDir/data/all_successful_job.csv"
+grep -r ",success,success" $2 | grep -v "TRUE"  > "$currentDir/data/all_successful_job.csv"
 echo $(pwd)
 echo "$currentDir/data/all_successful_job.csv"
 
@@ -36,10 +35,11 @@ do
     cd "$currentDir/ci-analyzes"
     git checkout ${branch_name}
 	cd $currentDir    
-
+    echo $inotify_log
     inotify="$currentDir/ci-analyzes/$inotify_log/inotify-logs.csv"
+    echo $inotify
     total_line_of_inotify_log=$(cat $inotify | wc -l )
-
+    #exit
     #echo $total_line_of_inotify_log
     #line_count=1
     arr_unique_line=()

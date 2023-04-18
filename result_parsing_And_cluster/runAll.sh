@@ -13,6 +13,8 @@ if [[ ! -d "ccc/ci-analyzes" ]]; then
     git clone https://github.com/UT-SE-Research/ci-analyzes.git 
 fi
 
+echo "proj_name,workflow_path,unused_csv_file"  >> "$currentDir/clusters_info.csv"
+
 while read line
 do 
 
@@ -37,3 +39,7 @@ do
     bash make_cluster_for_each_category.sh "${proj_name}_${workflow_job_name}" "Clustering-Unused-Directories" "Unused" "Useful"  # file_name in the inotofy dir ($1_$3), useful file_name in inotify dir ($1_$4), Loop through($1_$3) 
     bash make_cluster_for_each_category.sh "${proj_name}_${workflow_job_name}" "Clustering-Used-Directories" "Useful"  "Unused" 
 done < $1
+
+bash find-immediate-one-dir-after-target.sh Clustering-Unused-Directories Clustering-Unused-Directories/One-level-File-or-directory-after-target.csv
+
+python3 append_two_csv.py  "Clustering-Unused-Directories/One-level-File-or-directory-after-target" "$currentDir/clusters_info.csv"
