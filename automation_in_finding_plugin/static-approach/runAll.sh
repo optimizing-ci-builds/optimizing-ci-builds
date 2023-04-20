@@ -33,17 +33,24 @@ do
         mvn org.apache.maven.plugins:maven-help-plugin:3.4.0:effective-pom -Doutput=effective-pom.xml
         cd $currentDir
         #Find each unused dir one by one
-        tildeCount=$(echo ${unused_dirs} | tr -cd ~ | wc -c)
-        for (( i=1; i<=${tildeCount}; i++))
+        tildeCount=$(echo ${unused_dirs} | tr -cd '~' | wc -c)
+        echo ${unused_dirs} ${tildeCount}
+        for (( i=1; i<${tildeCount}; i++))
         do
             unnecessary_dir=$(echo "$unused_dirs" | cut -d'~' -f$i)
-            echo $unnecessary_dir
             semicolon_found_indicates_file=$(echo  $unnecessary_dir | grep ";" | wc -l)
-            if [[ $semicolon_found_indicates_file -gt 0 ]]; then
+            echo "Should be greater than 1=$semicolon_found_indicates_file"
+
+            #if [[ $semicolon_found_indicates_file -gt -1 ]]; then
+                echo "UNU $unnecessary_dir"
                 python3 find_plugin_corpus.py "../projects/$proj_name/effective-pom.xml" ${unnecessary_dir}
-                exit
-            fi
+                echo -n "../projects/$proj_name/effective-pom.xml,${unnecessary_dir}" >> "$currentDir/Result.csv"
+                #echo "SHANTO*** ${unnecessary_dir}"
+                echo "" >> "$currentDir/Result.csv"
+                #exit
+            #fi
         done
+        exit
     fi
     header=false
 done < $1
