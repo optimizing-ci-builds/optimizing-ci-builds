@@ -1,16 +1,16 @@
-      1 /home/runner/work/Algorithms/Algorithms/;checkstyle.xml;
-      1 /home/runner/work/Algorithms/Algorithms/.git/;config;
-      1 /home/runner/work/Algorithms/Algorithms/.github/workflows/;script.py;
-      1 /home/runner/work/Algorithms/Algorithms/.git/info/
-      1 /home/runner/work/Algorithms/Algorithms/.git/objects/pack/;pack-d94141155f3defdf3aa7440626f9cee8eb20e6e6.pack;
-      1 /home/runner/work/Algorithms/Algorithms/.git/;shallow.lock;
-      1 /home/runner/work/Algorithms/Algorithms/;LICENSE.txt;
-      1 /home/runner/work/Algorithms/Algorithms/optimizing-ci-builds-ci-analysis/;files.csv;
-      1 /home/runner/work/Algorithms/Algorithms/;pom.xml;
     137 /home/runner/work/Algorithms/Algorithms/src/
-      1 /home/runner/work/Algorithms/Algorithms/target/;algorithms-1.0-SNAPSHOT.jar;
-      1 /home/runner/work/Algorithms/Algorithms/target/;checkstyle-checker.xml;
      89 /home/runner/work/Algorithms/Algorithms/target/classes/
-      1 /home/runner/work/Algorithms/Algorithms/target/maven-archiver/
-      3 /home/runner/work/Algorithms/Algorithms/target/surefire/
      80 /home/runner/work/Algorithms/Algorithms/target/test-classes/
+      3 /home/runner/work/Algorithms/Algorithms/target/surefire/
+      1 /home/runner/work/Algorithms/Algorithms/target/maven-archiver/
+      1 /home/runner/work/Algorithms/Algorithms/target/;checkstyle-checker.xml;
+      1 /home/runner/work/Algorithms/Algorithms/target/;algorithms-1.0-SNAPSHOT.jar;
+      1 /home/runner/work/Algorithms/Algorithms/;pom.xml;
+      1 /home/runner/work/Algorithms/Algorithms/optimizing-ci-builds-ci-analysis/;files.csv;
+      1 /home/runner/work/Algorithms/Algorithms/;LICENSE.txt;
+      1 /home/runner/work/Algorithms/Algorithms/.git/;shallow.lock;
+      1 /home/runner/work/Algorithms/Algorithms/.git/objects/pack/;pack-d94141155f3defdf3aa7440626f9cee8eb20e6e6.pack;
+      1 /home/runner/work/Algorithms/Algorithms/.git/info/
+      1 /home/runner/work/Algorithms/Algorithms/.github/workflows/;script.py;
+      1 /home/runner/work/Algorithms/Algorithms/.git/;config;
+      1 /home/runner/work/Algorithms/Algorithms/;checkstyle.xml;

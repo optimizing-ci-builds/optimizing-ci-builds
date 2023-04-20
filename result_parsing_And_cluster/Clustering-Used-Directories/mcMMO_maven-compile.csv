@@ -1,16 +1,16 @@
-      1 /home/runner/work/mcMMO/mcMMO/;dependency-reduced-pom.xml;
-      1 /home/runner/work/mcMMO/mcMMO/.git/;config;
-      1 /home/runner/work/mcMMO/mcMMO/.github/workflows/;script.py;
-      1 /home/runner/work/mcMMO/mcMMO/.git/info/
-      1 /home/runner/work/mcMMO/mcMMO/.git/objects/pack/;pack-a806b6ca6247603acf27dcb79b9dd1fd12d9da2b.pack;
-      1 /home/runner/work/mcMMO/mcMMO/.git/;shallow.lock;
-      1 /home/runner/work/mcMMO/mcMMO/;LICENSE;
-      1 /home/runner/work/mcMMO/mcMMO/optimizing-ci-builds-ci-analysis/;files.csv;
-      1 /home/runner/work/mcMMO/mcMMO/;pom.xml;
-     43 /home/runner/work/mcMMO/mcMMO/src/main/
-      8 /home/runner/work/mcMMO/mcMMO/src/test/
     584 /home/runner/work/mcMMO/mcMMO/target/classes/
-      1 /home/runner/work/mcMMO/mcMMO/target/maven-archiver/
-      1 /home/runner/work/mcMMO/mcMMO/target/;mcMMO.jar;
-      3 /home/runner/work/mcMMO/mcMMO/target/surefire/
+     43 /home/runner/work/mcMMO/mcMMO/src/main/
      14 /home/runner/work/mcMMO/mcMMO/target/test-classes/
+      8 /home/runner/work/mcMMO/mcMMO/src/test/
+      3 /home/runner/work/mcMMO/mcMMO/target/surefire/
+      1 /home/runner/work/mcMMO/mcMMO/target/;mcMMO.jar;
+      1 /home/runner/work/mcMMO/mcMMO/target/maven-archiver/
+      1 /home/runner/work/mcMMO/mcMMO/;pom.xml;
+      1 /home/runner/work/mcMMO/mcMMO/optimizing-ci-builds-ci-analysis/;files.csv;
+      1 /home/runner/work/mcMMO/mcMMO/;LICENSE;
+      1 /home/runner/work/mcMMO/mcMMO/.git/;shallow.lock;
+      1 /home/runner/work/mcMMO/mcMMO/.git/objects/pack/;pack-a806b6ca6247603acf27dcb79b9dd1fd12d9da2b.pack;
+      1 /home/runner/work/mcMMO/mcMMO/.git/info/
+      1 /home/runner/work/mcMMO/mcMMO/.github/workflows/;script.py;
+      1 /home/runner/work/mcMMO/mcMMO/.git/;config;
+      1 /home/runner/work/mcMMO/mcMMO/;dependency-reduced-pom.xml;

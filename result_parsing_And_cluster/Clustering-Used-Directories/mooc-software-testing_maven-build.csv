@@ -1,26 +1,26 @@
-      1 /home/runner/work/mooc-software-testing/mooc-software-testing/.git/;config;
-      1 /home/runner/work/mooc-software-testing/mooc-software-testing/.github/workflows/;script.py;
-      1 /home/runner/work/mooc-software-testing/mooc-software-testing/.git/info/
-      1 /home/runner/work/mooc-software-testing/mooc-software-testing/.git/;shallow.lock;
-      1 /home/runner/work/mooc-software-testing/mooc-software-testing/optimizing-ci-builds-ci-analysis/;files.csv;
-      1 /home/runner/work/mooc-software-testing/mooc-software-testing/;pom.xml;
      46 /home/runner/work/mooc-software-testing/mooc-software-testing/src/
      27 /home/runner/work/mooc-software-testing/mooc-software-testing/target/classes/
-      1 /home/runner/work/mooc-software-testing/mooc-software-testing/target/;jacoco.exec;
       3 /home/runner/work/mooc-software-testing/mooc-software-testing/target/surefire/
-      1 /home/runner/work/mooc-software-testing/mooc-software-testing/target/test-classes/tudelft/blackjack/
-      1 /home/runner/work/mooc-software-testing/mooc-software-testing/target/test-classes/tudelft/caesarshift/
-      1 /home/runner/work/mooc-software-testing/mooc-software-testing/target/test-classes/tudelft/chocolate/;ChocolateBagsBeforeBoundaryTest.class;
-      1 /home/runner/work/mooc-software-testing/mooc-software-testing/target/test-classes/tudelft/chocolate/;ChocolateBagsTest.class;
-      1 /home/runner/work/mooc-software-testing/mooc-software-testing/target/test-classes/tudelft/christmas/
-      1 /home/runner/work/mooc-software-testing/mooc-software-testing/target/test-classes/tudelft/countletters/
-      1 /home/runner/work/mooc-software-testing/mooc-software-testing/target/test-classes/tudelft/discount/
-      1 /home/runner/work/mooc-software-testing/mooc-software-testing/target/test-classes/tudelft/echo/
-      1 /home/runner/work/mooc-software-testing/mooc-software-testing/target/test-classes/tudelft/gettingstarted/
-      1 /home/runner/work/mooc-software-testing/mooc-software-testing/target/test-classes/tudelft/ghappy/
-      1 /home/runner/work/mooc-software-testing/mooc-software-testing/target/test-classes/tudelft/invoice/
-      1 /home/runner/work/mooc-software-testing/mooc-software-testing/target/test-classes/tudelft/invoicemocked/
-      1 /home/runner/work/mooc-software-testing/mooc-software-testing/target/test-classes/tudelft/leapyear/
-      1 /home/runner/work/mooc-software-testing/mooc-software-testing/target/test-classes/tudelft/mirror/
-      1 /home/runner/work/mooc-software-testing/mooc-software-testing/target/test-classes/tudelft/roman/;RomanNumeralTest.class;
       1 /home/runner/work/mooc-software-testing/mooc-software-testing/target/test-classes/tudelft/sum/
+      1 /home/runner/work/mooc-software-testing/mooc-software-testing/target/test-classes/tudelft/roman/;RomanNumeralTest.class;
+      1 /home/runner/work/mooc-software-testing/mooc-software-testing/target/test-classes/tudelft/mirror/
+      1 /home/runner/work/mooc-software-testing/mooc-software-testing/target/test-classes/tudelft/leapyear/
+      1 /home/runner/work/mooc-software-testing/mooc-software-testing/target/test-classes/tudelft/invoicemocked/
+      1 /home/runner/work/mooc-software-testing/mooc-software-testing/target/test-classes/tudelft/invoice/
+      1 /home/runner/work/mooc-software-testing/mooc-software-testing/target/test-classes/tudelft/ghappy/
+      1 /home/runner/work/mooc-software-testing/mooc-software-testing/target/test-classes/tudelft/gettingstarted/
+      1 /home/runner/work/mooc-software-testing/mooc-software-testing/target/test-classes/tudelft/echo/
+      1 /home/runner/work/mooc-software-testing/mooc-software-testing/target/test-classes/tudelft/discount/
+      1 /home/runner/work/mooc-software-testing/mooc-software-testing/target/test-classes/tudelft/countletters/
+      1 /home/runner/work/mooc-software-testing/mooc-software-testing/target/test-classes/tudelft/christmas/
+      1 /home/runner/work/mooc-software-testing/mooc-software-testing/target/test-classes/tudelft/chocolate/;ChocolateBagsTest.class;
+      1 /home/runner/work/mooc-software-testing/mooc-software-testing/target/test-classes/tudelft/chocolate/;ChocolateBagsBeforeBoundaryTest.class;
+      1 /home/runner/work/mooc-software-testing/mooc-software-testing/target/test-classes/tudelft/caesarshift/
+      1 /home/runner/work/mooc-software-testing/mooc-software-testing/target/test-classes/tudelft/blackjack/
+      1 /home/runner/work/mooc-software-testing/mooc-software-testing/target/;jacoco.exec;
+      1 /home/runner/work/mooc-software-testing/mooc-software-testing/;pom.xml;
+      1 /home/runner/work/mooc-software-testing/mooc-software-testing/optimizing-ci-builds-ci-analysis/;files.csv;
+      1 /home/runner/work/mooc-software-testing/mooc-software-testing/.git/;shallow.lock;
+      1 /home/runner/work/mooc-software-testing/mooc-software-testing/.git/info/
+      1 /home/runner/work/mooc-software-testing/mooc-software-testing/.github/workflows/;script.py;
+      1 /home/runner/work/mooc-software-testing/mooc-software-testing/.git/;config;

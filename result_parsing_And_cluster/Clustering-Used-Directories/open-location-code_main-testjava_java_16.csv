@@ -1,25 +1,25 @@
-      1 /home/runner/work/open-location-code/open-location-code/;.bazelrc;
-      1 /home/runner/work/open-location-code/open-location-code/.git/;config;
-      1 /home/runner/work/open-location-code/open-location-code/.github/workflows/;script.py;
-      1 /home/runner/work/open-location-code/open-location-code/.git/info/
-      1 /home/runner/work/open-location-code/open-location-code/.git/objects/pack/;pack-4ec6ee184891a5973f12da7cdb8512befd2d2dd3.pack;
-      1 /home/runner/work/open-location-code/open-location-code/.git/;shallow.lock;
-      1 /home/runner/work/open-location-code/open-location-code/java/;BUILD;
-      1 /home/runner/work/open-location-code/open-location-code/java/;pom.xml;
-     10 /home/runner/work/open-location-code/open-location-code/java/src/
      43 /home/runner/work/open-location-code/open-location-code/java/target/apidocs/
-      2 /home/runner/work/open-location-code/open-location-code/java/target/classes/
-      1 /home/runner/work/open-location-code/open-location-code/java/target/javadoc-bundle-options/;package-list;
-      1 /home/runner/work/open-location-code/open-location-code/java/target/maven-archiver/
-      1 /home/runner/work/open-location-code/open-location-code/java/target/;maven-pmd-plugin-default.xml;
-      1 /home/runner/work/open-location-code/open-location-code/java/target/;pmd.xml;
-      1 /home/runner/work/open-location-code/open-location-code/java/target/surefire/;surefire_017510176064189625486tmp;
-      1 /home/runner/work/open-location-code/open-location-code/java/target/surefire/;surefire10672326669363957191tmp;
-      1 /home/runner/work/open-location-code/open-location-code/java/target/surefire/;surefirebooter13182424019645647299.jar;
      14 /home/runner/work/open-location-code/open-location-code/java/target/test-classes/
-      1 /home/runner/work/open-location-code/open-location-code/optimizing-ci-builds-ci-analysis/;files.csv;
-      1 /home/runner/work/open-location-code/open-location-code/test_data/;decoding.csv;
-      1 /home/runner/work/open-location-code/open-location-code/test_data/;encoding.csv;
-      1 /home/runner/work/open-location-code/open-location-code/test_data/;shortCodeTests.csv;
-      1 /home/runner/work/open-location-code/open-location-code/test_data/;validityTests.csv;
+     10 /home/runner/work/open-location-code/open-location-code/java/src/
+      2 /home/runner/work/open-location-code/open-location-code/java/target/classes/
       1 /home/runner/work/open-location-code/open-location-code/;WORKSPACE;
+      1 /home/runner/work/open-location-code/open-location-code/test_data/;validityTests.csv;
+      1 /home/runner/work/open-location-code/open-location-code/test_data/;shortCodeTests.csv;
+      1 /home/runner/work/open-location-code/open-location-code/test_data/;encoding.csv;
+      1 /home/runner/work/open-location-code/open-location-code/test_data/;decoding.csv;
+      1 /home/runner/work/open-location-code/open-location-code/optimizing-ci-builds-ci-analysis/;files.csv;
+      1 /home/runner/work/open-location-code/open-location-code/java/target/surefire/;surefirebooter13182424019645647299.jar;
+      1 /home/runner/work/open-location-code/open-location-code/java/target/surefire/;surefire10672326669363957191tmp;
+      1 /home/runner/work/open-location-code/open-location-code/java/target/surefire/;surefire_017510176064189625486tmp;
+      1 /home/runner/work/open-location-code/open-location-code/java/target/;pmd.xml;
+      1 /home/runner/work/open-location-code/open-location-code/java/target/;maven-pmd-plugin-default.xml;
+      1 /home/runner/work/open-location-code/open-location-code/java/target/maven-archiver/
+      1 /home/runner/work/open-location-code/open-location-code/java/target/javadoc-bundle-options/;package-list;
+      1 /home/runner/work/open-location-code/open-location-code/java/;pom.xml;
+      1 /home/runner/work/open-location-code/open-location-code/java/;BUILD;
+      1 /home/runner/work/open-location-code/open-location-code/.git/;shallow.lock;
+      1 /home/runner/work/open-location-code/open-location-code/.git/objects/pack/;pack-4ec6ee184891a5973f12da7cdb8512befd2d2dd3.pack;
+      1 /home/runner/work/open-location-code/open-location-code/.git/info/
+      1 /home/runner/work/open-location-code/open-location-code/.github/workflows/;script.py;
+      1 /home/runner/work/open-location-code/open-location-code/.git/;config;
+      1 /home/runner/work/open-location-code/open-location-code/;.bazelrc;

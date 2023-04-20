@@ -1,16 +1,13 @@
-     68 /home/runner/work/kafdrop/kafdrop/src/main/resources/static/
-     28 /home/runner/work/kafdrop/kafdrop/optimizing-ci-builds-ci-analysis/step-details/
-     26 /home/runner/work/kafdrop/kafdrop/.git/hooks/
-     16 /home/runner/work/kafdrop/kafdrop/chart/
-      8 /home/runner/work/kafdrop/kafdrop/target/surefire-reports/
-      8 /home/runner/work/kafdrop/kafdrop/target/maven-status/
-      6 /home/runner/work/kafdrop/kafdrop/theme/
-      6 /home/runner/work/kafdrop/kafdrop/src/test/resources/
-      6 /home/runner/work/kafdrop/kafdrop/.mvn/
-      4 /home/runner/work/kafdrop/kafdrop/target/docker-ready/
-      2 /home/runner/work/kafdrop/kafdrop/.git/logs/
-      2 /home/runner/work/kafdrop/kafdrop/docs/
-      2 /home/runner/work/kafdrop/kafdrop/docker-compose/
+     34 /home/runner/work/kafdrop/kafdrop/src/main/resources/static/
+     14 /home/runner/work/kafdrop/kafdrop/optimizing-ci-builds-ci-analysis/step-details/
+     13 /home/runner/work/kafdrop/kafdrop/.git/hooks/
+      8 /home/runner/work/kafdrop/kafdrop/chart/
+      4 /home/runner/work/kafdrop/kafdrop/target/surefire-reports/
+      4 /home/runner/work/kafdrop/kafdrop/target/maven-status/
+      3 /home/runner/work/kafdrop/kafdrop/theme/
+      3 /home/runner/work/kafdrop/kafdrop/src/test/resources/
+      3 /home/runner/work/kafdrop/kafdrop/.mvn/
+      2 /home/runner/work/kafdrop/kafdrop/target/docker-ready/
       1 /home/runner/work/kafdrop/kafdrop/target/test-classes/;sasl-ssl.properties;
       1 /home/runner/work/kafdrop/kafdrop/target/test-classes/;person.proto;
       1 /home/runner/work/kafdrop/kafdrop/target/test-classes/;person.desc;
@@ -32,6 +29,7 @@
       1 /home/runner/work/kafdrop/kafdrop/.git/objects/pack/;pack-af95621f19fd8b47440c84f95e943ff01dbb1363.keep;
       1 /home/runner/work/kafdrop/kafdrop/.git/objects/pack/;pack-af95621f19fd8b47440c84f95e943ff01dbb1363.idx;
       1 /home/runner/work/kafdrop/kafdrop/.git/objects/;maintenance.lock;
+      1 /home/runner/work/kafdrop/kafdrop/.git/logs/
       1 /home/runner/work/kafdrop/kafdrop/.git/;index.lock;
       1 /home/runner/work/kafdrop/kafdrop/;.gitignore;
       1 /home/runner/work/kafdrop/kafdrop/.github/workflows/;pull_request.yml;
@@ -42,3 +40,5 @@
       1 /home/runner/work/kafdrop/kafdrop/.git/;FETCH_HEAD;
       1 /home/runner/work/kafdrop/kafdrop/.git/;description;
       1 /home/runner/work/kafdrop/kafdrop/.git/;config.lock;
+      1 /home/runner/work/kafdrop/kafdrop/docs/
+      1 /home/runner/work/kafdrop/kafdrop/docker-compose/

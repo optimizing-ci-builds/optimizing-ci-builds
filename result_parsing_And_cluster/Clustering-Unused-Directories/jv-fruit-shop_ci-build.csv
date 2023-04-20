@@ -1,20 +1,20 @@
-      1 /home/runner/work/jv-fruit-shop/jv-fruit-shop/.git/;config.lock;
-      1 /home/runner/work/jv-fruit-shop/jv-fruit-shop/.git/;description;
-      1 /home/runner/work/jv-fruit-shop/jv-fruit-shop/.git/;FETCH_HEAD;
-      1 /home/runner/work/jv-fruit-shop/jv-fruit-shop/.git/;HEAD.lock;
-     13 /home/runner/work/jv-fruit-shop/jv-fruit-shop/.git/hooks/
-      1 /home/runner/work/jv-fruit-shop/jv-fruit-shop/.github/workflows/;ci.yml;
-      1 /home/runner/work/jv-fruit-shop/jv-fruit-shop/;.gitignore;
-      1 /home/runner/work/jv-fruit-shop/jv-fruit-shop/.git/;index.lock;
-      1 /home/runner/work/jv-fruit-shop/jv-fruit-shop/.git/logs/
      31 /home/runner/work/jv-fruit-shop/jv-fruit-shop/.git/objects/
-      1 /home/runner/work/jv-fruit-shop/jv-fruit-shop/.git/;t1cTLyi;
-      1 /home/runner/work/jv-fruit-shop/jv-fruit-shop/optimizing-ci-builds-ci-analysis/;directories.txt;
-      1 /home/runner/work/jv-fruit-shop/jv-fruit-shop/optimizing-ci-builds-ci-analysis/;inotify-logs.csv;
+     13 /home/runner/work/jv-fruit-shop/jv-fruit-shop/.git/hooks/
       9 /home/runner/work/jv-fruit-shop/jv-fruit-shop/optimizing-ci-builds-ci-analysis/step-details/
-      1 /home/runner/work/jv-fruit-shop/jv-fruit-shop/optimizing-ci-builds-ci-analysis/;steps.csv;
-      1 /home/runner/work/jv-fruit-shop/jv-fruit-shop/optimizing-ci-builds-ci-analysis/;useful.csv;
-      1 /home/runner/work/jv-fruit-shop/jv-fruit-shop/;README.md;
-      1 /home/runner/work/jv-fruit-shop/jv-fruit-shop/target/;checkstyle-cachefile;
-      1 /home/runner/work/jv-fruit-shop/jv-fruit-shop/target/;jv-fruit-shop-1.0-SNAPSHOT.jar;
       2 /home/runner/work/jv-fruit-shop/jv-fruit-shop/target/maven-status/
+      1 /home/runner/work/jv-fruit-shop/jv-fruit-shop/target/;jv-fruit-shop-1.0-SNAPSHOT.jar;
+      1 /home/runner/work/jv-fruit-shop/jv-fruit-shop/target/;checkstyle-cachefile;
+      1 /home/runner/work/jv-fruit-shop/jv-fruit-shop/;README.md;
+      1 /home/runner/work/jv-fruit-shop/jv-fruit-shop/optimizing-ci-builds-ci-analysis/;useful.csv;
+      1 /home/runner/work/jv-fruit-shop/jv-fruit-shop/optimizing-ci-builds-ci-analysis/;steps.csv;
+      1 /home/runner/work/jv-fruit-shop/jv-fruit-shop/optimizing-ci-builds-ci-analysis/;inotify-logs.csv;
+      1 /home/runner/work/jv-fruit-shop/jv-fruit-shop/optimizing-ci-builds-ci-analysis/;directories.txt;
+      1 /home/runner/work/jv-fruit-shop/jv-fruit-shop/.git/;t1cTLyi;
+      1 /home/runner/work/jv-fruit-shop/jv-fruit-shop/.git/logs/
+      1 /home/runner/work/jv-fruit-shop/jv-fruit-shop/.git/;index.lock;
+      1 /home/runner/work/jv-fruit-shop/jv-fruit-shop/;.gitignore;
+      1 /home/runner/work/jv-fruit-shop/jv-fruit-shop/.github/workflows/;ci.yml;
+      1 /home/runner/work/jv-fruit-shop/jv-fruit-shop/.git/;HEAD.lock;
+      1 /home/runner/work/jv-fruit-shop/jv-fruit-shop/.git/;FETCH_HEAD;
+      1 /home/runner/work/jv-fruit-shop/jv-fruit-shop/.git/;description;
+      1 /home/runner/work/jv-fruit-shop/jv-fruit-shop/.git/;config.lock;
