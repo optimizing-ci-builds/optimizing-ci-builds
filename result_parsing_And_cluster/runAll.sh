@@ -13,7 +13,7 @@ if [[ ! -d "ccc/ci-analyzes" ]]; then
     git clone https://github.com/UT-SE-Research/ci-analyzes.git 
 fi
 
-echo "proj_name,workflow_path,unused_csv_file"  >> "$currentDir/clusters_info.csv"
+echo "proj_name,workflow_path,java_version,unused_csv_file"  >> "$currentDir/clusters_info.csv"
 
 while read line
 do 
@@ -31,6 +31,8 @@ do
     echo -n "$proj_name"  >> "$currentDir/clusters_info.csv"
     workflow_path=$(echo ${line} | cut -d',' -f3)
     echo -n ",${workflow_path}" >> "$currentDir/clusters_info.csv"
+    java_version=$(echo ${line}  | tr -d '\r' | cut -d',' -f17)
+    echo -n ",${java_version}" >> "$currentDir/clusters_info.csv"
 
     workflow_job_name=$(echo ${line} | cut -d',' -f10 | cut -d'/' -f11- | sed 's;\/;-;g') # example, Parsing(https://github.com/UT-SE-Research/ci-analyzes/tree/1680156014-f3221fe/soot/.github/workflows/ci/BuildAndTest)
     echo ",${proj_name}_${workflow_job_name}.csv" >> "$currentDir/clusters_info.csv"
@@ -42,4 +44,6 @@ done < $1
 
 bash find-immediate-one-dir-after-target.sh Clustering-Unused-Directories Clustering-Unused-Directories/One-level-File-or-directory-after-target.csv
 
-python3 append_two_csv.py  "Clustering-Unused-Directories/One-level-File-or-directory-after-target" "$currentDir/clusters_info.csv"
+#Output=Unused_clusters_info.csv
+python3 append_two_csv.py  "Clustering-Unused-Directories/One-level-File-or-directory-after-target.csv" "$currentDir/clusters_info.csv"
+

@@ -2,7 +2,7 @@
 if [[ $1 == "" || $2 == "" ]]; then
     #echo "please provide the inotify log(e.g., ci-analyzes/joda-time/.github/workflows/build/build/inotify-logs.csv)"
     echo "please provide the inotify log(e.g., ci-analyzes)"
-    echo "please provide the run-result-status(e.g., data-dir/master_cell.csv)"
+    echo "please provide the run-result-status(e.g., data-dir/Github_Actions_original_date_20_April.csv)"
     #echo "please provide the project name (e.g., joda-time)"
     exit
 fi
@@ -39,9 +39,6 @@ do
     inotify="$currentDir/ci-analyzes/$inotify_log/inotify-logs.csv"
     echo $inotify
     total_line_of_inotify_log=$(cat $inotify | wc -l )
-    #exit
-    #echo $total_line_of_inotify_log
-    #line_count=1
     arr_unique_line=()
     result="$inotify_result_dir/Output_${proj_name}_${job_name}.csv"
     echo  "branch,inotify_file_path,line_in_inotify_file,created file,actions_of_this_file,line_number_of_operations_index_in_yaml,Step_name(Line:step_name)" >> $result
