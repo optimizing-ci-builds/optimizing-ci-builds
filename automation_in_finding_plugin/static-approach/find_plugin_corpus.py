@@ -3,22 +3,24 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 import sys
 from sklearn.metrics.pairwise import cosine_similarity
 import numpy as np
+import json
+from nltk.tokenize import word_tokenize
+from nltk.stem import PorterStemmer
+from nltk.tokenize import regexp_tokenize
 
 pomFile=sys.argv[1]
 unnecessary_directory=sys.argv[2]
+stemmer = PorterStemmer()
 # Load the XML file
 tree = ET.parse(pomFile)
 
 # Get the root element of the XML file
 root = tree.getroot()
-print(root)
-#root = ET.fromstring(pomFile)
-# find the element with the given localname
 plugin_corpora_dict = {}
-#my_dict["key1"].append("value1")
-
+stop_word=["maven",""]
 # if the element is found, traverse its children and descendants
-plugin_count=0
+# 1. ***************Will look for effective pom, and then [[ DONE  ]] *********
+#2. output will be artifactId and groupId artifactId
 target_element = None
 for elem in root.iter():
     if elem.tag.endswith('}' + 'build'):
@@ -29,39 +31,57 @@ if target_element is not None:
         if child1.tag.endswith('}' + 'plugins'):
             for child2 in child1.iter():
                 if child2.tag.endswith('}' + 'plugin'):
+                    key=""
+                    level_count=0
                     corpora_list=[]
-                    plugin_count +=1
+                    #plugin_count +=1
                     for child3 in child2.iter():
-                        if child3.text.strip()!= "":
-                            #print("tag="+child3.tag +",text="+child3.text)
+                        #print('child3.tag='+child3.tag.split("}")[1])
+                        level_count +=1
+                        if level_count <= 2:
+                            if child3.tag.split("}")[1] == "artifactId" or child3.tag.split("}")[1] == "groupId":
+                                if key == "":
+                                     key=child3.text
+                                else:
+                                     key = key+"#"+child3.text
+                        if child3.text is not None and child3.text.strip()!= "":
+                            # tokenize the file contents
+                            #tokens = regexp_tokenize(child3.text, pattern='\w+[-]\w+|\w+')
+                            #tokens = word_tokenize(separated_by_hypen)
+                            #stemmed_tokens = [stemmer.stem(token) for token in tokens]
                             corpora_list.append(child3.text)               
-                    key="plugin"+str(plugin_count)
+                    #key="plugin"+str(plugin_count)
                     plugin_corpora_dict[key]=corpora_list
-                    #print("HI*****************") 
-print(plugin_count)
-
-for key, value in plugin_corpora_dict.items():
-    print(key, value)
+                    #print(corpora_list)
+plugin_corpora_dict["empty"]=[]
+#for key, value in plugin_corpora_dict.items():
+#    print(key, value)
 
 unnecessary_list_corpora=unnecessary_directory.split("/")
-print(unnecessary_list_corpora)
+
+# filter out non-string objects and convert to lowercase
+#unnecessary_list_corpora = [word.lower() for word in unnecessary_list_corpora if isinstance(word, str)]
+#plugin_corpora_dict = {key: [word.lower() for word in value if isinstance(word, str)] for key, value in plugin_corpora_dict.items()}
 
 ###SIMILARITY SCORE CALCULATE
 max_sim=0.0
+non_zero_matched_plugin_with_unused_dict={}
 plugin=""
 for key, value in plugin_corpora_dict.items():
-    print(value)
     vectorizer = TfidfVectorizer()
     vectorizer.fit(unnecessary_list_corpora + value)
     # Transform the lists into TF-IDF vectors
-    tfidf_list1 = vectorizer.transform(unnecessary_list_corpora)
-    tfidf_list2 = vectorizer.transform(value)
-    cosine_sim = cosine_similarity(tfidf_list1, tfidf_list2)
-    print(cosine_sim)
-    local_max_sim = np.max(cosine_sim)
-    if local_max_sim > max_sim:
-        max_sim=local_max_sim     
-        plugin=key
-        #print("similarity=")
-        #print(local_max_sim)
-print(plugin, str(max_sim))
+    #print(len(value))
+    if len(value) >=1 and len(unnecessary_list_corpora) :
+        tfidf_list1 = vectorizer.transform(unnecessary_list_corpora)
+        tfidf_list2 = vectorizer.transform(value)
+        cosine_sim = cosine_similarity(tfidf_list1, tfidf_list2)
+        #print(cosine_sim)
+        local_max_sim = np.max(cosine_sim)
+        if local_max_sim > 0.0:
+            non_zero_matched_plugin_with_unused_dict[key]=local_max_sim
+sorted_dict=dict(sorted(non_zero_matched_plugin_with_unused_dict.items(), key=lambda x:x[1],reverse=True))
+with open('Result.csv', 'a') as file:
+    #f.write(sorted_dir)
+    json.dump(sorted_dict, file)
+#print(sorted_dict)
