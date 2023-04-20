@@ -42,7 +42,7 @@ do
                 semicolon_found_indicates_file=$(echo  $unnecessary_dir | grep ";" | wc -l)
                 #echo "Should be greater than 1=$semicolon_found_indicates_file"
 
-                if [[ $semicolon_found_indicates_file -gt -1 ]]; then
+                if [[ $semicolon_found_indicates_file -eq 0 ]]; then
                     #echo "UNU $unnecessary_dir"
                     echo -n "../projects/$proj_name/effective-pom.xml,${unnecessary_dir}," >> "$currentDir/Result.csv"
                     python3 find_plugin_corpus.py "../projects/$proj_name/effective-pom.xml" ${unnecessary_dir}
