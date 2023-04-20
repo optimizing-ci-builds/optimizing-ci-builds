@@ -11,7 +11,7 @@ do
     if [ "$header" = false ]; then 
         proj_name=$(echo $line | cut -d',' -f1)
         workflow_file=$(echo $line | cut -d',' -f2)
-        unused_dirs=$(echo $line | cut -d',' -f4)
+        unused_dirs=$(echo $line | cut -d',' -f6)
         git clone "git@github.com:optimizing-ci-builds/$proj_name" "../projects/$proj_name"
         ###############FIND EFFECTIVE POM#################
         cd "../projects/$proj_name"
@@ -31,26 +31,28 @@ do
             echo $JAVA_HOME
         fi
         mvn org.apache.maven.plugins:maven-help-plugin:3.4.0:effective-pom -Doutput=effective-pom.xml
-        cd $currentDir
-        #Find each unused dir one by one
-        tildeCount=$(echo ${unused_dirs} | tr -cd '~' | wc -c)
-        echo ${unused_dirs} ${tildeCount}
-        for (( i=1; i<${tildeCount}; i++))
-        do
-            unnecessary_dir=$(echo "$unused_dirs" | cut -d'~' -f$i)
-            semicolon_found_indicates_file=$(echo  $unnecessary_dir | grep ";" | wc -l)
-            echo "Should be greater than 1=$semicolon_found_indicates_file"
+        if [[ -f effective-pom.xml ]]; then
+            cd $currentDir
+            #Find each unused dir one by one
+            tildeCount=$(echo ${unused_dirs} | tr -cd '~' | wc -c)
+            echo ${unused_dirs} ${tildeCount}
+            for (( i=1; i<=${tildeCount}; i++))
+            do
+                unnecessary_dir=$(echo "$unused_dirs" | cut -d'~' -f$i)
+                semicolon_found_indicates_file=$(echo  $unnecessary_dir | grep ";" | wc -l)
+                #echo "Should be greater than 1=$semicolon_found_indicates_file"
 
-            #if [[ $semicolon_found_indicates_file -gt -1 ]]; then
-                echo "UNU $unnecessary_dir"
-                python3 find_plugin_corpus.py "../projects/$proj_name/effective-pom.xml" ${unnecessary_dir}
-                echo -n "../projects/$proj_name/effective-pom.xml,${unnecessary_dir}" >> "$currentDir/Result.csv"
-                #echo "SHANTO*** ${unnecessary_dir}"
-                echo "" >> "$currentDir/Result.csv"
-                #exit
-            #fi
-        done
-        exit
+                if [[ $semicolon_found_indicates_file -gt -1 ]]; then
+                    #echo "UNU $unnecessary_dir"
+                    echo -n "../projects/$proj_name/effective-pom.xml,${unnecessary_dir}," >> "$currentDir/Result.csv"
+                    python3 find_plugin_corpus.py "../projects/$proj_name/effective-pom.xml" ${unnecessary_dir}
+                    #echo "SHANTO*** ${unnecessary_dir}"
+                    echo "" >> "$currentDir/Result.csv"
+                    #exit
+                fi
+            done
+        fi
+        #exit
     fi
     header=false
 done < $1
