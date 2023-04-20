@@ -13,7 +13,7 @@ if [[ ! -d "ccc/ci-analyzes" ]]; then
     git clone https://github.com/UT-SE-Research/ci-analyzes.git 
 fi
 
-echo "proj_name,workflow_path,java_version,unused_csv_file"  >> "$currentDir/clusters_info.csv"
+echo "proj_name,workflow_path,java_version,mvn_command,unused_csv_file"  >> "$currentDir/clusters_info.csv"
 
 while read line
 do 
@@ -33,6 +33,8 @@ do
     echo -n ",${workflow_path}" >> "$currentDir/clusters_info.csv"
     java_version=$(echo ${line}  | tr -d '\r' | cut -d',' -f17)
     echo -n ",${java_version}" >> "$currentDir/clusters_info.csv"
+    mvn_command=$(echo ${line}  | tr -d '\r' | cut -d',' -f18)
+    echo -n ",${mvn_command}" >> "$currentDir/clusters_info.csv"
 
     workflow_job_name=$(echo ${line} | cut -d',' -f10 | cut -d'/' -f11- | sed 's;\/;-;g') # example, Parsing(https://github.com/UT-SE-Research/ci-analyzes/tree/1680156014-f3221fe/soot/.github/workflows/ci/BuildAndTest)
     echo ",${proj_name}_${workflow_job_name}.csv" >> "$currentDir/clusters_info.csv"
