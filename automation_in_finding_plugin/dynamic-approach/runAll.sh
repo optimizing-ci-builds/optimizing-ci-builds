@@ -71,8 +71,11 @@ do
                     #check if the unused directory exists or not (find -name ..), if no directory found. we will report the plugin name
                     if [ -n "$(find "target" -name $last_level_dir)" ]; then 
                         echo "found"
+                        groupId_index=$((Start_range + 2))
+                        echo $groupId_index
                         groupId=$(sed -n "${groupId_index}{s/.*>\(.*\)<.*/\1/p;q;}" pom_org.xml)
-                        echo $groupId
+                        echo "$groupId"
+                        artifact_index=$((Start_range + 3))
                         artifactId=$(sed -n "${artifact_index}{s/.*>\(.*\)<.*/\1/p;q;}" pom_org.xml)
                         echo $artifactId
                         echo "$unused_csv_file,$workflow_file,$unnecessary_dir,$groupId#$artifactId" >> "$currentDir/Found-Dir.csv"
@@ -81,8 +84,8 @@ do
                         echo "not-found"
                         echo $Start_range
                         echo $end_range
-                        groupId_index=$((Start_range + 1))
-                        artifactId_index=$((Start_range + 1))
+                        groupId_index=$((Start_range + 2))
+                        artifact_index=$((Start_range + 3))
                         groupId=$(sed -n "${groupId_index}{s/.*>\(.*\)<.*/\1/p;q;}" pom_org.xml)
                         echo $groupId
                         artifactId=$(sed -n "${artifact_index}{s/.*>\(.*\)<.*/\1/p;q;}" pom_org.xml)
