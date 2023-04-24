@@ -13,6 +13,7 @@ do
         workflow_file=$(echo $line | cut -d',' -f2)
         java_version=$(echo $line | cut -d',' -f3)
         mvn_command=$(echo $line | cut -d',' -f4)
+        unused_csv_file=$(echo $line | cut -d',' -f5)
         unused_dirs=$(echo $line | cut -d',' -f6)
         git clone "git@github.com:optimizing-ci-builds/$proj_name" "../projects/$proj_name"
         ###############FIND EFFECTIVE POM#################
@@ -34,7 +35,7 @@ do
         fi
         pom_exists=$(find .  -maxdepth 1 -name "pom.xml" | wc -l) #This is needed if the project is not maven based
         if [[ $pom_exists -eq 0 ]]; then
-            echo "$proj_name,$java_version,$mvn_command,[NOT-MAVEN],${unnecessary_dir}" >> "$currentDir/Result.csv"
+            echo "$proj_name,$workflow_file,$java_version,$mvn_command,$unused_csv_file-[NOT-MAVEN],${unnecessary_dir}" >> "$currentDir/Result.csv"
             continue
         fi
         mvn org.apache.maven.plugins:maven-help-plugin:3.4.0:effective-pom -Doutput=effective-pom.xml
@@ -51,7 +52,7 @@ do
 
                 if [[ $semicolon_found_indicates_file -eq 0 ]]; then
                     #echo "UNU $unnecessary_dir"
-                    echo -n "$proj_name,$java_version,$mvn_command,../projects/$proj_name/effective-pom.xml,${unnecessary_dir}," >> "$currentDir/Result.csv"
+                    echo -n "$proj_name,$workflow_file,$java_version,$mvn_command,${unused_csv_file},${unnecessary_dir}," >> "$currentDir/Result.csv"
                     python3 find_plugin_corpus.py "../projects/$proj_name/effective-pom.xml" ${unnecessary_dir}
                     #echo "SHANTO*** ${unnecessary_dir}"
                     echo "" >> "$currentDir/Result.csv"
