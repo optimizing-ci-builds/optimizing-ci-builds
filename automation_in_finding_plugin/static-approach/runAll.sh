@@ -11,13 +11,15 @@ do
     if [ "$header" = false ]; then 
         proj_name=$(echo $line | cut -d',' -f1)
         workflow_file=$(echo $line | cut -d',' -f2)
+        java_version=$(echo $line | cut -d',' -f3)
+        mvn_command=$(echo $line | cut -d',' -f4)
         unused_dirs=$(echo $line | cut -d',' -f6)
         git clone "git@github.com:optimizing-ci-builds/$proj_name" "../projects/$proj_name"
         ###############FIND EFFECTIVE POM#################
         cd "../projects/$proj_name"
-        java_version=$(grep -i "java-version" $workflow_file  | head -1 | cut -d':' -f2 )
-        java_version="${java_version//\'/}"
-        echo $java_version
+        #java_version=$(grep -i "java-version" $workflow_file  | head -1 | cut -d':' -f2 )
+        #java_version="${java_version//\'/}"
+        #echo $java_version
 
         if [[ "$java_version" == *"17"* ]]; then
             echo "JAVA -17"
@@ -29,6 +31,11 @@ do
             export JAVA_HOME=/usr/lib/jvm/java-1.8.0-openjdk-amd64/
             echo "JAVA -8"
             echo $JAVA_HOME
+        fi
+        pom_exists=$(find .  -maxdepth 1 -name "pom.xml" | wc -l) #This is needed if the project is not maven based
+        if [[ $pom_exists -eq 0 ]]; then
+            echo "$proj_name,$java_version,$mvn_command,[NOT-MAVEN],${unnecessary_dir}" >> "$currentDir/Result.csv"
+            continue
         fi
         mvn org.apache.maven.plugins:maven-help-plugin:3.4.0:effective-pom -Doutput=effective-pom.xml
         if [[ -f effective-pom.xml ]]; then
@@ -44,7 +51,7 @@ do
 
                 if [[ $semicolon_found_indicates_file -eq 0 ]]; then
                     #echo "UNU $unnecessary_dir"
-                    echo -n "../projects/$proj_name/effective-pom.xml,${unnecessary_dir}," >> "$currentDir/Result.csv"
+                    echo -n "$proj_name,$java_version,$mvn_command,../projects/$proj_name/effective-pom.xml,${unnecessary_dir}," >> "$currentDir/Result.csv"
                     python3 find_plugin_corpus.py "../projects/$proj_name/effective-pom.xml" ${unnecessary_dir}
                     #echo "SHANTO*** ${unnecessary_dir}"
                     echo "" >> "$currentDir/Result.csv"
