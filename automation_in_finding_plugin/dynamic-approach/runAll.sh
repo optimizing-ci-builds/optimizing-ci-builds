@@ -13,6 +13,7 @@ do
         workflow_file=$(echo $line | cut -d',' -f2)
         java_version=$(echo $line | cut -d',' -f3)
         mvn_command=$(echo $line | cut -d',' -f4)
+        unused_csv_file=$(echo $line | cut -d',' -f5)
         unused_dirs=$(echo $line | cut -d',' -f6)
 
         git clone "git@github.com:optimizing-ci-builds/$proj_name" "../projects/$proj_name"
@@ -61,11 +62,20 @@ do
                     #now run the mvn command  
                     last_level_dir=$(echo $unnecessary_dir | rev | cut -d'/' -f2 | rev)
                     mvn clean
+                    mvn -version
+                    echo $JAVA_HOME
+                    echo ${mvn_command} 
                     ${mvn_command} > "log_${last_level_dir}_${plugin_start}.txt"
+
                     #echo $last_level_dir
                     #check if the unused directory exists or not (find -name ..), if no directory found. we will report the plugin name
-                    if [ -n "$(find "target/" -name $last_level_dir)" ]; then 
+                    if [ -n "$(find "target" -name $last_level_dir)" ]; then 
                         echo "found"
+                        groupId=$(sed -n "${groupId_index}{s/.*>\(.*\)<.*/\1/p;q;}" pom_org.xml)
+                        echo $groupId
+                        artifactId=$(sed -n "${artifact_index}{s/.*>\(.*\)<.*/\1/p;q;}" pom_org.xml)
+                        echo $artifactId
+                        echo "$unused_csv_file,$workflow_file,$unnecessary_dir,$groupId#$artifactId" >> "$currentDir/Found-Dir.csv"
                         cp "pom_org.xml" "pom.xml"
                     else
                         echo "not-found"
@@ -78,12 +88,13 @@ do
                         artifactId=$(sed -n "${artifact_index}{s/.*>\(.*\)<.*/\1/p;q;}" pom_org.xml)
                         echo $artifactId
                         #find the plugin name
-                        echo "$unnecessary_dir,$groupId#$artifactId" >> "$currentDir/Result.csv"
+                        echo "$unused_csv_file,$workflow_file,$unnecessary_dir,$groupId#$artifactId" >> "$currentDir/Result.csv"
                         cp "pom_org.xml" "pom.xml"
                         break
                     fi
+                    #exit
                 done
-                #exit
+                exit
             fi
         done
         #exit 
