@@ -38,12 +38,16 @@ if target_element is not None:
                     for child3 in child2.iter():
                         #print('child3.tag='+child3.tag.split("}")[1])
                         level_count +=1
-                        if level_count <= 2:
+                        if level_count <= 3:
+                            print(child3.tag)
                             if child3.tag.split("}")[1] == "artifactId" or child3.tag.split("}")[1] == "groupId":
                                 if key == "":
                                      key=child3.text
+                                     #print('ID when key is empty,key=',key)
                                 else:
                                      key = key+"#"+child3.text
+                                     #print('merging groupId and artifactId,key=',key)
+
                         if child3.text is not None and child3.text.strip()!= "":
                             # tokenize the file contents
                             #tokens = regexp_tokenize(child3.text, pattern='\w+[-]\w+|\w+')
@@ -79,7 +83,7 @@ for key, value in plugin_corpora_dict.items():
         #print(cosine_sim)
         local_max_sim = np.max(cosine_sim)
         if local_max_sim > 0.0:
-            non_zero_matched_plugin_with_unused_dict[key]=local_max_sim
+            non_zero_matched_plugin_with_unused_dict[key]=round(local_max_sim,3)
 sorted_dict=dict(sorted(non_zero_matched_plugin_with_unused_dict.items(), key=lambda x:x[1],reverse=True))
 with open('Result.csv', 'a') as file:
     #f.write(sorted_dir)
