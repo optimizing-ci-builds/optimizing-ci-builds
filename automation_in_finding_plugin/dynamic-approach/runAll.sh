@@ -59,7 +59,23 @@ do
         groupId=${varArray[0]}
         artifactId=${varArray[1]}
 
-        range_build_plugins_from_effective_pom=($(awk '/<build>/,/<\/build>/ {if(/<plugins>/) {start=NR}; if(/<\/plugins>/) {print start; print NR; exit}}' effective-pom.xml))
+        #range_build_plugins_from_effective_pom=($(awk '/<build>/,/<\/build>/ {if(/<plugins>/) {start=NR}; if(/<\/plugins>/) {print start; print NR; exit}}' effective-pom.xml))
+
+        range_build_plugins_from_effective_pom=($(awk '/<build>/,/<\/build>/ {
+    if(/<plugins>/) {
+        if(!pMgmt) {start=NR}
+    }
+    if(/<\/plugins>/) {
+        if(!pMgmt) {print start; print NR; exit}
+    }
+    if(/<pluginManagement>/) {
+        pMgmt=1
+    }
+    if(/<\/pluginManagement>/) {
+        pMgmt=0
+    }
+}' effective-pom.xml))
+
         Start_range="${range_build_plugins_from_effective_pom[0]}"
         end_range="${range_build_plugins_from_effective_pom[1]}"
         sed -n "$Start_range,${end_range}p" effective-pom.xml | awk -v adj=$Start_range '{printf("%-5d%s\n", NR-1+adj, $0)}' > tmp.xml
@@ -70,8 +86,6 @@ do
             continue
         fi
         
-        echo "HIIII$groupId_line"
-        echo "ARTIF = $artifactId"
         if [[ ! -z $artifactId ]]; then # because sometime artifactid might not exists
             artifactId_line=$(grep -n "$artifactId" "tmp.xml" | cut -d':' -f2 | cut -d' ' -f1)
             if [ $((groupId_line + 1)) -eq $artifactId_line ]; then
@@ -131,7 +145,21 @@ do
     if [ ${plugin_which_generates_unused_dir_found} -eq 0 ]; then # IF we do not find any plugin which generates the unnecessary dir from the above code 
         #1.2 IF we need to search for all plugins one by one
         # Collecting all plugins start and ending 
-        range_build_plugins=($(awk '/<build>/,/<\/build>/ {if(/<plugins>/) {start=NR}; if(/<\/plugins>/) {print start; print NR; exit}}' effective-pom.xml))
+        range_build_plugins=($(awk '/<build>/,/<\/build>/ {
+    if(/<plugins>/) {
+        if(!pMgmt) {start=NR}
+    }
+    if(/<\/plugins>/) {
+        if(!pMgmt) {print start; print NR; exit}
+    }
+    if(/<pluginManagement>/) {
+        pMgmt=1
+    }
+    if(/<\/pluginManagement>/) {
+        pMgmt=0
+    }
+}' effective-pom.xml)) #this one is ignoring the plugins if it belongs to pluginManagement
+
         Start_range="${range_build_plugins[0]}"
         end_range="${range_build_plugins[1]}"
         sed -n "$Start_range,${end_range}p" effective-pom.xml | awk -v adj=$Start_range '{printf("%-5d%s\n", NR-1+adj, $0)}' > tmp.xml
