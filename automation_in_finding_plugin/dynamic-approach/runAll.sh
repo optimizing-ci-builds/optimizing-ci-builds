@@ -138,11 +138,15 @@ do
         ${mvn_command} --file effective-pom.xml > "$currentDir/$logs/log_${last_level_dir}_${ss_plugin_line}.txt"
         #echo $last_level_dir
         #check if the unused directory exists or not (find -name ..), if no directory found. we will report the plugin name
-        if [ "$(find "target" -name $last_level_dir | wc -l)" -gt 0 ]; then # directory found
+        compile_err=$(grep -ir "COMPILATION ERROR"  "$currentDir/$logs/log_${last_level_dir}_${ss_plugin_line}.txt" | wc -l)
+        if [ $compile_err -gt 0 ]; then
+           continue 
+        elif [ "$(find "target" -name $last_level_dir | wc -l)" -gt 0 ]; then # directory found
             echo "Still-exists"
             echo "FROM STATIC=>$unused_dir,$unused_csv_file,$workflow_file,$unused_dir,$groupId#$artifactId" >> "$currentDir/Found-Dir.csv"
             cp "effective-pom_org.xml" "effective-pom.xml"
         else
+            echo "not found from"
             echo "FROM STATIC=>$unused_dir,$unused_csv_file,$workflow_file,$unused_dir,$groupId#$artifactId" >> "$currentDir/Result.csv"
             cp "effective-pom_org.xml" "effective-pom.xml"
             plugin_which_generates_unused_dir_found=1
@@ -204,7 +208,10 @@ do
             echo ${mvn_command} 
             ${mvn_command} --file effective-pom.xml > "$currentDir/$logs/log_${last_level_dir}_${plugin_start}.txt"
 
-            if [ -n "$(find "target" -name $last_level_dir)" ]; then 
+            compile_err=$(grep -ir "COMPILATION ERROR"  "$currentDir/$logs/log_${last_level_dir}_${ss_plugin_line}.txt" | wc -l)
+            if [ $compile_err -gt 0 ]; then
+               continue 
+            elif [ -n "$(find "target" -name $last_level_dir)" ]; then 
                 echo "Still found"
                 echo "$unused_dir,$unused_csv_file,$workflow_file,$unused_dir,$groupId#$artifactId" >> "$currentDir/Found-Dir.csv"
                 cp "effective-pom_org.xml" "effective-pom.xml"
@@ -219,6 +226,6 @@ do
             fi
         done
     fi
-    exit
+    #exit
 done < $1
 
