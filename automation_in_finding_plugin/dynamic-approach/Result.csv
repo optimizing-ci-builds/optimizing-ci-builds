@@ -1,0 +1,19 @@
+FROM STATIC=>target/site/,Algorithms_check-build.csv,.github/workflows/check.yml,target/site/,maven-site-plugin#
+FROM STATIC=>target/test-classes/,github-api_codeql-analysis-analyze_language_java.csv,.github/workflows/codeql-analysis.yml,target/test-classes/,org.codehaus.mojo#animal-sniffer-maven-plugin
+FROM STATIC=>target/cache/,github-api_maven-build-test8_os_ubuntu_java_8.csv,.github/workflows/maven-build.yml,target/cache/,maven-site-plugin#
+FROM STATIC=>target/site/,github-api_maven-build-site_java_11.csv,.github/workflows/maven-build.yml,target/site/,maven-site-plugin#
+FROM STATIC=>target/cache/,github-api_maven-build-test_os_ubuntu_java_11.csv,.github/workflows/maven-build.yml,target/cache/,maven-site-plugin#
+FROM STATIC=>target/japicmp/,github-api_maven-build-test_os_ubuntu_java_11.csv,.github/workflows/maven-build.yml,target/japicmp/,com.github.siom79.japicmp#japicmp-maven-plugin
+FROM STATIC=>target/site/,github-api_maven-build-test_os_ubuntu_java_11.csv,.github/workflows/maven-build.yml,target/site/,maven-site-plugin#
+target/site/,spring-framework-petclinic_maven-build-build.csv,.github/workflows/maven-build.yml,target/site/,maven-compiler-plugin#3.8.1
+FROM STATIC=>target/.wro4j/,spring-framework-petclinic_maven-build-build.csv,.github/workflows/maven-build.yml,target/.wro4j/,ro.isdc.wro4j#wro4j-maven-plugin
+target/site/,spring-petclinic-rest_maven-build-build.csv,.github/workflows/maven-build.yml,target/site/,org.springframework.boot#spring-boot-maven-plugin
+FROM STATIC=>target/test-classes/,pipelines-java_codeql-analysis-analyze_language_java.csv,.github/workflows/codeql-analysis.yml,target/test-classes/,org.jacoco#jacoco-maven-plugin
+FROM STATIC=>target/jacoco-ut/,mooc-software-testing_maven-build.csv,.github/workflows/maven.yml,target/jacoco-ut/,org.jacoco#jacoco-maven-plugin
+FROM STATIC=>target/site/,mooc-software-testing_maven-build.csv,.github/workflows/maven.yml,target/site/,maven-site-plugin#
+target/site/,JSqlParser_maven-build_java_8.csv,.github/workflows/maven.yml,target/site/,org.codehaus.mojo#exec-maven-plugin
+target/site/,JSqlParser_maven-build_java_11.csv,.github/workflows/maven.yml,target/site/,org.codehaus.mojo#exec-maven-plugin
+FROM STATIC=>target/cache/,github-api_maven-build-test_os_ubuntu_java_17.csv,.github/workflows/maven-build.yml,target/cache/,maven-site-plugin#
+FROM STATIC=>target/japicmp/,github-api_maven-build-test_os_ubuntu_java_17.csv,.github/workflows/maven-build.yml,target/japicmp/,com.github.siom79.japicmp#japicmp-maven-plugin
+FROM STATIC=>target/site/,github-api_maven-build-test_os_ubuntu_java_17.csv,.github/workflows/maven-build.yml,target/site/,maven-site-plugin#
+FROM STATIC=>target/docker-ready/,kafdrop_pull_request-build.csv,.github/workflows/pull_request.yml,target/docker-ready/,maven-resources-plugin#
