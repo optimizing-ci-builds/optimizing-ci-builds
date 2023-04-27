@@ -25,10 +25,10 @@ do
     plugins=($(echo $line | sed -e 's/.*{\(.*\)}.*/\1/' | tr -d ' ' | tr ',' '\n' |  sed -e 's/"\([^"]*\)":/\1=/g' | cut -d'=' -f1)) # all the plugins that are found by static approach
     echo ${plugins[@]}
     if [[ "$unused_dir" == "target/surefire-reports/" ]]; then
-        echo "Not-Running-Dynamic=>$unused_csv_file,$workflow_file,$unused_dir,-DdisableXmlReport=true" >> "$currentDir/Result.csv"
+        #echo "Not-Running-Dynamic=>$unused_csv_file,$workflow_file,$unused_dir,-DdisableXmlReport=true" >> "$currentDir/Result.csv"
         continue
     elif [[ "$unused_dir" == "target/maven-status/" ]]; then
-        echo "Not-Running-Dynamic=>$unused_csv_file,$workflow_file,$unused_dir,from-some-compiler-plugin" >> "$currentDir/Result.csv"
+        #echo "Not-Running-Dynamic=>$unused_csv_file,$workflow_file,$unused_dir,from-some-compiler-plugin" >> "$currentDir/Result.csv"
         continue
     fi
 
@@ -55,27 +55,49 @@ do
     for plugin in ${plugins[@]}; do 
         #1. split the plugin with # and get  groupid and artifactid
         IFS="#" read -ra varArray <<< "$plugin"
-        echo ${varArray[0]}
+        #echo ${varArray[0]}
         groupId=${varArray[0]}
         artifactId=${varArray[1]}
+
+        range_build_plugins_from_effective_pom=($(awk '/<build>/,/<\/build>/ {if(/<plugins>/) {start=NR}; if(/<\/plugins>/) {print start; print NR; exit}}' effective-pom.xml))
+        Start_range="${range_build_plugins_from_effective_pom[0]}"
+        end_range="${range_build_plugins_from_effective_pom[1]}"
+        sed -n "$Start_range,${end_range}p" effective-pom.xml | awk -v adj=$Start_range '{printf("%-5d%s\n", NR-1+adj, $0)}' > tmp.xml
+
         ## Now we need to know the plugin line number that we want to disable. ss_plugin_line will store the line number of the plugin of the given groupId and artifactId
-        groupId_line=$(grep -n "$groupId" "effective-pom.xml" | cut -d':' -f1) #assuming that groupId comes first. even if it does not come, that will not be a problem because we are using variable to store the name
+        groupId_line=$(grep -n "$groupId" "tmp.xml" | cut -d':' -f2 | cut -d' ' -f1 ) #assuming that groupId comes first. even if it does not come, that will not be a problem because we are using variable to store the name. Here I am taking the first matched groupId. I can work here to comment other matched locations.
+        if [[ -z $groupId_line ]];then 
+            continue
+        fi
+        
+        echo "HIIII$groupId_line"
+        echo "ARTIF = $artifactId"
         if [[ ! -z $artifactId ]]; then # because sometime artifactid might not exists
-            artifactId_line=$(grep -n "$artifactId" "effective-pom.xml" | cut -d':' -f1)
-            if [ $groupId_line < $artifactId_line ]; then
+            artifactId_line=$(grep -n "$artifactId" "tmp.xml" | cut -d':' -f2 | cut -d' ' -f1)
+            if [ $((groupId_line + 1)) -eq $artifactId_line ]; then
                 ss_plugin_line=$((groupId_line - 1))
-            elif [ $groupId_line > $artifactId_line ]; then
+            elif [ $((groupId_line -1)) -eq $artifactId_line ]; then #indicates theese groupId and artifactId comes one by another
                 ss_plugin_line=$((artifactId_line - 1))
             fi
         else
-            echo $groupId_line
+            echo "HI $groupId_line ************"
             ss_plugin_line=$((groupId_line - 1)) 
         fi
         
-
+        #echo "gropLine=$groupId_line" 
+        #plugin_start_line=$((groupId_line -1)) #plugin's starting line  
+        #echo $plugin_start_line
+        plugin_relative_end=$(sed -n "$ss_plugin_line,\$p" effective-pom.xml | grep -n "</plugin>" | head -1 | cut -d':' -f1)
+        echo "rel=$plugin_relative_end"
+        plugin_absolute_end="$((plugin_relative_end + ss_plugin_line))"
+        echo "plugin's start and end locations="
+        echo $ss_plugin_line
+        echo "abs=$plugin_absolute_end"
         how_far_plugin_end_from_this_given_line=$(sed -n "$ss_plugin_line,\$p" effective-pom.xml | grep -n "</plugin>" | head -1 | cut -d':' -f1)
+        echo "END="$how_far_plugin_end_from_this_given_line
         plugin_end=$((how_far_plugin_end_from_this_given_line + ss_plugin_line -1))
-        se="${ss_plugin_line}#${plugin_end}"
+        se="${ss_plugin_line}#${plugin_absolute_end}"
+        echo $se
         already_run_plugin+=("$se")
         sed -i "${ss_plugin_line},${plugin_end} {
         /^\s*<!--/b   # skip lines that are already commented
@@ -85,15 +107,15 @@ do
         echo "start=$ss_plugin_line, end=$plugin_end, $workflow_file, $java_version"
         #now run the mvn command  
         last_level_dir=$(echo $unused_dir | rev | cut -d'/' -f2 | rev)
+
         mvn clean
         mvn -version 
         echo $JAVA_HOME
         echo ${mvn_command} 
         ${mvn_command} --file effective-pom.xml > "$currentDir/$logs/log_${last_level_dir}_${ss_plugin_line}.txt"
-
         #echo $last_level_dir
         #check if the unused directory exists or not (find -name ..), if no directory found. we will report the plugin name
-        if [ -n "$(find "target" -name $last_level_dir)" ]; then 
+        if [ "$(find "target" -name $last_level_dir | wc -l)" -gt 0 ]; then # directory found
             echo "Still-exists"
             echo "FROM STATIC=>$unused_csv_file,$workflow_file,$unused_dir,$groupId#$artifactId" >> "$currentDir/Found-Dir.csv"
             cp "effective-pom_org.xml" "effective-pom.xml"
@@ -103,6 +125,7 @@ do
             plugin_which_generates_unused_dir_found=1
             break
         fi
+        exit 
     done
 
     if [ ${plugin_which_generates_unused_dir_found} -eq 0 ]; then # IF we do not find any plugin which generates the unnecessary dir from the above code 
