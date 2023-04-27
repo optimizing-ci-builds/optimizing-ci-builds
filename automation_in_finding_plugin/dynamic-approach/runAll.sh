@@ -81,23 +81,32 @@ do
         sed -n "$Start_range,${end_range}p" effective-pom.xml | awk -v adj=$Start_range '{printf("%-5d%s\n", NR-1+adj, $0)}' > tmp.xml
 
         ## Now we need to know the plugin line number that we want to disable. ss_plugin_line will store the line number of the plugin of the given groupId and artifactId
-        groupId_line=$(grep -n "$groupId" "tmp.xml" | cut -d':' -f2 | cut -d' ' -f1 ) #assuming that groupId comes first. even if it does not come, that will not be a problem because we are using variable to store the name. Here I am taking the first matched groupId. I can work here to comment other matched locations.
-        if [[ -z $groupId_line ]];then 
-            continue
-        fi
-        
-        if [[ ! -z $artifactId ]]; then # because sometime artifactid might not exists
-            artifactId_line=$(grep -n "$artifactId" "tmp.xml" | cut -d':' -f2 | cut -d' ' -f1)
-            if [ $((groupId_line + 1)) -eq $artifactId_line ]; then
-                ss_plugin_line=$((groupId_line - 1))
-            elif [ $((groupId_line -1)) -eq $artifactId_line ]; then #indicates theese groupId and artifactId comes one by another
-                ss_plugin_line=$((artifactId_line - 1))
+        groupId_line_arr=($(grep -n ">$groupId</" "tmp.xml" | cut -d':' -f2 | cut -d' ' -f1 )) #assuming that groupId comes first. even if it does not come, that will not be a problem because we are using variable to store the name. Here I am taking the first matched groupId. I can work here to comment other matched locations. Sometimes we may get a grpId more that 1 time
+        echo $groupId_line
+        for groupId_line in ${groupId_line_arr[@]}; do 
+            if [[ -z $groupId_line ]];then 
+                continue
             fi
-        else
-            echo "HI $groupId_line ************"
-            ss_plugin_line=$((groupId_line - 1)) 
-        fi
+            
+            if [[ ! -z $artifactId ]]; then # because sometime artifactid might not exists
+                artifactId_line=$(grep -n ">$artifactId</" "tmp.xml" | cut -d':' -f2 | cut -d' ' -f1)
+                gg=$((groupId_line + 1))
+                if [[ $gg -eq $artifactId_line ]]; then
+                    ss_plugin_line=$((groupId_line - 1))
+                    break
+                elif [[ $gg -eq $artifactId_line ]]; then #indicates theese groupId and artifactId comes one by another
+                    ss_plugin_line=$((artifactId_line - 1))
+                    break
+                else
+                    continue # This means that artifactId doesn't match
+                fi
+            else
+                echo "HI $groupId_line ************"
+                ss_plugin_line=$((groupId_line - 1)) 
+                break
+            fi
         
+        done
         #echo "gropLine=$groupId_line" 
         #plugin_start_line=$((groupId_line -1)) #plugin's starting line  
         #echo $plugin_start_line
@@ -131,15 +140,15 @@ do
         #check if the unused directory exists or not (find -name ..), if no directory found. we will report the plugin name
         if [ "$(find "target" -name $last_level_dir | wc -l)" -gt 0 ]; then # directory found
             echo "Still-exists"
-            echo "FROM STATIC=>$unused_csv_file,$workflow_file,$unused_dir,$groupId#$artifactId" >> "$currentDir/Found-Dir.csv"
+            echo "FROM STATIC=>$unused_dir,$unused_csv_file,$workflow_file,$unused_dir,$groupId#$artifactId" >> "$currentDir/Found-Dir.csv"
             cp "effective-pom_org.xml" "effective-pom.xml"
         else
-            echo "FROM STATIC=>$unused_csv_file,$workflow_file,$unused_dir,$groupId#$artifactId" >> "$currentDir/Result.csv"
+            echo "FROM STATIC=>$unused_dir,$unused_csv_file,$workflow_file,$unused_dir,$groupId#$artifactId" >> "$currentDir/Result.csv"
             cp "effective-pom_org.xml" "effective-pom.xml"
             plugin_which_generates_unused_dir_found=1
             break
         fi
-        exit 
+        #exit 
     done
 
     if [ ${plugin_which_generates_unused_dir_found} -eq 0 ]; then # IF we do not find any plugin which generates the unnecessary dir from the above code 
@@ -197,14 +206,14 @@ do
 
             if [ -n "$(find "target" -name $last_level_dir)" ]; then 
                 echo "Still found"
-                echo "$unused_csv_file,$workflow_file,$unused_dir,$groupId#$artifactId" >> "$currentDir/Found-Dir.csv"
+                echo "$unused_dir,$unused_csv_file,$workflow_file,$unused_dir,$groupId#$artifactId" >> "$currentDir/Found-Dir.csv"
                 cp "effective-pom_org.xml" "effective-pom.xml"
             else
                 echo "not-found"
                 echo $Start_range
                 echo $end_range
                 #find the plugin name
-                echo "$unused_csv_file,$workflow_file,$unused_dir,$groupId#$artifactId" >> "$currentDir/Result.csv"
+                echo "$unused_dir,$unused_csv_file,$workflow_file,$unused_dir,$groupId#$artifactId" >> "$currentDir/Result.csv"
                 cp "effective-pom_org.xml" "effective-pom.xml"
                 break
             fi
