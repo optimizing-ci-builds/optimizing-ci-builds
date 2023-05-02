@@ -4,7 +4,7 @@ if [[ $1 == "" ]]; then
     exit
 fi
 
-echo  "Job-ID,job_name,#unnecessary_files_without_maven(can ignore .git), #unnecessary_files_with_maven,#useful_file_with_maven" > "Paper-Table-1.csv"
+echo  "job_name,#unnecessary_files_without_maven(can ignore .git), #unnecessary_files_with_maven,#useful_file_with_maven" > "Paper-Table-1.csv"
 
 while read line
 do
