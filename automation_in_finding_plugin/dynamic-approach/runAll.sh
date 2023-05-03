@@ -165,7 +165,7 @@ do
                 if [ "$(find "target" -name $search_for_dir_or_file | wc -l)" -eq 0 ]; then # directory/file search not found
                     main_unused_dir=$(echo ${unused_dir} | rev | cut -d'/' -f2 | rev)
                     echo "main unused dir=$main_unused_dir"
-                    echo -n "$uf" >> "$currentDir/RQ2-PR-Category/${unused_proj_job}_removed_rank_${plugin_rank}_used#when_searching_for_${main_unused_dir}.txt"
+                    echo "$uf" >> "$currentDir/RQ2-PR-Category/${unused_proj_job}_removed_rank_${plugin_rank}_used#when_searching_for_${main_unused_dir}.txt"
                 fi
             done
             
@@ -259,7 +259,7 @@ do
                     if [ "$(find "target" -name $search_for_dir_or_file | wc -l)" -eq 0 ]; then # directory/file search not found
                         main_unused_dir=$(echo ${unused_dir} | rev | cut -d'/' -f2 | rev)
                         echo "main unused dir=$main_unused_dir"
-                        echo -n "$uf" >> "$currentDir/RQ2-PR-Category/${unused_proj_job}_removed_rank_100000_used#when_searching_for_${main_unused_dir}.txt" #rank 100000 means this plugin is not suggested by static analysis
+                        echo "$uf" >> "$currentDir/RQ2-PR-Category/${unused_proj_job}_removed_rank_100000_used#when_searching_for_${main_unused_dir}.txt" #rank 100000 means this plugin is not suggested by static analysis
                     fi
                 done
             elif [ -n "$(find "target" -name $last_level_dir)" ]; then 
